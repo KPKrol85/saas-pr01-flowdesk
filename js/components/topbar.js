@@ -8,7 +8,7 @@ export const renderTopbar = () => {
     <header class="topbar">
       <div class="topbar__inner">
         <div class="topbar__left">
-          <button class="btn btn--icon" id="drawerToggle" aria-label="Otwórz menu" aria-expanded="false">${icon('menu')}</button>
+          <button class="btn btn--icon topbar__drawer-toggle" id="drawerToggle" aria-label="Otwórz menu" aria-controls="mobileNavigationDrawer" aria-haspopup="dialog" aria-expanded="false">${icon('menu')}</button>
         </div>
         <div class="search" role="search">
           <label class="visually-hidden" for="searchInput">Szukaj</label>

@@ -43,6 +43,13 @@
   justify-content: space-between;
   padding: var(--space-16) var(--space-20);
   gap: var(--space-16);
+  min-width: 0;
+}
+
+.topbar__left {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
 }
 
 .sidebar {
@@ -102,12 +109,27 @@
     grid-template-columns: 240px 1fr;
   }
 
+  .app__content {
+    min-width: 0;
+  }
+
   .sidebar {
     display: block;
   }
 
+  .topbar .topbar__drawer-toggle {
+    display: none;
+  }
+
   .main {
     padding: var(--space-32);
+  }
+}
+
+@media (max-width: 30rem) {
+  .topbar__inner {
+    gap: var(--space-8);
+    padding: var(--space-12);
   }
 }
 

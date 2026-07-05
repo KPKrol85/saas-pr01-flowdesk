@@ -83,6 +83,8 @@ Create a prioritized, view-by-view UI issue list before changing layout or visua
 
 ## 2. Mobile Navigation, Hamburger, And Responsive Shell
 
+**Status:** Done — fixed mobile navigation state synchronization, drawer close behavior, focus return, visible close control, desktop hamburger visibility, and responsive shell safeguards.
+
 ### Goal
 
 Make the mobile shell feel stable, predictable, and product-grade across the topbar, sidebar, and hamburger navigation.

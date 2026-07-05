@@ -1,7 +1,7 @@
 import { router } from './core/router.js';
 import { renderSidebar, renderNavList } from './components/sidebar.js';
 import { renderTopbar } from './components/topbar.js';
-import { createDrawer } from './components/drawer.js';
+import { bindDrawerToggle, createDrawer } from './components/drawer.js';
 import { auth } from './core/auth.js';
 import { selectGlobalSearchResults, selectUiPreferences } from './core/selectors.js';
 import { store } from './core/store.js';
@@ -109,12 +109,7 @@ const renderShell = (activePath, view, params = {}) => {
 
   const drawer = createDrawer({ content: renderNavList(activePath) });
   const toggleBtn = qs('#drawerToggle', app);
-  toggleBtn?.addEventListener('click', () => {
-    const isOpen = drawer.drawer.classList.contains('drawer--open');
-    drawer.drawer.classList.toggle('drawer--open');
-    document.body.classList.toggle('scroll-lock', !isOpen);
-    toggleBtn.setAttribute('aria-expanded', String(!isOpen));
-  });
+  if (toggleBtn) bindDrawerToggle({ button: toggleBtn, drawer });
 
   const viewContainer = qs('#view', app);
   view(viewContainer, params);

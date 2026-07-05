@@ -8,6 +8,17 @@ test('login view has no axe violations', async ({ page }) => {
   await expectNoA11yViolations(page);
 });
 
+test('mobile navigation drawer has no axe violations when open', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await resetBrowserState(page);
+  await loginDemoUser(page);
+
+  await page.locator('#drawerToggle').click();
+  await page.getByRole('dialog', { name: 'Menu główne' }).waitFor();
+
+  await expectNoA11yViolations(page);
+});
+
 const protectedViews = [
   { name: 'dashboard', heading: 'Dashboard', open: async () => {} },
   { name: 'clients', heading: 'Klienci', open: async (page) => page.getByRole('link', { name: /Klienci/ }).click() },
