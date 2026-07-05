@@ -172,6 +172,8 @@ Unify spacing across FlowDesk without rebuilding the layout or changing view str
 
 ## 4. Subtle Glass Effect And Visual Surface Polish
 
+**Status:** Done — added restrained surface depth and glass polish across shell, cards, panels, modal, and drawer surfaces while preserving readability and performance.
+
 ### Goal
 
 Add controlled depth and surface quality without turning FlowDesk into a visual redesign.

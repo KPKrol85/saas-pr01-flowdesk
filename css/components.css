@@ -27,6 +27,7 @@
   background: var(--bg-elev);
   border: 1px solid var(--border);
   color: var(--text);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn--ghost {
@@ -203,6 +204,8 @@
   position: fixed;
   inset: 0;
   background: rgba(10, 12, 20, 0.45);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
   display: grid;
   place-items: center;
   z-index: var(--z-modal);
@@ -211,6 +214,7 @@
 
 .modal {
   background: var(--bg-elev);
+  border: 1px solid var(--border);
   border-radius: var(--radius-16);
   padding: var(--space-24);
   max-height: calc(100vh - var(--space-40));
@@ -262,6 +266,8 @@
 .drawer__overlay {
   grid-area: 1 / 1;
   background: rgba(10, 12, 20, 0.4);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
 }
 
 .drawer__panel {
@@ -272,6 +278,7 @@
   max-height: 100vh;
   overflow-y: auto;
   background: var(--bg-elev);
+  border-right: 1px solid var(--border);
   padding: var(--space-24) var(--space-16);
   box-shadow: var(--shadow-lg);
 }

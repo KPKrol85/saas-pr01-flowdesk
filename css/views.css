@@ -115,6 +115,7 @@
   border: 1px solid var(--border);
   background: var(--bg-elev);
   padding: var(--space-20);
+  box-shadow: var(--shadow-sm);
 }
 
 .side-panel > h2,
@@ -142,6 +143,7 @@
   border-radius: var(--radius-16);
   padding: var(--space-16);
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
 .kanban__title {
