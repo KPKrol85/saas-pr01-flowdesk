@@ -52,13 +52,28 @@
   display: none;
 }
 
-.sidebar__logo {
-  font-size: var(--fs-20);
-  font-weight: 700;
+.sidebar__brand {
   display: flex;
   align-items: center;
   gap: var(--space-8);
   margin-bottom: var(--space-24);
+  color: var(--text);
+  font-size: var(--fs-16);
+  font-weight: var(--fw-semibold);
+  line-height: 1;
+  text-decoration: none;
+  padding: 0 var(--space-12);
+}
+
+.sidebar__brand-logo {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  display: block;
+}
+
+.sidebar__brand-name {
+  letter-spacing: -0.02em;
 }
 
 .sidebar__nav {
