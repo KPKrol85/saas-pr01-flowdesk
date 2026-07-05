@@ -59,7 +59,7 @@ Obecny zakres funkcjonalny obejmuje:
 
 **Definition of Done:** Pull request nie może zostać uznany za gotowy, jeśli lint, format, testy lub build nie przechodzą lokalnie i w CI.
 
-**Status:** Ukończono pierwszy etap quality toolchainu. Projekt ma teraz `package-lock.json`, konfigurację ESLint, Prettier i Stylelint, skrypty `lint`, `format`, `test`, `build` i `check` oraz workflow GitHub Actions uruchamiający `npm ci`, lint, test i build dla katalogu `pr-01-flowdesk`.
+**Status:** Ukończono pierwszy etap quality toolchainu. Projekt ma teraz `package-lock.json`, konfigurację ESLint, Prettier i Stylelint, skrypty `lint`, `format`, `test`, `build` i `check` oraz workflow GitHub Actions uruchamiający `npm ci`, lint, test i build dla katalogu `C:\Users\KPKro\MY FILES\repos\saas-pr01-flowdesk`.
 
 ### 2. Testy jednostkowe, integracyjne i e2e - ukończone
 

@@ -6,7 +6,7 @@
 **Project type:** SaaS-style frontend demo
 **Category:** Service Management Dashboard
 **Repository / local path:**
-`C:\Users\KPKro\MY FILES\repos\kp-code-playground\pr-01-flowdesk`
+`C:\Users\KPKro\MY FILES\repos\saas-pr01-flowdesk`
 
 FlowDesk is a frontend-only SPA demo designed as a professional portfolio project in the KP_Code ecosystem. The project represents a Service Management Dashboard for small service businesses that need a clean, modern way to manage clients, jobs/orders, calendar events, dashboard metrics, and basic application settings.
 
