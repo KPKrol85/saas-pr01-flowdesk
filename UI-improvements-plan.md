@@ -38,6 +38,8 @@ Prioritize correctness and responsive stability before premium visual polish:
 
 ## 1. UI Audit By View
 
+**Status:** Done — completed the code-backed view-by-view UI audit and documented prioritized findings in `UI-audit.md`. Browser viewport limitations are documented in the audit notes.
+
 ### Goal
 
 Create a prioritized, view-by-view UI issue list before changing layout or visual styling.
