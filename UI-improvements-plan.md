@@ -255,6 +255,8 @@ Improve scanability so users can quickly identify the most important information
 
 ## 6. Dashboard Polish
 
+**Status:** Done — polished dashboard KPI alignment, card rhythm, responsive stacking, activity/event readability, priority indicators, overdue badges, quick-action rows, and empty states while preserving existing data and behavior.
+
 ### Goal
 
 Make the dashboard feel like a real SaaS operations overview and the strongest first impression in FlowDesk.
