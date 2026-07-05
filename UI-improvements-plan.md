@@ -212,6 +212,8 @@ Add controlled depth and surface quality without turning FlowDesk into a visual 
 
 ## 5. Typography, Hierarchy, And Data Readability
 
+**Status:** Done — improved typography hierarchy, KPI emphasis, metadata readability, muted text scanability, and badge status clarity across core FlowDesk views.
+
 ### Goal
 
 Improve scanability so users can quickly identify the most important information on every screen.

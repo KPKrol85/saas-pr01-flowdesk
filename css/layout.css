@@ -86,7 +86,7 @@
 }
 
 .sidebar__brand-name {
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 
 .sidebar__nav {
@@ -102,12 +102,14 @@
   align-items: center;
   gap: var(--space-10);
   font-size: var(--fs-14);
+  font-weight: var(--fw-medium);
+  line-height: 1.35;
 }
 
 .sidebar__link--active {
   background: rgba(107, 124, 255, 0.12);
   color: var(--text);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 
 @media (min-width: 64rem) {
