@@ -46,26 +46,28 @@ export const renderCalendarView = (container) => {
       <main id="main" class="container">
         ${pageHeader({ title: 'Kalendarz', description: 'Prosty widok nadchodzących wydarzeń powiązanych ze zleceniami.' })}
 
-        <section class="card">
-          ${button({ label: 'Dodaj wydarzenie', id: 'addEvent', variant: 'primary', iconName: 'plus' })}
+        <section class="card data-toolbar data-toolbar--single calendar-toolbar">
+          ${button({ label: 'Dodaj wydarzenie', id: 'addEvent', variant: 'primary', iconName: 'plus', className: 'data-toolbar__action' })}
         </section>
 
-        <section class="card">
+        <section class="card data-panel calendar-panel">
           <h2 class="card__title">Nadchodzące wydarzenia</h2>
-          <div class="calendar-list">
+          <div class="calendar-list data-list">
             ${
               events.length
                 ? events
                     .map((event) => {
                       return `
-                      <div class="list__item">
-                        <div>
+                      <div class="list__item data-list__item calendar-list__item">
+                        <div class="data-list__main">
                           <strong>${escapeHTML(event.title)}</strong>
-                          <div class="input__helper">${escapeHTML(formatDate(event.date))} · ${escapeHTML(event.client?.name || 'Brak klienta')}</div>
+                          <div class="input__helper data-list__meta">${escapeHTML(formatDate(event.date))} · ${escapeHTML(event.client?.name || 'Brak klienta')}</div>
                         </div>
-                        <div>
+                        <div class="data-list__side">
                           <span class="badge badge--info">${escapeHTML(event.project?.name || 'Bez projektu')}</span>
-                          ${button({ label: 'Usuń', variant: 'ghost', iconName: 'delete', attributes: { 'data-action': 'delete', 'data-id': event.id } })}
+                          <div class="data-actions">
+                            ${button({ label: 'Usuń', variant: 'ghost', iconName: 'delete', attributes: { 'data-action': 'delete', 'data-id': event.id } })}
+                          </div>
                         </div>
                       </div>
                     `;

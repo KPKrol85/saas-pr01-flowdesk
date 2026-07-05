@@ -16,10 +16,10 @@ const renderContactList = (contacts = []) =>
     ? contacts
         .map(
           (contact) => `
-            <div class="list__item">
-              <div>
+            <div class="list__item data-list__item">
+              <div class="data-list__main">
                 <strong>${escapeHTML(contact.name || 'Kontakt')}</strong>
-                <div class="input__helper">${escapeHTML(contact.role)} · ${escapeHTML(contact.email || 'bez emaila')} · ${escapeHTML(contact.phone || 'bez telefonu')}</div>
+                <div class="input__helper data-list__meta">${escapeHTML(contact.role)} · ${escapeHTML(contact.email || 'bez emaila')} · ${escapeHTML(contact.phone || 'bez telefonu')}</div>
               </div>
             </div>
           `
@@ -46,12 +46,14 @@ const renderProjectLinks = (projects = []) =>
     ? projects
         .map(
           (project) => `
-            <a class="list__item" href="#/projects/${encodeURIComponent(project.id)}">
-              <div>
+            <a class="list__item data-list__item data-list__item--link ${project.archivedAt ? 'data-list__item--archived' : ''}" href="#/projects/${encodeURIComponent(project.id)}">
+              <div class="data-list__main">
                 <strong>${escapeHTML(project.name)}</strong>
-                <div class="input__helper">${escapeHTML(project.status)} · termin: ${escapeHTML(formatDate(project.dueDate))}</div>
+                <div class="input__helper data-list__meta">${escapeHTML(project.status)} · termin: ${escapeHTML(formatDate(project.dueDate))}</div>
               </div>
-              <span class="badge ${project.archivedAt ? 'badge--danger' : 'badge--info'}">${project.archivedAt ? 'Archiwum' : escapeHTML(project.priority)}</span>
+              <div class="data-list__side">
+                <span class="badge ${project.archivedAt ? 'badge--danger' : 'badge--info'}">${project.archivedAt ? 'Archiwum' : escapeHTML(project.priority)}</span>
+              </div>
             </a>
           `
         )
@@ -63,10 +65,10 @@ const renderEvents = (events = []) =>
     ? events
         .map(
           (event) => `
-            <div class="list__item">
-              <div>
+            <div class="list__item data-list__item">
+              <div class="data-list__main">
                 <strong>${escapeHTML(event.title)}</strong>
-                <div class="input__helper">${escapeHTML(formatDate(event.date))} · ${escapeHTML(event.project?.name || 'Bez projektu')}</div>
+                <div class="input__helper data-list__meta">${escapeHTML(formatDate(event.date))} · ${escapeHTML(event.project?.name || 'Bez projektu')}</div>
               </div>
             </div>
           `
@@ -106,7 +108,7 @@ export const renderClientDetailView = (container, { id } = {}) => {
       })}
 
       <section class="detail-grid">
-        <div class="card detail-main">
+        <div class="card detail-main data-panel">
           <h2 class="card__title">Profil klienta</h2>
           <div class="meta-grid">
             <div><span class="input__helper">Email</span><strong>${escapeHTML(client.email)}</strong></div>
@@ -115,26 +117,26 @@ export const renderClientDetailView = (container, { id } = {}) => {
             <div><span class="input__helper">Segment</span><strong>${escapeHTML(client.segment)}</strong></div>
           </div>
           <p>${escapeHTML(client.notes || 'Brak notatek.')}</p>
-          <div class="tag-row">${renderTags(client.tags)}</div>
-          ${archived ? `<p class="input__helper">Archiwum od: ${escapeHTML(formatDate(client.archivedAt))}</p>` : ''}
+          <div class="tag-row data-tags">${renderTags(client.tags)}</div>
+          ${archived ? `<p class="input__helper data-archive-note">Archiwum od: ${escapeHTML(formatDate(client.archivedAt))}</p>` : ''}
         </div>
 
-        <div class="card">
+        <div class="card data-panel">
           <h2 class="card__title">Kontakty</h2>
-          <div class="list">${renderContactList(client.contacts)}</div>
+          <div class="list data-list">${renderContactList(client.contacts)}</div>
         </div>
 
-        <div class="card">
+        <div class="card data-panel">
           <h2 class="card__title">Powiązane zlecenia</h2>
-          <div class="list">${renderProjectLinks(projects)}</div>
+          <div class="list data-list">${renderProjectLinks(projects)}</div>
         </div>
 
-        <div class="card">
+        <div class="card data-panel">
           <h2 class="card__title">Wydarzenia</h2>
-          <div class="list">${renderEvents(events)}</div>
+          <div class="list data-list">${renderEvents(events)}</div>
         </div>
 
-        <div class="card detail-wide">
+        <div class="card detail-wide data-panel">
           <h2 class="card__title">Historia aktywności</h2>
           <div class="timeline">${renderTimeline(timeline)}</div>
         </div>

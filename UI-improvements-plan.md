@@ -296,6 +296,8 @@ Make the dashboard feel like a real SaaS operations overview and the strongest f
 
 ## 7. Tables, Lists, Kanban, And Data Density
 
+**Status:** Done — improved responsive data density, row actions, badges, archive states, kanban usability, calendar rows, and related-record scanability across FlowDesk data-heavy views.
+
 ### Goal
 
 Improve every data-heavy surface so FlowDesk remains readable, responsive, and efficient to scan.

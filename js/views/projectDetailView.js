@@ -22,8 +22,8 @@ const renderTasks = (project) =>
     ? project.tasks
         .map(
           (task) => `
-            <label class="list__item">
-              <span>${escapeHTML(task.title)}</span>
+            <label class="list__item data-list__item data-list__item--check">
+              <span class="data-list__main">${escapeHTML(task.title)}</span>
               <input type="checkbox" data-task-id="${escapeAttribute(task.id)}" ${task.done ? 'checked' : ''} />
             </label>
           `
@@ -66,10 +66,10 @@ const renderEvents = (events = []) =>
     ? events
         .map(
           (event) => `
-            <div class="list__item">
-              <div>
+            <div class="list__item data-list__item">
+              <div class="data-list__main">
                 <strong>${escapeHTML(event.title)}</strong>
-                <div class="input__helper">${escapeHTML(formatDate(event.date))}</div>
+                <div class="input__helper data-list__meta">${escapeHTML(formatDate(event.date))}</div>
               </div>
             </div>
           `
@@ -109,7 +109,7 @@ export const renderProjectDetailView = (container, { id } = {}) => {
       })}
 
       <section class="detail-grid">
-        <div class="card detail-main">
+        <div class="card detail-main data-panel">
           <h2 class="card__title">Podsumowanie zlecenia</h2>
           <div class="meta-grid">
             <div><span class="input__helper">Klient</span><strong>${client ? `<a href="#/clients/${encodeURIComponent(client.id)}">${escapeHTML(client.name)}</a>` : 'Bez klienta'}</strong></div>
@@ -117,7 +117,7 @@ export const renderProjectDetailView = (container, { id } = {}) => {
             <div><span class="input__helper">SLA</span><strong>${escapeHTML(project.sla.serviceLevel)}</strong></div>
             <div><span class="input__helper">Reakcja do</span><strong>${escapeHTML(formatDate(project.sla.responseDueDate))}</strong></div>
           </div>
-          <div class="tag-row">
+          <div class="tag-row data-tags">
             <span class="badge ${badgeClass(project.status)}">${escapeHTML(project.status)}</span>
             <span class="badge ${badgeClass(project.priority)}">${escapeHTML(project.priority)}</span>
             ${archived ? '<span class="badge badge--danger">Archiwum</span>' : ''}
@@ -125,7 +125,7 @@ export const renderProjectDetailView = (container, { id } = {}) => {
           <p>${escapeHTML(project.notes || 'Brak notatek.')}</p>
         </div>
 
-        <div class="card">
+        <div class="card data-panel">
           <h2 class="card__title">Wycena</h2>
           <div class="meta-grid">
             <div><span class="input__helper">Godziny</span><strong>${formatNumber(project.estimate.hours)}</strong></div>
@@ -134,17 +134,17 @@ export const renderProjectDetailView = (container, { id } = {}) => {
           </div>
         </div>
 
-        <div class="card">
+        <div class="card data-panel">
           <h2 class="card__title">Checklist</h2>
-          <div class="list">${renderTasks(project)}</div>
+          <div class="list data-list">${renderTasks(project)}</div>
         </div>
 
-        <div class="card">
+        <div class="card data-panel">
           <h2 class="card__title">Wydarzenia</h2>
-          <div class="list">${renderEvents(events)}</div>
+          <div class="list data-list">${renderEvents(events)}</div>
         </div>
 
-        <div class="card">
+        <div class="card data-panel">
           <h2 class="card__title">Komentarze</h2>
           <div class="timeline">${renderComments(project.comments)}</div>
           <form id="commentForm" class="form-grid comment-form">
@@ -153,7 +153,7 @@ export const renderProjectDetailView = (container, { id } = {}) => {
           </form>
         </div>
 
-        <div class="card">
+        <div class="card data-panel">
           <h2 class="card__title">Historia zmian</h2>
           <div class="timeline">${renderHistory(project.history)}</div>
         </div>

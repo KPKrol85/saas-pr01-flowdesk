@@ -15,7 +15,7 @@ import { escapeAttribute, escapeHTML } from '../utils/sanitize.js';
 const renderDetails = (client) => {
   if (!client) {
     return `
-      <div class="side-panel">
+      <div class="side-panel data-panel clients-preview">
         <h2>Podgląd klienta</h2>
         <p class="input__helper">Wybierz klienta z listy, aby zobaczyć szczegóły.</p>
       </div>
@@ -23,15 +23,15 @@ const renderDetails = (client) => {
   }
 
   return `
-    <div class="side-panel">
+    <div class="side-panel data-panel clients-preview">
       <h2>${escapeHTML(client.name)}</h2>
       <p class="input__helper">${escapeHTML(client.status)}</p>
-      <div class="list">
-        <div><strong>Email:</strong> ${escapeHTML(client.email)}</div>
-        <div><strong>Telefon:</strong> ${escapeHTML(client.phone)}</div>
-        <div><strong>Segment:</strong> ${escapeHTML(client.segment)}</div>
-        <div><strong>Owner:</strong> ${escapeHTML(client.owner || 'Nieprzypisany')}</div>
-        <div><strong>Notatki:</strong> ${escapeHTML(client.notes)}</div>
+      <div class="list data-meta-list">
+        <div class="data-meta-list__item"><strong>Email:</strong> ${escapeHTML(client.email)}</div>
+        <div class="data-meta-list__item"><strong>Telefon:</strong> ${escapeHTML(client.phone)}</div>
+        <div class="data-meta-list__item"><strong>Segment:</strong> ${escapeHTML(client.segment)}</div>
+        <div class="data-meta-list__item"><strong>Owner:</strong> ${escapeHTML(client.owner || 'Nieprzypisany')}</div>
+        <div class="data-meta-list__item"><strong>Notatki:</strong> ${escapeHTML(client.notes)}</div>
         <a class="btn btn--secondary" href="#/clients/${encodeURIComponent(client.id)}">Otwórz szczegóły</a>
       </div>
     </div>
@@ -83,14 +83,14 @@ export const renderClientsView = (container) => {
     const rows = filtered
       .map(
         (client) => `
-        <tr data-id="${escapeAttribute(client.id)}">
-          <td>${escapeHTML(client.name)}</td>
-          <td>${escapeHTML(client.email)}</td>
-          <td>${escapeHTML(client.status)}</td>
-          <td>${escapeHTML(client.segment)}</td>
-          <td>${client.archivedAt ? '<span class="badge badge--danger">Archiwum</span>' : `<span class="badge badge--info">${escapeHTML(client.owner || 'Brak')}</span>`}</td>
-          <td>
-            <div class="table__actions">
+        <tr class="data-row clients-table__row ${client.id === selectedId ? 'data-row--selected' : ''} ${client.archivedAt ? 'data-row--archived' : ''}" data-id="${escapeAttribute(client.id)}">
+          <td data-label="Klient"><strong class="data-cell__title">${escapeHTML(client.name)}</strong></td>
+          <td data-label="Email"><span class="data-cell__meta">${escapeHTML(client.email)}</span></td>
+          <td data-label="Status"><span class="data-cell__meta">${escapeHTML(client.status)}</span></td>
+          <td data-label="Segment"><span class="data-cell__meta">${escapeHTML(client.segment)}</span></td>
+          <td data-label="Owner/Archiwum" class="data-cell--badges">${client.archivedAt ? '<span class="badge badge--danger">Archiwum</span>' : `<span class="badge badge--info">${escapeHTML(client.owner || 'Brak')}</span>`}</td>
+          <td data-label="Akcje" class="data-table__actions-cell">
+            <div class="table__actions data-actions">
               <a class="btn btn--ghost" href="#/clients/${encodeURIComponent(client.id)}">Szczegóły</a>
               ${button({ label: 'Edytuj', variant: 'ghost', iconName: 'edit', attributes: { 'data-action': 'edit', 'data-id': client.id } })}
               ${
@@ -109,9 +109,9 @@ export const renderClientsView = (container) => {
       <main id="main" class="container">
         ${pageHeader({ title: 'Klienci', description: 'Baza klientów, statusy współpracy i szybkie akcje.' })}
         <section class="clients-layout">
-          <div class="card">
-            <div class="list">
-              <div class="form-grid form-grid--two">
+          <div class="card data-panel clients-panel">
+            <div class="list data-toolbar">
+              <div class="form-grid form-grid--two data-toolbar__filters">
                 <div class="input">
                   <label class="input__label" for="filterInput">Filtruj</label>
                   <input class="input__field" id="filterInput" placeholder="Wpisz nazwę lub email" value="${escapeAttribute(filterState.term)}" />
@@ -133,13 +133,13 @@ export const renderClientsView = (container) => {
                   </select>
                 </div>
               </div>
-              ${button({ label: 'Dodaj klienta', id: 'addClient', variant: 'primary', iconName: 'plus' })}
+              ${button({ label: 'Dodaj klienta', id: 'addClient', variant: 'primary', iconName: 'plus', className: 'data-toolbar__action' })}
             </div>
-            <div class="table-wrapper">
+            <div class="table-wrapper data-table-wrapper">
               ${
                 rows.length
                   ? `
-                <table class="table">
+                <table class="table data-table clients-table">
                   <thead>
                     <tr>
                       <th>Klient</th>

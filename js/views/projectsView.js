@@ -80,8 +80,8 @@ export const renderProjectsView = (container) => {
     container.innerHTML = `
       <main id="main" class="container">
         ${pageHeader({ title: 'Zlecenia', description: 'Śledź statusy zleceń i priorytety bez przeciążenia narzędziem.' })}
-        <section class="card">
-          <div class="form-grid form-grid--two">
+        <section class="card data-toolbar projects-toolbar">
+          <div class="form-grid form-grid--two data-toolbar__filters">
             <div class="input">
               <label class="input__label" for="statusFilter">Status</label>
               <select class="input__select" id="statusFilter">
@@ -105,32 +105,35 @@ export const renderProjectsView = (container) => {
               </select>
             </div>
           </div>
-          ${button({ label: 'Dodaj zlecenie', id: 'addProject', variant: 'primary', iconName: 'plus' })}
+          ${button({ label: 'Dodaj zlecenie', id: 'addProject', variant: 'primary', iconName: 'plus', className: 'data-toolbar__action' })}
         </section>
 
-        <section class="kanban">
+        <section class="kanban data-kanban">
           ${statusColumns
             .map((status) => {
               const columnItems = selectProjectsByStatus(state, status, filtered);
               return `
-                <div class="kanban__column">
-                  <div class="kanban__title">${escapeHTML(status)} (${columnItems.length})</div>
-                  <div class="list">
+                <div class="kanban__column data-kanban__column">
+                  <div class="kanban__title">
+                    <span>${escapeHTML(status)}</span>
+                    <span class="data-count">${columnItems.length}</span>
+                  </div>
+                  <div class="list data-list data-kanban__list">
                     ${
                       columnItems.length
                         ? columnItems
                             .map((project) => {
                               return `
-                              <article class="kanban__card">
-                                <a href="#/projects/${encodeURIComponent(project.id)}"><strong>${escapeHTML(project.name)}</strong></a>
-                                <span class="input__helper">${escapeHTML(project.client?.name || 'Bez klienta')}</span>
-                                <div>
+                              <article class="kanban__card data-card ${project.archivedAt ? 'data-card--archived' : ''}">
+                                <a class="data-card__title" href="#/projects/${encodeURIComponent(project.id)}"><strong>${escapeHTML(project.name)}</strong></a>
+                                <span class="input__helper data-card__meta">${escapeHTML(project.client?.name || 'Bez klienta')}</span>
+                                <div class="data-badges data-card__badges">
                                   <span class="badge ${badgeClass(project.priority)}">${escapeHTML(project.priority)}</span>
                                   <span class="badge ${badgeClass(project.status)}">${escapeHTML(project.status)}</span>
                                   ${project.archivedAt ? '<span class="badge badge--danger">Archiwum</span>' : ''}
                                 </div>
-                                <span class="input__helper">Termin: ${escapeHTML(formatDate(project.dueDate))}</span>
-                                <div class="table__actions">
+                                <span class="input__helper data-card__meta">Termin: ${escapeHTML(formatDate(project.dueDate))}</span>
+                                <div class="table__actions data-actions data-actions--card">
                                   ${button({ label: 'Edytuj', variant: 'ghost', iconName: 'edit', attributes: { 'data-action': 'edit', 'data-id': project.id } })}
                                   ${
                                     project.archivedAt
