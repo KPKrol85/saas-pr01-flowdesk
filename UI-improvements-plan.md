@@ -129,6 +129,8 @@ Make the mobile shell feel stable, predictable, and product-grade across the top
 
 ## 3. Spacing System And Layout Rhythm
 
+**Status:** Done — unified page, card, panel, list, form, modal, drawer, detail, and responsive spacing rhythm using the existing `--space-*` token scale.
+
 ### Goal
 
 Unify spacing across FlowDesk without rebuilding the layout or changing view structure.

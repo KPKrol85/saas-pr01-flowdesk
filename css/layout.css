@@ -24,8 +24,11 @@
 }
 
 .container {
+  width: 100%;
   max-width: 1100px;
   margin: 0 auto;
+  display: grid;
+  gap: var(--space-20);
 }
 
 .topbar {
@@ -123,6 +126,10 @@
 
   .main {
     padding: var(--space-32);
+  }
+
+  .container {
+    gap: var(--space-24);
   }
 }
 

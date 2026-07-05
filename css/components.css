@@ -98,6 +98,9 @@
 }
 
 .card {
+  display: grid;
+  align-content: start;
+  gap: var(--space-16);
   background: var(--bg-elev);
   border-radius: var(--radius-16);
   padding: var(--space-20);
@@ -105,10 +108,18 @@
   box-shadow: var(--shadow-sm);
 }
 
+.card > p {
+  margin: 0;
+}
+
+.card > .btn {
+  justify-self: start;
+}
+
 .card__title {
   font-size: var(--fs-16);
   font-weight: 600;
-  margin-bottom: var(--space-12);
+  margin: 0;
 }
 
 .badge {
@@ -147,6 +158,10 @@
   font-size: var(--fs-14);
 }
 
+.table-wrapper {
+  min-width: 0;
+}
+
 .table th,
 .table td {
   text-align: left;
@@ -164,6 +179,8 @@
 
 .table__actions {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: var(--space-8);
 }
 
@@ -207,17 +224,25 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--space-12);
   margin-bottom: var(--space-16);
 }
 
 .modal__title {
   font-size: var(--fs-18);
   font-weight: 600;
+  margin: 0;
+}
+
+.modal__body {
+  display: grid;
+  gap: var(--space-16);
 }
 
 .modal__footer {
   margin-top: var(--space-20);
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: var(--space-10);
 }
@@ -416,6 +441,16 @@
 .confirm-dialog p {
   margin: 0;
   color: var(--text-muted);
+}
+
+@media (max-width: 30rem) {
+  .modal-backdrop {
+    padding: var(--space-12);
+  }
+
+  .modal {
+    padding: var(--space-20);
+  }
 }
 
 @media (min-width: 43.75rem) {

@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
-  margin-bottom: var(--space-20);
+  margin: 0;
 }
 
 .page-header__main {
@@ -11,8 +11,15 @@
   gap: var(--space-12);
 }
 
+.page-header__main > div {
+  display: grid;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
 .page-header__actions {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   gap: var(--space-8);
 }
@@ -28,16 +35,18 @@
 .view-header__title {
   font-size: var(--fs-24);
   font-weight: 700;
+  margin: 0;
 }
 
 .view-header__desc {
   color: var(--text-muted);
   font-size: var(--fs-14);
+  margin: 0;
 }
 
 .dashboard-grid {
   display: grid;
-  gap: var(--space-16);
+  gap: var(--space-20);
 }
 
 .dashboard-kpi {
@@ -52,17 +61,17 @@
 
 @media (min-width: 43.75rem) {
   .dashboard-kpi {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .dashboard-columns {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (min-width: 64rem) {
   .dashboard-kpi {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
@@ -75,10 +84,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--space-12);
+  min-width: 0;
   padding: var(--space-12) var(--space-16);
   border-radius: var(--radius-12);
   border: 1px solid var(--border);
   background: var(--bg-elev);
+}
+
+.list__item > :first-child {
+  min-width: 0;
 }
 
 .clients-layout {
@@ -88,29 +103,41 @@
 
 @media (min-width: 64rem) {
   .clients-layout {
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   }
 }
 
 .side-panel {
+  display: grid;
+  align-content: start;
+  gap: var(--space-12);
   border-radius: var(--radius-16);
   border: 1px solid var(--border);
   background: var(--bg-elev);
   padding: var(--space-20);
 }
 
+.side-panel > h2,
+.side-panel > p {
+  margin: 0;
+}
+
 .kanban {
   display: grid;
-  gap: var(--space-16);
+  gap: var(--space-20);
 }
 
 @media (min-width: 64rem) {
   .kanban {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 .kanban__column {
+  display: grid;
+  align-content: start;
+  gap: var(--space-12);
+  min-width: 0;
   background: var(--bg-elev);
   border-radius: var(--radius-16);
   padding: var(--space-16);
@@ -120,7 +147,7 @@
 .kanban__title {
   font-size: var(--fs-14);
   font-weight: 600;
-  margin-bottom: var(--space-12);
+  margin: 0;
 }
 
 .kanban__card {
@@ -130,7 +157,12 @@
   background: var(--bg);
   display: grid;
   gap: var(--space-8);
+  min-width: 0;
   font-size: var(--fs-14);
+}
+
+.kanban__card > * {
+  min-width: 0;
 }
 
 .calendar-list {
@@ -140,12 +172,12 @@
 
 .settings-grid {
   display: grid;
-  gap: var(--space-16);
+  gap: var(--space-20);
 }
 
 @media (min-width: 64rem) {
   .settings-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -156,7 +188,7 @@
 
 .detail-grid {
   display: grid;
-  gap: var(--space-16);
+  gap: var(--space-20);
 }
 
 .detail-main,
@@ -167,7 +199,7 @@
 .meta-grid {
   display: grid;
   gap: var(--space-12);
-  margin-bottom: var(--space-16);
+  margin-bottom: 0;
 }
 
 .meta-grid > div {
@@ -179,7 +211,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-8);
-  margin: var(--space-12) 0;
+  margin: 0;
 }
 
 .timeline {
@@ -198,7 +230,7 @@
 }
 
 .comment-form {
-  margin-top: var(--space-16);
+  margin-top: 0;
 }
 
 @media (min-width: 43.75rem) {
@@ -209,13 +241,20 @@
 
 @media (min-width: 64rem) {
   .detail-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-24);
+  }
+
+  .clients-layout,
+  .kanban,
+  .settings-grid {
+    gap: var(--space-24);
   }
 }
 
 @media (min-width: 43.75rem) {
   .form-grid--two {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -235,6 +274,10 @@
 
 .empty-state__desc {
   margin: 0;
+}
+
+.empty-state__action {
+  margin-top: var(--space-4);
 }
 
 .empty-state__icon {
@@ -268,11 +311,27 @@
 .login__title {
   font-size: var(--fs-24);
   font-weight: 700;
-  margin-bottom: var(--space-8);
+  margin: 0 0 var(--space-8);
 }
 
 .login__desc {
   color: var(--text-muted);
   font-size: var(--fs-14);
-  margin-bottom: var(--space-24);
+  margin: 0 0 var(--space-24);
+}
+
+@media (max-width: 30rem) {
+  .login {
+    padding: var(--space-16);
+  }
+
+  .login__card {
+    padding: var(--space-24);
+  }
+}
+
+@media (min-width: 80rem) {
+  .kanban {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
