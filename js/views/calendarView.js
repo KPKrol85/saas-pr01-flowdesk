@@ -3,6 +3,7 @@ import { getActionFieldError } from '../core/actions.js';
 import { selectActiveClients, selectActiveProjectRecords, selectEventsWithRelations } from '../core/selectors.js';
 import { store } from '../core/store.js';
 import { button } from '../components/button.js';
+import { openConfirmDialog } from '../components/confirmDialog.js';
 import { emptyState } from '../components/emptyState.js';
 import { inputField, selectField, setFieldError } from '../components/formControls.js';
 import { openModal } from '../components/modal.js';
@@ -66,7 +67,13 @@ export const renderCalendarView = (container) => {
                         <div class="data-list__side">
                           <span class="badge badge--info">${escapeHTML(event.project?.name || 'Bez projektu')}</span>
                           <div class="data-actions">
-                            ${button({ label: 'Usuń', variant: 'ghost', iconName: 'delete', attributes: { 'data-action': 'delete', 'data-id': event.id } })}
+                            ${button({
+                              label: 'Usuń',
+                              variant: 'ghost',
+                              iconName: 'delete',
+                              className: 'btn--destructive',
+                              attributes: { 'data-action': 'delete', 'data-id': event.id }
+                            })}
                           </div>
                         </div>
                       </div>
@@ -116,15 +123,25 @@ export const renderCalendarView = (container) => {
       });
     });
 
-    container.querySelectorAll('[data-action="delete"]').forEach((button) => {
-      button.addEventListener('click', () => {
-        const result = store.actions.deleteEvent(button.dataset.id);
-        if (!result.ok) {
-          showToast('Nie udało się usunąć wydarzenia.');
-          return;
-        }
-        showToast('Usunięto wydarzenie.');
-        refresh();
+    container.querySelectorAll('[data-action="delete"]').forEach((trigger) => {
+      trigger.addEventListener('click', () => {
+        const event = selectEventsWithRelations(store.getState()).find((item) => item.id === trigger.dataset.id);
+
+        openConfirmDialog({
+          title: 'Usuń wydarzenie',
+          message: `Czy na pewno usunąć wydarzenie "${event?.title || 'bez tytułu'}"?`,
+          confirmLabel: 'Usuń',
+          destructive: true,
+          onConfirm: () => {
+            const result = store.actions.deleteEvent(trigger.dataset.id);
+            if (!result.ok) {
+              showToast('Nie udało się usunąć wydarzenia.');
+              return;
+            }
+            showToast('Usunięto wydarzenie.');
+            refresh();
+          }
+        });
       });
     });
   };

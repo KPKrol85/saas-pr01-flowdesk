@@ -317,6 +317,10 @@
   gap: var(--space-16);
 }
 
+.settings-import-form .input__textarea {
+  max-height: 18rem;
+}
+
 .detail-grid {
   display: grid;
   gap: var(--space-20);

@@ -3,6 +3,7 @@ import { escapeHTML } from '../utils/sanitize.js';
 import { icon } from './icon.js';
 
 const focusableSelectors = ['button', '[href]', 'input', 'select', 'textarea', '[tabindex]:not([tabindex="-1"])'];
+let modalId = 0;
 
 const trapFocus = (container) => {
   const focusables = qsa(focusableSelectors.join(','), container);
@@ -26,11 +27,13 @@ const trapFocus = (container) => {
 };
 
 export const openModal = ({ title, content, footer, onClose }) => {
+  const invoker = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  const titleId = `modalTitle${(modalId += 1)}`;
   const backdrop = createElement(`
-    <div class="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="${titleId}">
       <div class="modal">
         <div class="modal__header">
-          <h2 class="modal__title">${escapeHTML(title)}</h2>
+          <h2 class="modal__title" id="${titleId}">${escapeHTML(title)}</h2>
           <button class="btn btn--ghost btn--icon" data-modal-close aria-label="Zamknij modal">${icon('close')}</button>
         </div>
         <div class="modal__body">${content}</div>
@@ -39,9 +42,23 @@ export const openModal = ({ title, content, footer, onClose }) => {
     </div>
   `);
 
+  let closed = false;
+  let cleanupTrap = () => {};
+
   const close = () => {
+    if (closed) return;
+    closed = true;
+    cleanupTrap();
+    backdrop.removeEventListener('keydown', handleEsc);
     backdrop.remove();
     if (onClose) onClose();
+    if (invoker && document.contains(invoker) && typeof invoker.focus === 'function') {
+      invoker.focus();
+    }
+  };
+
+  const handleEsc = (event) => {
+    if (event.key === 'Escape') close();
   };
 
   backdrop.addEventListener('click', (event) => {
@@ -52,18 +69,13 @@ export const openModal = ({ title, content, footer, onClose }) => {
 
   document.body.appendChild(backdrop);
 
-  const cleanupTrap = trapFocus(backdrop);
-  const handleEsc = (event) => {
-    if (event.key === 'Escape') close();
-  };
-
+  cleanupTrap = trapFocus(backdrop);
   backdrop.addEventListener('keydown', handleEsc);
-  const firstInput = qs('input, select, textarea, button', backdrop);
+  const firstInput = qs(
+    '.modal__body input, .modal__body select, .modal__body textarea, .modal__body button, .modal__body [href], .modal__footer button, .modal__footer [href], [data-modal-close]',
+    backdrop
+  );
   if (firstInput) firstInput.focus();
 
-  return () => {
-    cleanupTrap();
-    backdrop.removeEventListener('keydown', handleEsc);
-    close();
-  };
+  return close;
 };

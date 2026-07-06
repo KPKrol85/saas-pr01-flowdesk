@@ -49,14 +49,14 @@ export const renderSettingsView = (container) => {
         <h2 class="card__title">Narzędzia danych</h2>
         <div class="list">
           ${button({ label: 'Eksportuj JSON', id: 'exportData', variant: 'secondary', iconName: 'export' })}
-          ${button({ label: 'Reset demo danych', id: 'resetData', variant: 'ghost', iconName: 'reset' })}
+          ${button({ label: 'Reset demo danych', id: 'resetData', variant: 'secondary', iconName: 'reset', className: 'btn--destructive' })}
         </div>
         <p class="input__helper">Reset przywróci dane demo zapisane w localStorage.</p>
       </section>
 
       <section class="card">
         <h2 class="card__title">Import JSON</h2>
-        <form id="importForm" class="form-grid">
+        <form id="importForm" class="form-grid settings-import-form">
           ${textareaField({
             id: 'jsonImport',
             label: 'Dane JSON',

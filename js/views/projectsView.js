@@ -138,7 +138,13 @@ export const renderProjectsView = (container) => {
                                   ${
                                     project.archivedAt
                                       ? button({ label: 'Przywróć', variant: 'ghost', iconName: 'reset', attributes: { 'data-action': 'restore', 'data-id': project.id } })
-                                      : button({ label: 'Archiwizuj', variant: 'ghost', iconName: 'delete', attributes: { 'data-action': 'archive', 'data-id': project.id } })
+                                      : button({
+                                          label: 'Archiwizuj',
+                                          variant: 'ghost',
+                                          iconName: 'delete',
+                                          className: 'btn--destructive',
+                                          attributes: { 'data-action': 'archive', 'data-id': project.id }
+                                        })
                                   }
                                 </div>
                               </article>

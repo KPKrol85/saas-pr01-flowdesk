@@ -96,7 +96,13 @@ export const renderClientsView = (container) => {
               ${
                 client.archivedAt
                   ? button({ label: 'Przywróć', variant: 'ghost', iconName: 'reset', attributes: { 'data-action': 'restore', 'data-id': client.id } })
-                  : button({ label: 'Archiwizuj', variant: 'ghost', iconName: 'delete', attributes: { 'data-action': 'archive', 'data-id': client.id } })
+                  : button({
+                      label: 'Archiwizuj',
+                      variant: 'ghost',
+                      iconName: 'delete',
+                      className: 'btn--destructive',
+                      attributes: { 'data-action': 'archive', 'data-id': client.id }
+                    })
               }
             </div>
           </td>

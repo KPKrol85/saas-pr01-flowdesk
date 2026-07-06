@@ -35,6 +35,19 @@
   color: var(--text-muted);
 }
 
+.btn--destructive {
+  color: var(--danger);
+}
+
+.btn--secondary.btn--destructive {
+  border-color: rgba(225, 92, 92, 0.45);
+}
+
+.btn--destructive:hover,
+.btn--destructive:focus-visible {
+  background: rgba(225, 92, 92, 0.12);
+}
+
 .btn--danger {
   background: var(--danger);
   color: #fff;
@@ -82,6 +95,13 @@
   border-radius: var(--radius-12);
   border: 1px solid var(--border);
   background: var(--bg-elev);
+  line-height: 1.4;
+  min-height: 44px;
+}
+
+.input__textarea {
+  min-height: 7.5rem;
+  resize: vertical;
 }
 
 .input__field--error,
@@ -231,17 +251,20 @@
   display: grid;
   place-items: center;
   z-index: var(--z-modal);
+  overflow-y: auto;
   padding: var(--space-20);
 }
 
 .modal {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   background: var(--bg-elev);
   border: 1px solid var(--border);
   border-radius: var(--radius-16);
   padding: var(--space-24);
   max-height: calc(100vh - var(--space-40));
   max-width: 540px;
-  overflow: auto;
+  overflow: hidden;
   width: 100%;
   box-shadow: var(--shadow-lg);
 }
@@ -264,14 +287,22 @@
 .modal__body {
   display: grid;
   gap: var(--space-16);
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: var(--space-2);
 }
 
 .modal__footer {
   margin-top: var(--space-20);
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: flex-end;
   gap: var(--space-10);
+}
+
+.modal__footer .btn {
+  min-width: 7rem;
 }
 
 .drawer {
@@ -296,7 +327,7 @@
 .drawer__panel {
   grid-area: 1 / 1;
   z-index: 1;
-  width: min(280px, 80vw);
+  width: min(320px, calc(100vw - var(--space-24)));
   max-width: calc(100vw - var(--space-24));
   max-height: 100vh;
   overflow-y: auto;
@@ -476,15 +507,27 @@
 .confirm-dialog p {
   margin: 0;
   color: var(--text-muted);
+  line-height: 1.5;
 }
 
 @media (max-width: 30rem) {
   .modal-backdrop {
+    place-items: stretch center;
     padding: var(--space-12);
   }
 
   .modal {
+    max-height: calc(100vh - var(--space-24));
     padding: var(--space-20);
+  }
+
+  .modal__footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .modal__footer .btn {
+    width: 100%;
   }
 }
 

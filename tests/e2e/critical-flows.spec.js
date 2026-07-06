@@ -118,6 +118,105 @@ test('user archives important records instead of deleting them permanently', asy
   await expect(page.locator('.badge--danger', { hasText: 'Archiwum' }).first()).toBeVisible();
 });
 
+test('modal returns focus to its opener after keyboard close', async ({ page }) => {
+  await loginDemoUser(page);
+
+  await page.getByRole('link', { name: /Klienci/ }).click();
+  const addClient = page.getByRole('button', { name: 'Dodaj klienta' });
+  await addClient.click();
+  await expect(page.getByRole('dialog', { name: 'Nowy klient' })).toBeVisible();
+
+  await page.keyboard.press('Escape');
+
+  await expect(page.getByRole('dialog', { name: 'Nowy klient' })).toBeHidden();
+  await expect(addClient).toBeFocused();
+});
+
+test('user confirms or cancels calendar event deletion', async ({ page }) => {
+  await loginDemoUser(page);
+
+  await page.getByRole('link', { name: /Kalendarz/ }).click();
+  const deleteEvent = page.getByRole('button', { name: 'Usuń' }).first();
+
+  await deleteEvent.click();
+  let dialog = page.getByRole('dialog', { name: 'Usuń wydarzenie' });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole('button', { name: 'Anuluj' }).click();
+  await expect(dialog).toBeHidden();
+  await expect(deleteEvent).toBeFocused();
+
+  await deleteEvent.click();
+  dialog = page.getByRole('dialog', { name: 'Usuń wydarzenie' });
+  await dialog.getByRole('button', { name: 'Usuń' }).click();
+
+  await expect(page.getByText('Usunięto wydarzenie.')).toBeVisible();
+});
+
+test('user completes form, modal, restore, and reset flows', async ({ page }) => {
+  await loginDemoUser(page);
+
+  await page.getByRole('link', { name: /Klienci/ }).click();
+  await page
+    .getByRole('row', { name: /Nova Studio/ })
+    .getByRole('button', { name: 'Edytuj' })
+    .click();
+  let dialog = page.getByRole('dialog', { name: 'Edytuj klienta' });
+  await dialog.getByLabel('Telefon').fill('+48 600 600 600');
+  await dialog.getByRole('button', { name: 'Zapisz' }).click();
+  await expect(page.getByText('Zaktualizowano klienta.')).toBeVisible();
+
+  await page
+    .getByRole('row', { name: /Nova Studio/ })
+    .getByRole('button', { name: 'Archiwizuj' })
+    .click();
+  dialog = page.getByRole('dialog', { name: 'Archiwizuj klienta' });
+  await dialog.getByRole('button', { name: 'Archiwizuj' }).click();
+  await page.getByLabel('Zakres').selectOption('archived');
+  await page
+    .getByRole('row', { name: /Nova Studio/ })
+    .getByRole('button', { name: 'Przywróć' })
+    .click();
+  await expect(page.getByText('Przywrócono klienta.')).toBeVisible();
+
+  await page.getByRole('link', { name: /Zlecenia/ }).click();
+  const projectCard = page.locator('.kanban__card', { hasText: 'Wdrożenie panelu klienta' });
+  await projectCard.getByRole('button', { name: 'Edytuj' }).click();
+  dialog = page.getByRole('dialog', { name: 'Edytuj zlecenie' });
+  await dialog.getByLabel('Nazwa').fill('Wdrożenie panelu klienta E2E');
+  await dialog.getByRole('button', { name: 'Zapisz' }).click();
+  await expect(page.getByText('Zaktualizowano zlecenie.')).toBeVisible();
+
+  const editedProjectCard = page.locator('.kanban__card', { hasText: 'Wdrożenie panelu klienta E2E' });
+  await editedProjectCard.getByRole('button', { name: 'Archiwizuj' }).click();
+  dialog = page.getByRole('dialog', { name: 'Archiwizuj zlecenie' });
+  await dialog.getByRole('button', { name: 'Archiwizuj' }).click();
+  await page.getByLabel('Zakres').selectOption('archived');
+  await page.locator('.kanban__card', { hasText: 'Wdrożenie panelu klienta E2E' }).getByRole('button', { name: 'Przywróć' }).click();
+  await expect(page.getByText('Przywrócono zlecenie.')).toBeVisible();
+
+  await page.getByRole('link', { name: /Kalendarz/ }).click();
+  await page.getByRole('button', { name: 'Dodaj wydarzenie' }).click();
+  dialog = page.getByRole('dialog', { name: 'Nowe wydarzenie' });
+  await dialog.getByLabel('Tytuł').fill('E2E onboarding call');
+  await dialog.getByLabel('Data').fill('2026-08-20');
+  await dialog.getByRole('button', { name: 'Zapisz' }).click();
+  await expect(page.getByText('Dodano wydarzenie.')).toBeVisible();
+  await expect(page.getByText('E2E onboarding call')).toBeVisible();
+
+  await page.getByRole('link', { name: /Ustawienia/ }).click();
+  const resetData = page.getByRole('button', { name: 'Reset demo danych' });
+  await resetData.click();
+  dialog = page.getByRole('dialog', { name: 'Reset demo danych' });
+  await dialog.getByRole('button', { name: 'Anuluj' }).click();
+  await expect(dialog).toBeHidden();
+  await expect(resetData).toBeFocused();
+
+  await resetData.click();
+  dialog = page.getByRole('dialog', { name: 'Reset demo danych' });
+  await dialog.getByRole('button', { name: 'Resetuj' }).click();
+  await expect(page.getByText('Dane demo zostały przywrócone.')).toBeVisible();
+});
+
 test('user imports valid JSON and rejects malformed JSON', async ({ page }) => {
   await loginDemoUser(page);
 

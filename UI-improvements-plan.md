@@ -339,6 +339,8 @@ Improve every data-heavy surface so FlowDesk remains readable, responsive, and e
 
 ## 8. Forms, Modals, Drawers, And Destructive Actions
 
+**Status:** Done — aligned form control sizing, modal focus management, drawer fit, confirm dialog layout, destructive action hierarchy, settings import textarea sizing, and calendar deletion confirmation.
+
 ### Goal
 
 Bring all form and confirmation interactions to one coherent product standard.
