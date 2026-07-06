@@ -1,8 +1,10 @@
 import { qs, qsa, createElement } from '../core/dom.js';
+import { prefersReducedMotion } from '../utils/motion.js';
 import { escapeHTML } from '../utils/sanitize.js';
 import { icon } from './icon.js';
 
 const focusableSelectors = ['button', '[href]', 'input', 'select', 'textarea', '[tabindex]:not([tabindex="-1"])'];
+const modalExitDuration = 140;
 let modalId = 0;
 
 const trapFocus = (container) => {
@@ -45,9 +47,7 @@ export const openModal = ({ title, content, footer, onClose }) => {
   let closed = false;
   let cleanupTrap = () => {};
 
-  const close = () => {
-    if (closed) return;
-    closed = true;
+  const remove = () => {
     cleanupTrap();
     backdrop.removeEventListener('keydown', handleEsc);
     backdrop.remove();
@@ -55,6 +55,19 @@ export const openModal = ({ title, content, footer, onClose }) => {
     if (invoker && document.contains(invoker) && typeof invoker.focus === 'function') {
       invoker.focus();
     }
+  };
+
+  const close = () => {
+    if (closed) return;
+    closed = true;
+
+    if (prefersReducedMotion()) {
+      remove();
+      return;
+    }
+
+    backdrop.classList.add('modal-backdrop--closing');
+    window.setTimeout(remove, modalExitDuration);
   };
 
   const handleEsc = (event) => {

@@ -9,9 +9,11 @@
   font-size: var(--fs-14);
   line-height: 1.2;
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
+    transform var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard);
 }
 
 .btn--primary {
@@ -45,7 +47,7 @@
 
 .btn--destructive:hover,
 .btn--destructive:focus-visible {
-  background: rgba(225, 92, 92, 0.12);
+  background: var(--danger-soft);
 }
 
 .btn--danger {
@@ -69,6 +71,21 @@
 
 .btn:active {
   transform: translateY(1px);
+}
+
+@media (hover: hover) {
+  .btn--secondary:hover,
+  .btn--ghost:hover,
+  .btn--icon:hover {
+    background: var(--state-hover);
+    color: var(--text);
+  }
+}
+
+.btn--secondary:active,
+.btn--ghost:active,
+.btn--icon:active {
+  background: var(--state-active);
 }
 
 .icon {
@@ -97,6 +114,10 @@
   background: var(--bg-elev);
   line-height: 1.4;
   min-height: 44px;
+  transition:
+    border-color var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard);
 }
 
 .input__textarea {
@@ -108,6 +129,14 @@
 .input__select--error,
 .input__textarea--error {
   border-color: var(--danger);
+}
+
+@media (hover: hover) {
+  .input__field:hover:not(:disabled),
+  .input__select:hover:not(:disabled),
+  .input__textarea:hover:not(:disabled) {
+    border-color: var(--primary);
+  }
 }
 
 .input__helper {
@@ -253,6 +282,11 @@
   z-index: var(--z-modal);
   overflow-y: auto;
   padding: var(--space-20);
+  animation: modal-backdrop-enter var(--motion-base) var(--ease-standard);
+}
+
+.modal-backdrop--closing {
+  animation: modal-backdrop-exit var(--motion-fast) var(--ease-standard) forwards;
 }
 
 .modal {
@@ -267,6 +301,11 @@
   overflow: hidden;
   width: 100%;
   box-shadow: var(--shadow-lg);
+  animation: modal-enter var(--motion-base) var(--ease-standard);
+}
+
+.modal-backdrop--closing .modal {
+  animation: modal-exit var(--motion-fast) var(--ease-standard) forwards;
 }
 
 .modal__header {
@@ -309,12 +348,17 @@
   position: fixed;
   inset: 0;
   z-index: var(--z-drawer);
-  display: none;
+  display: grid;
+  grid-template-columns: 1fr;
+  pointer-events: none;
+  visibility: hidden;
+  transition: visibility 0s linear var(--motion-base);
 }
 
 .drawer--open {
-  display: grid;
-  grid-template-columns: 1fr;
+  pointer-events: auto;
+  visibility: visible;
+  transition-delay: 0s;
 }
 
 .drawer__overlay {
@@ -322,6 +366,8 @@
   background: rgba(10, 12, 20, 0.4);
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity var(--motion-base) var(--ease-standard);
 }
 
 .drawer__panel {
@@ -335,6 +381,20 @@
   border-right: 1px solid var(--border);
   padding: var(--space-24) var(--space-16);
   box-shadow: var(--shadow-lg);
+  opacity: 0;
+  transform: translateX(calc(var(--space-12) * -1));
+  transition:
+    opacity var(--motion-base) var(--ease-standard),
+    transform var(--motion-base) var(--ease-standard);
+}
+
+.drawer--open .drawer__overlay,
+.drawer--open .drawer__panel {
+  opacity: 1;
+}
+
+.drawer--open .drawer__panel {
+  transform: translateX(0);
 }
 
 .drawer__header {
@@ -364,6 +424,7 @@
   display: grid;
   gap: var(--space-10);
   z-index: var(--z-toast);
+  max-width: min(26rem, calc(100vw - var(--space-48)));
 }
 
 .toast {
@@ -374,6 +435,12 @@
   box-shadow: var(--shadow-md);
   font-size: var(--fs-14);
   line-height: 1.4;
+  overflow-wrap: anywhere;
+  animation: toast-enter var(--motion-base) var(--ease-standard);
+}
+
+.toast--leaving {
+  animation: toast-exit var(--motion-fast) var(--ease-standard) forwards;
 }
 
 .toast--action {
@@ -388,6 +455,15 @@
   font-size: var(--fs-14);
   font-weight: var(--fw-bold);
   white-space: nowrap;
+  transition:
+    background-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard);
+}
+
+.toast__action:hover,
+.toast__action:focus-visible {
+  background: var(--state-hover);
+  border-radius: var(--radius-8);
 }
 
 .skeleton {
@@ -439,11 +515,18 @@
   padding: var(--space-8) var(--space-10);
   border-radius: var(--radius-8);
   line-height: 1.35;
+  transition:
+    background-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard);
 }
 
 .search__result:hover,
 .search__result:focus-visible {
-  background: rgba(107, 124, 255, 0.12);
+  background: var(--state-hover);
+}
+
+.search__result:active {
+  background: var(--state-active);
 }
 
 .search__result span:last-child,
@@ -496,6 +579,7 @@
 
 .user-menu__panel--open {
   display: block;
+  animation: menu-enter var(--motion-fast) var(--ease-standard);
 }
 
 .user-menu__panel p {
@@ -508,6 +592,79 @@
   margin: 0;
   color: var(--text-muted);
   line-height: 1.5;
+}
+
+@keyframes modal-backdrop-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-backdrop-exit {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes modal-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-8));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modal-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(var(--space-4));
+  }
+}
+
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-8));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toast-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(var(--space-4));
+  }
+}
+
+@keyframes menu-enter {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--space-4) * -1));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 30rem) {
@@ -529,6 +686,23 @@
   .modal__footer .btn {
     width: 100%;
   }
+
+  .toast-stack {
+    bottom: var(--space-12);
+    left: var(--space-12);
+    right: var(--space-12);
+    max-width: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer {
+    transition-delay: 0s;
+  }
+}
+
+html.motion-reduced .drawer {
+  transition-delay: 0s;
 }
 
 @media (min-width: 43.75rem) {

@@ -76,6 +76,10 @@
   line-height: 1;
   text-decoration: none;
   padding: 0 var(--space-12);
+  border-radius: var(--radius-12);
+  transition:
+    background-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard);
 }
 
 .sidebar__brand-logo {
@@ -104,12 +108,33 @@
   font-size: var(--fs-14);
   font-weight: var(--fw-medium);
   line-height: 1.35;
+  transition:
+    background-color var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard);
 }
 
 .sidebar__link--active {
-  background: rgba(107, 124, 255, 0.12);
+  background: var(--state-active);
+  box-shadow: inset 3px 0 0 var(--primary);
   color: var(--text);
   font-weight: var(--fw-semibold);
+}
+
+@media (hover: hover) {
+  .sidebar__brand:hover,
+  .sidebar__link:hover {
+    background: var(--state-hover);
+    color: var(--text);
+  }
+}
+
+.sidebar__link:focus-visible {
+  background: var(--state-active);
+}
+
+.sidebar__link:active {
+  background: var(--state-active);
 }
 
 @media (min-width: 64rem) {

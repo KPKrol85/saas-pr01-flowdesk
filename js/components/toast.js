@@ -1,4 +1,7 @@
 import { createElement } from '../core/dom.js';
+import { prefersReducedMotion } from '../utils/motion.js';
+
+const toastExitDuration = 140;
 
 const ensureStack = () => {
   let stack = document.querySelector('.toast-stack');
@@ -9,13 +12,25 @@ const ensureStack = () => {
   return stack;
 };
 
+const dismissToast = (toast) => {
+  if (!toast.isConnected) return;
+
+  if (prefersReducedMotion()) {
+    toast.remove();
+    return;
+  }
+
+  toast.classList.add('toast--leaving');
+  window.setTimeout(() => toast.remove(), toastExitDuration);
+};
+
 export const showToast = (message) => {
   const stack = ensureStack();
   const toast = document.createElement('div');
   toast.className = 'toast';
   toast.textContent = message;
   stack.appendChild(toast);
-  setTimeout(() => toast.remove(), 3200);
+  setTimeout(() => dismissToast(toast), 3200);
 };
 
 export const showActionToast = ({ message, actionLabel, onAction, timeout = 0 }) => {
@@ -33,13 +48,13 @@ export const showActionToast = ({ message, actionLabel, onAction, timeout = 0 })
   action.textContent = actionLabel;
   action.addEventListener('click', () => {
     onAction?.();
-    toast.remove();
+    dismissToast(toast);
   });
   toast.appendChild(action);
   stack.appendChild(toast);
 
   if (timeout > 0) {
-    setTimeout(() => toast.remove(), timeout);
+    setTimeout(() => dismissToast(toast), timeout);
   }
 
   return toast;

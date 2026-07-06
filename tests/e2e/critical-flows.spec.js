@@ -84,6 +84,27 @@ test('user can switch theme', async ({ page }) => {
   await expect(page.locator('body')).toHaveClass(/theme-dark/);
 });
 
+test('user menu and reduced motion setting stay keyboard accessible', async ({ page }) => {
+  await loginDemoUser(page);
+
+  const userMenu = page.getByRole('button', { name: 'Otwórz menu użytkownika' });
+  await userMenu.click();
+  await expect(userMenu).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.getByRole('menu')).toBeVisible();
+
+  await page.keyboard.press('Escape');
+
+  await expect(userMenu).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.getByRole('menu')).toBeHidden();
+  await expect(userMenu).toBeFocused();
+
+  await page.getByRole('link', { name: /Ustawienia/ }).click();
+  await page.getByLabel('Ogranicz animacje').check();
+
+  await expect(page.locator('html')).toHaveClass(/motion-reduced/);
+  await expect(page.getByText('Zaktualizowano preferencje animacji.')).toBeVisible();
+});
+
 test('user can search globally and open a client detail route', async ({ page }) => {
   await loginDemoUser(page);
 

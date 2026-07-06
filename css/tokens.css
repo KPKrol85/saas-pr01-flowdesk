@@ -45,6 +45,12 @@
   --shadow-md: 0 12px 30px rgba(10, 16, 30, 0.12);
   --shadow-lg: 0 20px 50px rgba(10, 16, 30, 0.18);
 
+  /* Interaction */
+  --motion-fast: 120ms;
+  --motion-base: 180ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --disabled-opacity: 0.58;
+
   /* Z-Index */
   --z-base: 1;
   --z-topbar: 20;
@@ -72,6 +78,10 @@
   --warning: #8a5200;
   --danger: #b42323;
   --info: #3747c4;
+  --state-hover: rgba(37, 94, 220, 0.08);
+  --state-active: rgba(37, 94, 220, 0.14);
+  --focus-ring: rgba(37, 94, 220, 0.24);
+  --danger-soft: rgba(180, 35, 35, 0.12);
 }
 
 .theme-dark {
@@ -87,4 +97,8 @@
   --warning: #f4a53b;
   --danger: #ff7c7c;
   --info: #8e9bff;
+  --state-hover: rgba(107, 124, 255, 0.14);
+  --state-active: rgba(107, 124, 255, 0.2);
+  --focus-ring: rgba(107, 124, 255, 0.34);
+  --danger-soft: rgba(255, 124, 124, 0.14);
 }

@@ -117,15 +117,34 @@ const renderShell = (activePath, view, params = {}) => {
 
   const userMenuBtn = qs('#userMenuBtn', app);
   const userMenuPanel = qs('#userMenuPanel', app);
+
+  const closeUserMenu = ({ restoreFocus = false } = {}) => {
+    userMenuPanel.classList.remove('user-menu__panel--open');
+    userMenuBtn.setAttribute('aria-expanded', 'false');
+    if (restoreFocus) userMenuBtn.focus();
+  };
+
+  const handleUserMenuEscape = (event) => {
+    if (event.key !== 'Escape' || !userMenuPanel.classList.contains('user-menu__panel--open')) return;
+    event.preventDefault();
+    closeUserMenu({ restoreFocus: true });
+  };
+
   userMenuBtn?.addEventListener('click', () => {
-    const isOpen = userMenuPanel.classList.toggle('user-menu__panel--open');
-    userMenuBtn.setAttribute('aria-expanded', String(isOpen));
+    const isOpen = !userMenuPanel.classList.contains('user-menu__panel--open');
+    if (isOpen) {
+      userMenuPanel.classList.add('user-menu__panel--open');
+      userMenuBtn.setAttribute('aria-expanded', 'true');
+      return;
+    }
+    closeUserMenu({ restoreFocus: true });
   });
+  userMenuBtn?.addEventListener('keydown', handleUserMenuEscape);
+  userMenuPanel?.addEventListener('keydown', handleUserMenuEscape);
   if (userMenuHandler) document.removeEventListener('click', userMenuHandler);
   userMenuHandler = (event) => {
     if (!userMenuPanel.contains(event.target) && !userMenuBtn.contains(event.target)) {
-      userMenuPanel.classList.remove('user-menu__panel--open');
-      userMenuBtn.setAttribute('aria-expanded', 'false');
+      closeUserMenu();
     }
   };
   document.addEventListener('click', userMenuHandler);

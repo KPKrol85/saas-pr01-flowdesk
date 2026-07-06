@@ -381,6 +381,8 @@ Bring all form and confirmation interactions to one coherent product standard.
 
 ## 9. Microinteractions, States, And Reduced Motion
 
+**Status:** Done — refined restrained hover, active, disabled, focus-visible, modal, drawer, toast, user-menu, and reduced-motion interaction states while preserving accessibility and performance.
+
 ### Goal
 
 Add small interaction details that make the UI feel responsive while staying restrained and accessible.
