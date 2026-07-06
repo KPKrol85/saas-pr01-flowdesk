@@ -423,6 +423,8 @@ Add small interaction details that make the UI feel responsive while staying res
 
 ## 10. Visual QA, Responsive QA, Accessibility Checks, And Test Checklist
 
+**Status:** Done — created a repeatable final UI QA checklist and completed responsive, theme, reduced-motion, keyboard, accessibility, PWA, performance, and diff hygiene checks.
+
 ### Goal
 
 Make UI polish verifiable through a repeatable checklist instead of subjective visual approval.

@@ -509,6 +509,10 @@
   gap: var(--space-4);
 }
 
+.search__results[hidden] {
+  display: none;
+}
+
 .search__result {
   display: grid;
   gap: var(--space-2);

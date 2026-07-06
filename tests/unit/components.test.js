@@ -81,24 +81,31 @@ describe('ui components', () => {
     expect(table.querySelector('td').textContent).toBe('<Cell>');
   });
 
-  it('confirms destructive actions through the modal component', () => {
+  it('confirms destructive actions through the modal component', async () => {
+    vi.useFakeTimers();
     const onConfirm = vi.fn();
 
-    openConfirmDialog({
-      title: 'Delete record',
-      message: '<script>alert(1)</script>',
-      confirmLabel: 'Delete',
-      destructive: true,
-      onConfirm
-    });
+    try {
+      openConfirmDialog({
+        title: 'Delete record',
+        message: '<script>alert(1)</script>',
+        confirmLabel: 'Delete',
+        destructive: true,
+        onConfirm
+      });
 
-    expect(document.querySelector('.modal__title').textContent).toBe('Delete record');
-    expect(document.querySelector('.confirm-dialog').textContent).toContain('<script>alert(1)</script>');
-    expect(document.querySelector('.confirm-dialog script')).toBeNull();
+      expect(document.querySelector('.modal__title').textContent).toBe('Delete record');
+      expect(document.querySelector('.confirm-dialog').textContent).toContain('<script>alert(1)</script>');
+      expect(document.querySelector('.confirm-dialog script')).toBeNull();
 
-    document.getElementById('confirmDialogConfirm').click();
+      document.getElementById('confirmDialogConfirm').click();
 
-    expect(onConfirm).toHaveBeenCalledTimes(1);
-    expect(document.querySelector('.modal-backdrop')).toBeNull();
+      expect(onConfirm).toHaveBeenCalledTimes(1);
+      await vi.runAllTimersAsync();
+      expect(document.querySelector('.modal-backdrop')).toBeNull();
+    } finally {
+      document.querySelector('.modal-backdrop')?.remove();
+      vi.useRealTimers();
+    }
   });
 });
