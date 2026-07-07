@@ -1,14 +1,24 @@
 # FlowDesk
 
-FlowDesk to demonstracyjna aplikacja SPA typu Service Management Dashboard dla małych firm usługowych. Projekt pokazuje, jak może wyglądać lekki panel operacyjny do obsługi klientów, zleceń, wydarzeń, podstawowych KPI oraz preferencji użytkownika.
+FlowDesk to demonstracyjna aplikacja SPA typu Service Management Dashboard dla małych firm usługowych i zespołów obsługujących klientów, zlecenia, wizyty oraz działania operacyjne. Projekt pokazuje, jak może wyglądać lekki panel SaaS do prowadzenia pracy od klienta, przez zlecenie, po terminy, priorytety i podstawowe KPI.
 
-Aktualna wersja działa w całości po stronie przeglądarki. Nie ma backendu, prawdziwego uwierzytelniania ani zewnętrznej bazy danych. Stan aplikacji jest zapisywany w `localStorage`, a dane startowe pochodzą z `js/data/seed.js`. Projekt jest dobrym początkiem pod rozwój produktu, ale przed użyciem produkcyjnym wymaga warstwy jakości, bezpieczeństwa, testów, kontraktów danych i docelowej architektury API.
+Demo jest skierowane do portfolio review: w pierwszej minucie ma pokazać spójny produktowy scenariusz dla zespołu usługowego, a jednocześnie jasno oddzielić warstwę demonstracyjną od produkcyjnego systemu. Aplikacja obejmuje przykładowe dane klientów, zleceń, wydarzeń, dashboard operacyjny, globalne wyszukiwanie, bezpieczne akcje demo, eksport/import JSON, reset danych oraz preferencje użytkownika.
+
+Aktualna wersja działa w całości po stronie przeglądarki. Nie ma backendu, prawdziwego uwierzytelniania, zewnętrznej bazy danych, live API, billing ani synchronizacji w chmurze. Stan aplikacji jest zapisywany lokalnie w `localStorage`, a dane startowe pochodzą z `js/data/seed.js`. Projekt jest dobrym początkiem pod rozwój produktu, ale przed użyciem produkcyjnym wymaga backendowego auth, trwałej persystencji, walidacji serwerowej, security headers, monitoringu i docelowej architektury API.
+
+## Narracja demo
+
+- **Docelowy użytkownik:** właściciel, manager operacyjny albo mały zespół serwisowy, który musi widzieć klientów, aktywne zlecenia, terminy, priorytety i kolejne działania w jednym miejscu.
+- **Główny problem:** rozproszone informacje o klientach, zleceniach, wydarzeniach i statusach utrudniają codzienną obsługę usług.
+- **Obietnica demo:** FlowDesk pokazuje, jak frontendowy panel SaaS może uporządkować prosty proces service management bez ciężkiego systemu enterprise.
+- **Główne powierzchnie:** dashboard, klienci, szczegóły klienta, zlecenia, szczegóły zlecenia, kalendarz, ustawienia, topbar search, sidebar, modal, drawer i toast.
+- **Granice demo:** dane są lokalne, auth jest demonstracyjne, RBAC i sync metadata są kontraktami gotowościowymi, a produkcja wymaga backendu, bazy danych i kontroli bezpieczeństwa po stronie serwera.
 
 ## Najważniejsze funkcje
 
 - Logowanie demonstracyjne z walidacją emaila i hasła.
 - Guard routingu blokujący widoki aplikacji bez aktywnej sesji demo.
-- Dashboard z KPI, aktywnymi zleceniami, wydarzeniami i zaległymi zadaniami.
+- Dashboard z KPI, aktywnymi zleceniami, wydarzeniami i działaniami wymagającymi uwagi.
 - Widok klientów z filtrowaniem, sortowaniem, segmentami, ownerami, tagami, kontaktami, archiwizacją i panelem szczegółów.
 - Osobne trasy szczegółów klientów i zleceń z historią aktywności, relacjami i metadanymi operacyjnymi.
 - Widok zleceń w formie prostego kanbana z filtrami statusu, priorytetu i archiwum.

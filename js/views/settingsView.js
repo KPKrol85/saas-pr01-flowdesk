@@ -16,7 +16,7 @@ export const renderSettingsView = (container) => {
 
   container.innerHTML = `
     <main id="main" class="container">
-      ${pageHeader({ title: 'Ustawienia', description: 'Zarządzaj profilem, preferencjami i narzędziami danych.' })}
+      ${pageHeader({ title: 'Ustawienia', description: 'Zarządzaj profilem demo, preferencjami i lokalnymi danymi demonstracyjnymi.' })}
 
       <section class="settings-grid">
         <div class="card">
@@ -27,7 +27,7 @@ export const renderSettingsView = (container) => {
             <div><strong>Rola:</strong> ${escapeHTML(session?.membership?.role || session?.role || 'Owner')}</div>
             <div><strong>Email:</strong> ${escapeHTML(session?.user?.email || session?.email || 'alicja@flowdesk.pl')}</div>
           </div>
-          <p class="input__helper">To jest mock danych profilu (bez backendu).</p>
+          <p class="input__helper">Dane profilu są przykładowe i pokazują przyszły kontekst zespołu.</p>
         </div>
 
         <div class="card">
@@ -51,7 +51,7 @@ export const renderSettingsView = (container) => {
           ${button({ label: 'Eksportuj JSON', id: 'exportData', variant: 'secondary', iconName: 'export' })}
           ${button({ label: 'Reset demo danych', id: 'resetData', variant: 'secondary', iconName: 'reset', className: 'btn--destructive' })}
         </div>
-        <p class="input__helper">Reset przywróci dane demo zapisane w localStorage.</p>
+        <p class="input__helper">Reset przywróci lokalny zestaw danych demonstracyjnych.</p>
       </section>
 
       <section class="card">
@@ -62,11 +62,11 @@ export const renderSettingsView = (container) => {
             label: 'Dane JSON',
             rows: 8,
             placeholder: '{ "clients": [], "projects": [], "events": [] }',
-            helper: 'Import zastąpi lokalne dane demo po migracji i walidacji domenowej.'
+            helper: 'Import zastąpi lokalny zestaw demo po sprawdzeniu zgodności danych.'
           })}
           ${button({ label: 'Importuj JSON', type: 'submit', variant: 'secondary', iconName: 'export' })}
         </form>
-        <p class="input__helper">Nie importuj danych poufnych. To nadal lokalny demo store w przeglądarce.</p>
+        <p class="input__helper">Nie importuj danych poufnych. FlowDesk przechowuje ten zestaw tylko lokalnie w przeglądarce.</p>
       </section>
     </main>
   `;

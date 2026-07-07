@@ -46,6 +46,7 @@ Generated files, minified files, service worker assets, and package files should
 **Priority:** High
 **Risk Level:** Low
 **Recommended Task Type:** documentation, UX/content polish, audit-only
+**Status:** Done - audited the product narrative across README, app shell, login, dashboard, settings, quick add, import, export, reset, search, modal, drawer, toast, and confirm copy. Updated README first-minute product story, refined visible demo-boundary copy, and preserved frontend-only scope.
 
 ### Goal
 

@@ -165,7 +165,7 @@ const renderShell = (activePath, view, params = {}) => {
       title: 'Szybkie dodanie',
       content: `
         <div class="list">
-          <p>Wybierz typ rekordu do utworzenia. Dane zostaną zapisane w demo store.</p>
+          <p>Wybierz rekord operacyjny do utworzenia w lokalnej przestrzeni demo.</p>
           ${button({ label: 'Nowy klient', variant: 'secondary', iconName: 'clients', attributes: { 'data-quick': 'client' } })}
           ${button({ label: 'Nowe zlecenie', variant: 'secondary', iconName: 'projects', attributes: { 'data-quick': 'project' } })}
         </div>

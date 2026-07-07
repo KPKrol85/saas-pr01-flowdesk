@@ -30,7 +30,7 @@ export const renderDashboardView = (container) => {
 
   container.innerHTML = `
     <main id="main" class="container">
-      ${pageHeader({ title: 'Dashboard', description: 'Szybki podgląd kluczowych działań i stanu operacji.' })}
+      ${pageHeader({ title: 'Dashboard', description: 'Przegląd klientów, zleceń, terminów i działań wymagających uwagi.' })}
 
       <section class="dashboard-grid">
         <div class="dashboard-kpi">
