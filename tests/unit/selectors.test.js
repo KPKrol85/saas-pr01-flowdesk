@@ -25,7 +25,15 @@ const referenceDate = new Date('2026-07-04T12:00:00.000Z');
 const state = migrateState(
   {
     clients: [
-      { id: 'c1', name: 'Nova Studio', email: 'nova@test.pl', status: 'Aktywny', tags: ['web'], owner: 'Alicja' },
+      {
+        id: 'c1',
+        name: 'Nova Studio',
+        email: 'nova@test.pl',
+        status: 'Aktywny',
+        tags: ['web'],
+        owner: 'Alicja',
+        contacts: [{ id: 'ct1', name: 'Marta Demo', role: 'Operations Lead', email: 'marta@nova.test', phone: '+48 500 100 100' }]
+      },
       { id: 'c2', name: 'Aurora Clinic', email: 'aurora@test.pl', status: 'Potencjalny', segment: 'Healthcare' },
       { id: 'c3', name: 'Archived Client', email: 'archive@test.pl', status: 'Aktywny', archivedAt: '2026-07-01T10:00:00.000Z' }
     ],
@@ -54,7 +62,7 @@ const state = migrateState(
     ],
     events: [
       { id: 'e1', title: 'Today call', date: '2026-07-04T10:00:00.000Z', clientId: 'c1', projectId: 'p1' },
-      { id: 'e2', title: 'Weekly review', date: '2026-07-10T10:00:00.000Z', clientId: 'c2', projectId: 'p3' },
+      { id: 'e2', title: 'Weekly review', date: '2026-07-10T10:00:00.000Z', clientId: 'c2', projectId: 'p3', type: 'Meeting' },
       { id: 'e3', title: 'Later event', date: '2026-07-12T10:00:00.000Z', clientId: 'c2', projectId: 'p3' }
     ],
     ui: { theme: 'light', reducedMotion: false }
@@ -118,8 +126,32 @@ describe('state selectors', () => {
   it('returns safe global search targets', () => {
     const results = selectGlobalSearchResults(state, 'nova');
 
-    expect(results).toContainEqual(expect.objectContaining({ type: 'client', href: '#/clients/c1' }));
+    expect(results[0]).toMatchObject({
+      type: 'client',
+      label: 'Klient',
+      title: 'Nova Studio',
+      href: '#/clients/c1'
+    });
+    expect(results[0].description).toContain('Owner: Alicja');
+    expect(results[0]).not.toHaveProperty('score');
     expect(selectGlobalSearchResults(state, 'future')).toContainEqual(expect.objectContaining({ type: 'project', href: '#/projects/p3' }));
     expect(selectGlobalSearchResults(state, 'zz')).toEqual([]);
+  });
+
+  it('matches global search metadata and keeps deterministic result ordering', () => {
+    expect(selectGlobalSearchResults(state, 'marta')[0]).toMatchObject({ type: 'client', href: '#/clients/c1' });
+    expect(selectGlobalSearchResults(state, 'meeting')).toContainEqual(
+      expect.objectContaining({
+        type: 'event',
+        title: 'Weekly review',
+        description: expect.stringContaining('Aurora Clinic'),
+        href: '#/calendar'
+      })
+    );
+    expect(
+      selectGlobalSearchResults(state, 'review')
+        .map((result) => result.type)
+        .slice(0, 2)
+    ).toEqual(['project', 'event']);
   });
 });

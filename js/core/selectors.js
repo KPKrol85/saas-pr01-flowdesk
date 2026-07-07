@@ -1,4 +1,5 @@
 import { isTerminalProjectStatus, normalizeString } from '../domain/validators.js';
+import { formatDate } from '../utils/format.js';
 
 const toValidDate = (value) => {
   const date = new Date(value);
@@ -30,6 +31,50 @@ const matchesTerm = (term, values) => {
   if (!normalizedTerm) return true;
   return values.some((value) => normalizeString(value).toLowerCase().includes(normalizedTerm));
 };
+
+const compactParts = (parts) =>
+  parts
+    .map((part) => normalizeString(part))
+    .filter(Boolean)
+    .join(' · ');
+
+const contactSearchValues = (contacts = []) => contacts.flatMap((contact) => [contact.name, contact.role, contact.email, contact.phone]).map((value) => normalizeString(value));
+
+const scoreMatch = (term, value, weight) => {
+  const normalizedValue = normalizeString(value).toLowerCase();
+  if (!normalizedValue || !normalizedValue.includes(term)) return 0;
+  if (normalizedValue === term) return weight + 30;
+  if (normalizedValue.startsWith(term)) return weight + 15;
+  return weight;
+};
+
+const scoreSearchFields = (term, groups) =>
+  groups.reduce((bestScore, group) => {
+    const groupScore = group.values.reduce((score, value) => Math.max(score, scoreMatch(term, value, group.weight)), 0);
+    return Math.max(bestScore, groupScore);
+  }, 0);
+
+const searchTypeOrder = {
+  client: 0,
+  project: 1,
+  event: 2
+};
+
+const bySearchQuality = (a, b) => {
+  if (b.score !== a.score) return b.score - a.score;
+  if (searchTypeOrder[a.type] !== searchTypeOrder[b.type]) return searchTypeOrder[a.type] - searchTypeOrder[b.type];
+  if (a.sortDate !== b.sortDate) return a.sortDate - b.sortDate;
+  return a.title.localeCompare(b.title);
+};
+
+const toPublicSearchResult = ({ type, label, id, title, description, href }) => ({
+  type,
+  label,
+  id,
+  title,
+  description,
+  href
+});
 
 export const selectClients = (state) => state.clients;
 
@@ -224,41 +269,73 @@ export const selectProjectDetail = (state, projectId) => {
 };
 
 export const selectGlobalSearchResults = (state, term, limit = 8) => {
-  const normalizedTerm = normalizeString(term);
+  const normalizedTerm = normalizeString(term).toLowerCase();
   if (normalizedTerm.length < 2) return [];
 
   const clientResults = selectActiveClients(state)
-    .filter((client) => matchesTerm(normalizedTerm, [client.name, client.email, client.phone, client.segment, client.owner, ...(client.tags || [])]))
-    .map((client) => ({
-      type: 'client',
-      label: 'Klient',
-      id: client.id,
-      title: client.name,
-      description: `${client.email} · ${client.segment}`,
-      href: `#/clients/${encodeURIComponent(client.id)}`
-    }));
+    .map((client) => {
+      const contactValues = contactSearchValues(client.contacts);
+      const score = scoreSearchFields(normalizedTerm, [
+        { weight: 90, values: [client.name] },
+        { weight: 60, values: [client.email, client.phone, client.status, client.segment, client.owner, ...(client.tags || [])] },
+        { weight: 45, values: contactValues }
+      ]);
+
+      return {
+        type: 'client',
+        label: 'Klient',
+        id: client.id,
+        title: client.name,
+        description: compactParts([client.segment, client.status, client.owner ? `Owner: ${client.owner}` : '', client.email]),
+        href: `#/clients/${encodeURIComponent(client.id)}`,
+        score,
+        sortDate: Number.MAX_SAFE_INTEGER
+      };
+    })
+    .filter((result) => result.score > 0);
 
   const projectResults = selectProjectsWithClients(state, selectActiveProjectRecords(state))
-    .filter((project) => matchesTerm(normalizedTerm, [project.name, project.status, project.priority, project.client?.name, project.notes, project.sla?.serviceLevel]))
-    .map((project) => ({
-      type: 'project',
-      label: 'Zlecenie',
-      id: project.id,
-      title: project.name,
-      description: `${project.client?.name || 'Bez klienta'} · ${project.status}`,
-      href: `#/projects/${encodeURIComponent(project.id)}`
-    }));
+    .map((project) => {
+      const score = scoreSearchFields(normalizedTerm, [
+        { weight: 90, values: [project.name] },
+        { weight: 60, values: [project.status, project.priority, project.sla?.serviceLevel] },
+        { weight: 45, values: [project.client?.name, project.notes] }
+      ]);
+
+      return {
+        type: 'project',
+        label: 'Zlecenie',
+        id: project.id,
+        title: project.name,
+        description: compactParts([project.client?.name || 'Bez klienta', project.status, project.priority, project.sla?.serviceLevel]),
+        href: `#/projects/${encodeURIComponent(project.id)}`,
+        score,
+        sortDate: toValidDate(project.dueDate)?.getTime() || Number.MAX_SAFE_INTEGER
+      };
+    })
+    .filter((result) => result.score > 0);
 
   const eventResults = selectEventsWithRelations(state)
-    .filter((event) => matchesTerm(normalizedTerm, [event.title, event.client?.name, event.project?.name, event.type]))
-    .map((event) => ({
-      type: 'event',
-      label: 'Wydarzenie',
-      id: event.id,
-      title: event.title,
-      description: `${event.client?.name || 'Bez klienta'} · ${event.project?.name || 'Bez projektu'}`,
-      href: '#/calendar'
-    }));
+    .map((event) => {
+      const eventDate = toValidDate(event.date);
+      const score = scoreSearchFields(normalizedTerm, [
+        { weight: 90, values: [event.title] },
+        { weight: 60, values: [event.type] },
+        { weight: 45, values: [event.client?.name, event.project?.name] }
+      ]);
 
-  return [...clientResults, ...projectResults, ...eventResults].slice(0, limit);
+      return {
+        type: 'event',
+        label: 'Wydarzenie',
+        id: event.id,
+        title: event.title,
+        description: compactParts([event.type, formatDate(event.date), event.client?.name || 'Bez klienta', event.project?.name || 'Bez projektu']),
+        href: '#/calendar',
+        score,
+        sortDate: eventDate?.getTime() || Number.MAX_SAFE_INTEGER
+      };
+    })
+    .filter((result) => result.score > 0);
+
+  return [...clientResults, ...projectResults, ...eventResults].sort(bySearchQuality).slice(0, limit).map(toPublicSearchResult);
 };

@@ -129,11 +129,44 @@ test('user can search globally and open a client detail route', async ({ page })
   await loginDemoUser(page);
 
   await page.getByLabel('Szukaj').fill('Nova');
-  await page.getByRole('link', { name: /Klient Nova Studio/ }).click();
+  await page.getByRole('link', { name: /Klient: Nova Studio/ }).click();
 
   await expect(page).toHaveURL(/#\/clients\/c1/);
   await expect(page.getByRole('heading', { name: 'Nova Studio' })).toBeVisible();
   await expect(page.getByText('Powiązane zlecenia')).toBeVisible();
+});
+
+test('global search supports metadata matches, no-match state, and keyboard navigation', async ({ page }) => {
+  await loginDemoUser(page);
+
+  const search = page.getByLabel('Szukaj');
+  const resultsPanel = page.locator('#searchResults');
+
+  await search.fill('bez-wyniku');
+  await expect(page.getByText('Brak wyników dla tej frazy.')).toBeVisible();
+  await expect(resultsPanel).toBeVisible();
+
+  await search.fill('Marta Demo');
+  await expect(page.getByRole('link', { name: /Klient: Nova Studio/ })).toBeVisible();
+
+  await search.fill('Wizyta');
+  const eventResult = page.getByRole('link', { name: /Wydarzenie: Wizyta serwisowa: klimatyzacja/ });
+  await expect(eventResult).toBeVisible();
+
+  await search.press('ArrowDown');
+  await expect(eventResult).toBeFocused();
+
+  await page.keyboard.press('Escape');
+  await expect(search).toBeFocused();
+  await expect(search).toHaveValue('');
+  await expect(resultsPanel).toBeHidden();
+
+  await search.fill('Wizyta');
+  await search.press('ArrowDown');
+  await page.keyboard.press('Enter');
+
+  await expect(page).toHaveURL(/#\/calendar/);
+  await expect(page.getByRole('heading', { name: 'Kalendarz' })).toBeVisible();
 });
 
 test('user can open a project detail route and update its checklist', async ({ page }) => {

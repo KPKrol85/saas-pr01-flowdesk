@@ -162,6 +162,7 @@ Make the most important demo journeys feel intentional, complete, and easy to ev
 **Priority:** Medium
 **Risk Level:** Medium
 **Recommended Task Type:** frontend implementation, UX/content polish, tests
+**Status:** Done - audited global search targets, searchable fields, labels, metadata, destinations, no-match state, keyboard flow, pointer behavior, and responsive shell compatibility. Improved client contact matching, project and event context, deterministic lightweight ranking, result accessibility, and focused unit, e2e, and a11y coverage while preserving the existing topbar model and architecture.
 
 ### Goal
 

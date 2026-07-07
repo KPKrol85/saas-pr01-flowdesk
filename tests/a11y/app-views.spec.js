@@ -1,4 +1,4 @@
-import { test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { expectNoA11yViolations } from '../helpers/a11y.js';
 import { loginDemoUser, resetBrowserState } from '../helpers/e2e.js';
 
@@ -15,6 +15,16 @@ test('mobile navigation drawer has no axe violations when open', async ({ page }
 
   await page.locator('#drawerToggle').click();
   await page.getByRole('dialog', { name: 'Menu główne' }).waitFor();
+
+  await expectNoA11yViolations(page);
+});
+
+test('global search results panel has no axe violations when open', async ({ page }) => {
+  await resetBrowserState(page);
+  await loginDemoUser(page);
+
+  await page.getByLabel('Szukaj').fill('Nova');
+  await expect(page.getByRole('link', { name: /Klient: Nova Studio/ })).toBeVisible();
 
   await expectNoA11yViolations(page);
 });

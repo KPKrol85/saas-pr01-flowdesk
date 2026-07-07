@@ -60,19 +60,20 @@ const runPendingQuickAction = () => {
 
 const renderSearchResults = (results) => {
   if (!results.length) {
-    return '<div class="search__empty">Brak wyników.</div>';
+    return '<div class="search__empty" role="status">Brak wyników dla tej frazy.</div>';
   }
 
   return results
-    .map(
-      (result) => `
-        <a class="search__result" href="${escapeAttribute(result.href)}" data-search-result>
+    .map((result) => {
+      const accessibleLabel = `${result.label}: ${result.title}. ${result.description}`;
+      return `
+        <a class="search__result" href="${escapeAttribute(result.href)}" data-search-result aria-label="${escapeAttribute(accessibleLabel)}">
           <span class="search__type">${escapeHTML(result.label)}</span>
           <strong>${escapeHTML(result.title)}</strong>
           <span>${escapeHTML(result.description)}</span>
         </a>
-      `
-    )
+      `;
+    })
     .join('');
 };
 
@@ -81,13 +82,24 @@ const bindGlobalSearch = () => {
   const panel = qs('#searchResults', app);
   if (!input || !panel) return;
 
-  const close = () => {
+  const searchResults = () => [...panel.querySelectorAll('[data-search-result]')];
+
+  const close = ({ clear = false, restoreFocus = false } = {}) => {
     panel.hidden = true;
     panel.innerHTML = '';
+    if (clear) input.value = '';
+    if (restoreFocus) input.focus();
   };
 
   const open = () => {
     panel.hidden = false;
+  };
+
+  const focusResult = (index) => {
+    const results = searchResults();
+    if (!results.length) return;
+    const nextIndex = (index + results.length) % results.length;
+    results[nextIndex].focus();
   };
 
   const update = () => {
@@ -107,16 +119,40 @@ const bindGlobalSearch = () => {
   input.addEventListener('input', update);
   input.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
-      input.value = '';
-      close();
+      event.preventDefault();
+      close({ clear: true });
     }
     if (event.key === 'ArrowDown') {
-      const firstResult = panel.querySelector('[data-search-result]');
-      if (firstResult) {
+      if (searchResults().length) {
         event.preventDefault();
-        firstResult.focus();
+        focusResult(0);
       }
     }
+  });
+
+  panel.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      close({ clear: true, restoreFocus: true });
+      return;
+    }
+
+    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+
+    const results = searchResults();
+    if (!results.length) return;
+
+    event.preventDefault();
+    const currentIndex = results.indexOf(document.activeElement);
+    if (event.key === 'Home') {
+      focusResult(0);
+      return;
+    }
+    if (event.key === 'End') {
+      focusResult(results.length - 1);
+      return;
+    }
+    focusResult(event.key === 'ArrowDown' ? currentIndex + 1 : currentIndex - 1);
   });
 
   if (searchCloseHandler) document.removeEventListener('click', searchCloseHandler);
