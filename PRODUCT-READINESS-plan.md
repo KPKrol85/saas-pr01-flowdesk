@@ -84,6 +84,7 @@ Clarify what FlowDesk demonstrates, who it is for, and which service management 
 **Priority:** High
 **Risk Level:** Medium
 **Recommended Task Type:** demo data, UX/content polish, tests
+**Status:** Done - audited seeded clients, projects, events, contacts, tags, SLA, estimates, comments, history, due dates, dashboard density, archived records, and data safety. Improved `js/data/seed.js` with a coherent fictional service-management workspace, safer `.test` contact data, meaningful overdue/upcoming work, richer relationships, and preserved schema compatibility.
 
 ### Goal
 
