@@ -218,7 +218,8 @@ export const renderProjectsView = (container) => {
           showProjectErrors(result);
           return;
         }
-        showToast('Dodano zlecenie.');
+        filterState = { status: 'all', priority: 'all', archive: 'active' };
+        showToast('Dodano zlecenie i pokazano je na aktywnej tablicy.');
         close();
         refresh();
       });

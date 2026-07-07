@@ -217,7 +217,9 @@ export const renderClientsView = (container) => {
           showClientErrors(result);
           return;
         }
-        showToast('Dodano klienta.');
+        selectedId = result.data.id;
+        filterState = { term: '', sort: 'name', archive: 'active' };
+        showToast('Dodano klienta i zaznaczono go w podglądzie.');
         close();
         refresh();
       });

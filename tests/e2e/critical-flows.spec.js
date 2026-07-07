@@ -23,8 +23,10 @@ test('user can add a client', async ({ page }) => {
   await page.getByLabel('Notatki').fill('Created by Playwright');
   await page.getByRole('button', { name: 'Zapisz' }).click();
 
-  await expect(page.getByText('Acme Service E2E')).toBeVisible();
-  await expect(page.getByText('e2e-client@flowdesk.test')).toBeVisible();
+  const clientRow = page.locator('tbody tr', { hasText: 'Acme Service E2E' });
+  await expect(clientRow).toBeVisible();
+  await expect(clientRow.getByText('e2e-client@flowdesk.test')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Acme Service E2E' })).toBeVisible();
 });
 
 test('user-entered client HTML is rendered as text', async ({ page }) => {
@@ -45,7 +47,8 @@ test('user-entered client HTML is rendered as text', async ({ page }) => {
   await page.getByLabel('Notatki').fill('<script>alert(1)</script>');
   await page.getByRole('button', { name: 'Zapisz' }).click();
 
-  await expect(page.getByText(payload)).toBeVisible();
+  await expect(page.locator('tbody tr', { hasText: payload })).toBeVisible();
+  await expect(page.getByRole('heading', { name: payload })).toBeVisible();
   await expect(page.locator('tbody img')).toHaveCount(0);
   await expect(page.locator('tbody script')).toHaveCount(0);
   expect(dialogs).toEqual([]);
@@ -62,6 +65,23 @@ test('user can add a project', async ({ page }) => {
   await page.getByRole('button', { name: 'Zapisz' }).click();
 
   await expect(page.getByText('E2E Service Job')).toBeVisible();
+});
+
+test('topbar quick add opens the client and project creation flows', async ({ page }) => {
+  await loginDemoUser(page);
+
+  await page.getByRole('button', { name: 'Nowy' }).click();
+  await page.getByRole('dialog', { name: 'Szybkie dodanie' }).getByRole('button', { name: 'Nowy klient' }).click();
+
+  await expect(page).toHaveURL(/#\/clients/);
+  await expect(page.getByRole('dialog', { name: 'Nowy klient' })).toBeVisible();
+  await page.getByRole('dialog', { name: 'Nowy klient' }).getByRole('button', { name: 'Anuluj' }).click();
+
+  await page.getByRole('button', { name: 'Nowy' }).click();
+  await page.getByRole('dialog', { name: 'Szybkie dodanie' }).getByRole('button', { name: 'Nowe zlecenie' }).click();
+
+  await expect(page).toHaveURL(/#\/projects/);
+  await expect(page.getByRole('dialog', { name: 'Nowe zlecenie' })).toBeVisible();
 });
 
 test('user can export JSON data', async ({ page }) => {

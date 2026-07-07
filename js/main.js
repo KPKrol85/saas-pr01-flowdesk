@@ -27,6 +27,36 @@ const applyTheme = () => {
 
 let userMenuHandler = null;
 let searchCloseHandler = null;
+let pendingQuickAction = '';
+
+const quickActionTargets = Object.freeze({
+  client: {
+    hash: '#/clients',
+    trigger: '#addClient',
+    fallback: 'Przejdź do klientów i użyj przycisku dodawania.'
+  },
+  project: {
+    hash: '#/projects',
+    trigger: '#addProject',
+    fallback: 'Przejdź do zleceń i użyj przycisku dodawania.'
+  }
+});
+
+const runPendingQuickAction = () => {
+  const action = pendingQuickAction;
+  const target = quickActionTargets[action];
+  if (!target) return;
+  pendingQuickAction = '';
+
+  window.setTimeout(() => {
+    const trigger = qs(target.trigger, app);
+    if (!trigger) {
+      showToast(target.fallback);
+      return;
+    }
+    trigger.click();
+  }, 160);
+};
 
 const renderSearchResults = (results) => {
   if (!results.length) {
@@ -114,6 +144,7 @@ const renderShell = (activePath, view, params = {}) => {
   const viewContainer = qs('#view', app);
   view(viewContainer, params);
   bindGlobalSearch();
+  runPendingQuickAction();
 
   const userMenuBtn = qs('#userMenuBtn', app);
   const userMenuPanel = qs('#userMenuPanel', app);
@@ -157,7 +188,9 @@ const renderShell = (activePath, view, params = {}) => {
 
   qs('#themeToggle', app)?.addEventListener('click', () => {
     const current = selectUiPreferences(store.getState()).theme;
-    store.actions.updateUiPreferences({ theme: current === 'light' ? 'dark' : 'light' });
+    const nextTheme = current === 'light' ? 'dark' : 'light';
+    const result = store.actions.updateUiPreferences({ theme: nextTheme });
+    showToast(result.ok ? `Włączono motyw ${nextTheme === 'dark' ? 'ciemny' : 'jasny'}.` : 'Nie udało się zaktualizować motywu.');
   });
 
   qs('#quickAdd', app)?.addEventListener('click', () => {
@@ -165,7 +198,7 @@ const renderShell = (activePath, view, params = {}) => {
       title: 'Szybkie dodanie',
       content: `
         <div class="list">
-          <p>Wybierz rekord operacyjny do utworzenia w lokalnej przestrzeni demo.</p>
+          <p>Wybierz formularz, który chcesz otworzyć w lokalnej przestrzeni demo.</p>
           ${button({ label: 'Nowy klient', variant: 'secondary', iconName: 'clients', attributes: { 'data-quick': 'client' } })}
           ${button({ label: 'Nowe zlecenie', variant: 'secondary', iconName: 'projects', attributes: { 'data-quick': 'project' } })}
         </div>
@@ -175,8 +208,15 @@ const renderShell = (activePath, view, params = {}) => {
 
     document.querySelectorAll('[data-quick]').forEach((button) => {
       button.addEventListener('click', () => {
-        showToast(`Dodano szkic: ${button.dataset.quick === 'client' ? 'klient' : 'zlecenie'}.`);
+        const target = quickActionTargets[button.dataset.quick];
+        if (!target) return;
+        pendingQuickAction = button.dataset.quick;
         close();
+        if (window.location.hash === target.hash) {
+          runPendingQuickAction();
+          return;
+        }
+        window.location.hash = target.hash;
       });
     });
   });

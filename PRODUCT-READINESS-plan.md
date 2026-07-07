@@ -123,6 +123,7 @@ Improve the credibility of FlowDesk demo data so core views feel like a real ser
 **Priority:** High
 **Risk Level:** Medium
 **Recommended Task Type:** audit-only, frontend implementation, UX/content polish, tests
+**Status:** Done - audited demo login, dashboard review, add client, client detail, add project, project detail, checklist, calendar event, global search, export, import, reset, archive, restore, theme, reduced motion, and logout flows. Refined quick add routing, mutation feedback, and post-create visibility while preserving architecture, routing, data models, and frontend-only scope.
 
 ### Goal
 

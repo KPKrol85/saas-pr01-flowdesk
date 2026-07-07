@@ -133,7 +133,7 @@ export const renderSettingsView = (container) => {
       showToast('Import JSON odrzucony.');
       return;
     }
-    showToast('Import JSON zakończony.');
+    showToast('Import JSON zakończony. Dane demo zostały zastąpione.');
     renderSettingsView(container);
   });
 };
