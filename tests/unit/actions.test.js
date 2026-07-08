@@ -124,6 +124,28 @@ describe('domain actions', () => {
     expect(result.issues).toContainEqual(expect.objectContaining({ field: 'json' }));
   });
 
+  it('rejects restored JSON with an invalid FlowDesk export shape', () => {
+    const result = restoreStateFromJsonAction(JSON.stringify({ clients: 'broken', projects: [], events: [] }), seedData);
+
+    expect(result.ok).toBe(false);
+    expect(result.error).toBe(ACTION_ERRORS.INVALID_SCHEMA);
+    expect(result.issues).toContainEqual(expect.objectContaining({ field: 'json' }));
+  });
+
+  it('rejects imported records that cannot be verified safely', () => {
+    const result = restoreStateFromJsonAction(
+      JSON.stringify({
+        clients: [{ id: 'c-broken', name: 'Broken Client', email: 'not-an-email' }],
+        projects: [],
+        events: []
+      }),
+      seedData
+    );
+
+    expect(result.ok).toBe(false);
+    expect(result.error).toBe(ACTION_ERRORS.INVALID_SCHEMA);
+  });
+
   it('resets demo data through the migrated seed state', () => {
     const result = resetDemoDataAction(seedData);
 

@@ -46,27 +46,27 @@ export const renderSettingsView = (container) => {
       </section>
 
       <section class="card">
-        <h2 class="card__title">Narzędzia danych</h2>
+        <h2 class="card__title">Lokalne dane demo</h2>
         <div class="list">
-          ${button({ label: 'Eksportuj JSON', id: 'exportData', variant: 'secondary', iconName: 'export' })}
-          ${button({ label: 'Reset demo danych', id: 'resetData', variant: 'secondary', iconName: 'reset', className: 'btn--destructive' })}
+          ${button({ label: 'Eksportuj lokalny JSON', id: 'exportData', variant: 'secondary', iconName: 'export' })}
+          ${button({ label: 'Resetuj dane demo', id: 'resetData', variant: 'secondary', iconName: 'reset', className: 'btn--destructive' })}
         </div>
-        <p class="input__helper">Reset przywróci lokalny zestaw danych demonstracyjnych.</p>
+        <p class="input__helper">Eksport pobiera aktualny lokalny stan demo jako plik JSON. Reset usuwa zmiany zapisane w tej przeglądarce i przywraca dane startowe.</p>
       </section>
 
       <section class="card">
-        <h2 class="card__title">Import JSON</h2>
+        <h2 class="card__title">Import lokalnego JSON</h2>
         <form id="importForm" class="form-grid settings-import-form">
           ${textareaField({
             id: 'jsonImport',
             label: 'Dane JSON',
             rows: 8,
             placeholder: '{ "clients": [], "projects": [], "events": [] }',
-            helper: 'Import zastąpi lokalny zestaw demo po sprawdzeniu zgodności danych.'
+            helper: 'Wklej pełny eksport FlowDesk JSON. Import zostanie sprawdzony przed zastąpieniem lokalnych danych demo.'
           })}
-          ${button({ label: 'Importuj JSON', type: 'submit', variant: 'secondary', iconName: 'export' })}
+          ${button({ label: 'Sprawdź i importuj JSON', type: 'submit', variant: 'secondary', iconName: 'export' })}
         </form>
-        <p class="input__helper">Nie importuj danych poufnych. FlowDesk przechowuje ten zestaw tylko lokalnie w przeglądarce.</p>
+        <p class="input__helper">Nie importuj danych poufnych. Niepoprawny JSON zostanie odrzucony, a odzyskiwalne brakujące powiązania zostaną bezpiecznie odłączone.</p>
       </section>
     </main>
   `;
@@ -102,13 +102,13 @@ export const renderSettingsView = (container) => {
     link.download = 'flowdesk-data.json';
     link.click();
     URL.revokeObjectURL(url);
-    showToast('Eksport danych gotowy.');
+    showToast('Pobrano lokalny eksport JSON demo.');
   });
 
   qs('#resetData', container)?.addEventListener('click', () => {
     openConfirmDialog({
       title: 'Reset demo danych',
-      message: 'Czy na pewno przywrócić dane demo?',
+      message: 'Reset przywróci startowy zestaw demo i usunie lokalne zmiany zapisane w tej przeglądarce.',
       confirmLabel: 'Resetuj',
       destructive: true,
       onConfirm: () => {
@@ -117,7 +117,7 @@ export const renderSettingsView = (container) => {
           showToast('Nie udało się przywrócić danych demo.');
           return;
         }
-        showToast('Dane demo zostały przywrócone.');
+        showToast('Przywrócono startowe dane demo.');
         renderSettingsView(container);
       }
     });
@@ -127,13 +127,27 @@ export const renderSettingsView = (container) => {
     event.preventDefault();
     setFieldError('jsonImport', '', container);
     const form = new FormData(event.currentTarget);
-    const result = store.actions.restoreStateFromJson(form.get('jsonImport'));
-    if (!result.ok) {
-      setFieldError('jsonImport', getActionFieldError(result, 'json') || 'Nie udało się zaimportować danych.', container);
-      showToast('Import JSON odrzucony.');
+    const importResult = store.actions.validateStateFromJson(form.get('jsonImport'));
+    if (!importResult.ok) {
+      setFieldError('jsonImport', getActionFieldError(importResult, 'json') || 'Nie udało się sprawdzić importu JSON.', container);
+      showToast('Import JSON odrzucony. Obecne dane demo pozostały bez zmian.');
       return;
     }
-    showToast('Import JSON zakończony. Dane demo zostały zastąpione.');
-    renderSettingsView(container);
+    openConfirmDialog({
+      title: 'Zastąp lokalne dane demo?',
+      message: 'Import zastąpi obecny lokalny zestaw demo danymi z poprawnego pliku JSON. Tej operacji nie można cofnąć w aplikacji.',
+      confirmLabel: 'Importuj i zastąp',
+      destructive: true,
+      onConfirm: () => {
+        const result = store.actions.restoreState(importResult.data);
+        if (!result.ok) {
+          setFieldError('jsonImport', getActionFieldError(result, 'json') || 'Nie udało się zaimportować danych.', container);
+          showToast('Import JSON nie został zapisany.');
+          return;
+        }
+        showToast('Import JSON zakończony. Lokalne dane demo zostały zastąpione po walidacji.');
+        renderSettingsView(container);
+      }
+    });
   });
 };

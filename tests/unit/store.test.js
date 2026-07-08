@@ -62,6 +62,24 @@ describe('store', () => {
     expect(store.getState().ui).toEqual({ theme: 'dark', reducedMotion: true });
   });
 
+  it('validates imported JSON without committing it to state', async () => {
+    const { store } = await loadStore();
+    const beforeCount = store.getState().clients.length;
+
+    const result = store.actions.validateStateFromJson(
+      JSON.stringify({
+        clients: [{ id: 'c-preview', name: 'Preview Client', email: 'preview@flowdesk.test' }],
+        projects: [],
+        events: [],
+        ui: { theme: 'dark' }
+      })
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.data.clients).toContainEqual(expect.objectContaining({ id: 'c-preview' }));
+    expect(store.getState().clients.length).toBe(beforeCount);
+  });
+
   it('normalizes corrupted stored state on startup', async () => {
     window.localStorage.setItem(
       STORAGE_KEY,

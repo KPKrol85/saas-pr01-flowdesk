@@ -49,15 +49,25 @@ describe('service management workflows', () => {
     expect(container.textContent).toContain('Archiwum');
   });
 
-  it('rejects malformed JSON import and accepts migrated JSON data', async () => {
+  it('rejects unsafe JSON import and accepts confirmed migrated JSON data', async () => {
     const container = createTestContainer();
     const { renderSettingsView } = await import('../../js/views/settingsView.js');
+    const { store } = await import('../../js/core/store.js');
 
     renderSettingsView(container);
+    const initialClientCount = store.getState().clients.length;
+
     setControlValue('Dane JSON', '{broken json');
-    getButton('Importuj JSON').click();
+    getButton('Sprawdź i importuj JSON').click();
 
     expect(container.textContent).toContain('Nieprawidłowy plik JSON.');
+    expect(store.getState().clients.length).toBe(initialClientCount);
+
+    setControlValue('Dane JSON', JSON.stringify({ clients: 'broken', projects: [], events: [] }));
+    getButton('Sprawdź i importuj JSON').click();
+
+    expect(container.textContent).toContain('Import musi zawierać pełny eksport FlowDesk JSON');
+    expect(store.getState().clients.length).toBe(initialClientCount);
 
     setControlValue(
       'Dane JSON',
@@ -68,9 +78,11 @@ describe('service management workflows', () => {
         ui: { theme: 'dark' }
       })
     );
-    getButton('Importuj JSON').click();
+    getButton('Sprawdź i importuj JSON').click();
 
-    const { store } = await import('../../js/core/store.js');
+    expect(document.body.textContent).toContain('Import zastąpi obecny lokalny zestaw demo');
+    document.getElementById('confirmDialogConfirm').click();
+
     expect(store.getState().clients).toContainEqual(expect.objectContaining({ id: 'c-import', segment: 'SMB' }));
   });
 });

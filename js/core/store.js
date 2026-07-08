@@ -105,6 +105,9 @@ export const createFlowDeskStore = ({ persistence = statePersistence } = {}) => 
     restoreStateFromJson(jsonText) {
       return commitActionResult(restoreStateFromJsonAction(jsonText, seedData));
     },
+    validateStateFromJson(jsonText) {
+      return restoreStateFromJsonAction(jsonText, seedData);
+    },
     exportState() {
       const result = exportStateAction(state);
       return { ok: true, data: result.data };

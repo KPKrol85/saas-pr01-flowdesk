@@ -29,6 +29,25 @@ test('global search results panel has no axe violations when open', async ({ pag
   await expectNoA11yViolations(page);
 });
 
+test('settings import confirmation dialog has no axe violations', async ({ page }) => {
+  await resetBrowserState(page);
+  await loginDemoUser(page);
+
+  await page.getByRole('link', { name: /Ustawienia/ }).click();
+  await page.getByLabel('Dane JSON').fill(
+    JSON.stringify({
+      clients: [{ id: 'c-import-a11y', name: 'A11y Import', email: 'a11y-import@flowdesk.test' }],
+      projects: [],
+      events: [],
+      ui: { theme: 'light' }
+    })
+  );
+  await page.getByRole('button', { name: 'Sprawdź i importuj JSON' }).click();
+  await expect(page.getByRole('dialog', { name: 'Zastąp lokalne dane demo?' })).toBeVisible();
+
+  await expectNoA11yViolations(page);
+});
+
 const protectedViews = [
   { name: 'dashboard', heading: 'Dashboard', open: async () => {} },
   { name: 'clients', heading: 'Klienci', open: async (page) => page.getByRole('link', { name: /Klienci/ }).click() },

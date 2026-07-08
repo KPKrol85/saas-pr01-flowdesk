@@ -89,7 +89,7 @@ test('user can export JSON data', async ({ page }) => {
 
   await page.getByRole('link', { name: /Ustawienia/ }).click();
   const downloadPromise = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Eksportuj JSON' }).click();
+  await page.getByRole('button', { name: 'Eksportuj lokalny JSON' }).click();
   const download = await downloadPromise;
 
   expect(download.suggestedFilename()).toBe('flowdesk-data.json');
@@ -278,7 +278,7 @@ test('user completes form, modal, restore, and reset flows', async ({ page }) =>
   await expect(page.getByText('E2E onboarding call')).toBeVisible();
 
   await page.getByRole('link', { name: /Ustawienia/ }).click();
-  const resetData = page.getByRole('button', { name: 'Reset demo danych' });
+  const resetData = page.getByRole('button', { name: 'Resetuj dane demo' });
   await resetData.click();
   dialog = page.getByRole('dialog', { name: 'Reset demo danych' });
   await dialog.getByRole('button', { name: 'Anuluj' }).click();
@@ -288,16 +288,20 @@ test('user completes form, modal, restore, and reset flows', async ({ page }) =>
   await resetData.click();
   dialog = page.getByRole('dialog', { name: 'Reset demo danych' });
   await dialog.getByRole('button', { name: 'Resetuj' }).click();
-  await expect(page.getByText('Dane demo zostały przywrócone.')).toBeVisible();
+  await expect(page.getByText('Przywrócono startowe dane demo.')).toBeVisible();
 });
 
-test('user imports valid JSON and rejects malformed JSON', async ({ page }) => {
+test('user imports confirmed valid JSON and rejects unsafe JSON', async ({ page }) => {
   await loginDemoUser(page);
 
   await page.getByRole('link', { name: /Ustawienia/ }).click();
   await page.getByLabel('Dane JSON').fill('{broken json');
-  await page.getByRole('button', { name: 'Importuj JSON' }).click();
+  await page.getByRole('button', { name: 'Sprawdź i importuj JSON' }).click();
   await expect(page.getByText('Nieprawidłowy plik JSON.')).toBeVisible();
+
+  await page.getByLabel('Dane JSON').fill(JSON.stringify({ clients: 'broken', projects: [], events: [] }));
+  await page.getByRole('button', { name: 'Sprawdź i importuj JSON' }).click();
+  await expect(page.getByText(/Import musi zawierać pełny eksport FlowDesk JSON/)).toBeVisible();
 
   await page.getByLabel('Dane JSON').fill(
     JSON.stringify({
@@ -307,7 +311,11 @@ test('user imports valid JSON and rejects malformed JSON', async ({ page }) => {
       ui: { theme: 'light' }
     })
   );
-  await page.getByRole('button', { name: 'Importuj JSON' }).click();
+  await page.getByRole('button', { name: 'Sprawdź i importuj JSON' }).click();
+
+  const importDialog = page.getByRole('dialog', { name: 'Zastąp lokalne dane demo?' });
+  await expect(importDialog).toBeVisible();
+  await importDialog.getByRole('button', { name: 'Importuj i zastąp' }).click();
   await page.getByRole('link', { name: /Klienci/ }).click();
 
   await expect(page.getByRole('cell', { name: 'Imported Client' })).toBeVisible();

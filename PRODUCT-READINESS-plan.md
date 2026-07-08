@@ -201,6 +201,7 @@ Make global search more useful, predictable, and portfolio-ready without turning
 **Priority:** High
 **Risk Level:** Medium
 **Recommended Task Type:** UX/content polish, frontend implementation, tests
+**Status:** Done - audited JSON export, validated import, malformed JSON rejection, invalid schema rejection, missing relationship recovery, reset demo data, localStorage recovery, storage-unavailable messaging, and destructive confirmation paths. Improved settings data-management copy, added import preflight validation and confirmation before replacing local demo data, preserved migration recovery for safe relationships, and added focused unit, integration, e2e, and a11y coverage.
 
 ### Goal
 

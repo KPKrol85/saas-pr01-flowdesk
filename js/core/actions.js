@@ -1,10 +1,11 @@
 import { migrateState } from '../domain/migrations.js';
-import { isTerminalProjectStatus, normalizeString, validateClient, validateEvent, validateProject, validateUiPreferences } from '../domain/validators.js';
+import { isPlainObject, isTerminalProjectStatus, normalizeString, validateClient, validateEvent, validateProject, validateUiPreferences } from '../domain/validators.js';
 
 export const ACTION_ERRORS = Object.freeze({
   VALIDATION: 'validation_failed',
   NOT_FOUND: 'not_found',
-  INVALID_JSON: 'invalid_json'
+  INVALID_JSON: 'invalid_json',
+  INVALID_SCHEMA: 'invalid_schema'
 });
 
 export const actionOk = (data, nextState) => ({
@@ -22,6 +23,29 @@ export const actionFail = (error, issues = []) => ({
 export const getActionFieldError = (result, field) => result?.issues?.find((issue) => issue.field === field)?.message || '';
 
 const collectIds = (items) => items.map((item) => item.id).filter(Boolean);
+
+const importSchemaMessage = 'Import musi zawierać pełny eksport FlowDesk JSON z tablicami clients, projects i events.';
+const importRecordMessage = 'Import zawiera rekordy, których nie można zweryfikować. Sprawdź wymagane pola i format email.';
+
+const validateImportSchema = (rawState) => {
+  if (!isPlainObject(rawState)) {
+    return actionFail(ACTION_ERRORS.INVALID_SCHEMA, [{ field: 'json', message: importSchemaMessage }]);
+  }
+
+  if (!Array.isArray(rawState.clients) || !Array.isArray(rawState.projects) || !Array.isArray(rawState.events)) {
+    return actionFail(ACTION_ERRORS.INVALID_SCHEMA, [{ field: 'json', message: importSchemaMessage }]);
+  }
+
+  const invalidClient = rawState.clients.map((client) => validateClient(client)).find((result) => !result.valid);
+  const invalidProject = rawState.projects.map((project) => validateProject(project, { strictDate: false })).find((result) => !result.valid);
+  const invalidEvent = rawState.events.map((event) => validateEvent(event, { requireDate: false, strictDate: false })).find((result) => !result.valid);
+
+  if (invalidClient || invalidProject || invalidEvent) {
+    return actionFail(ACTION_ERRORS.INVALID_SCHEMA, [{ field: 'json', message: importRecordMessage }]);
+  }
+
+  return null;
+};
 
 const requireCreateId = (createId) => {
   if (typeof createId !== 'function') throw new TypeError('createId action dependency is required.');
@@ -298,6 +322,9 @@ export const resetDemoDataAction = (seedState) => {
 };
 
 export const restoreStateAction = (rawState, seedState) => {
+  const schemaResult = validateImportSchema(rawState);
+  if (schemaResult) return schemaResult;
+
   const nextState = migrateState(rawState, seedState);
   return actionOk(nextState, nextState);
 };
