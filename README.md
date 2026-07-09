@@ -72,6 +72,7 @@ flowdesk/
     observability.md       # kontrakt monitoringu frontendowego
     performance-budget.md  # budżety JS/CSS/app-shell i progi Lighthouse
     pwa-strategy.md        # cache strategies, offline i update lifecycle
+    qa/                    # evidence z zakończonych przebiegów QA
     release-checklist.md   # release, deployment i rollback
     versioning.md          # konwencja wersjonowania
   js/
@@ -95,6 +96,7 @@ flowdesk/
   _redirects               # konfiguracja redirectów pod hosting statyczny, np. Netlify
   CHANGELOG.md
   DONE.md
+  FLOWDESK-CONTEXT.md
   index.html
   manifest.webmanifest
   offline.html
@@ -322,14 +324,13 @@ Lokalne artefakty takie jak `node_modules/`, `test-results/`, `playwright-report
 | `docs/performance-budget.md` | budżety rozmiaru, Lighthouse i startup responsiveness |
 | `docs/observability.md` | lokalny kontrakt monitoringu i zasady danych |
 | `docs/definition-of-done.md` | kryteria gotowości zmiany |
+| `docs/qa/ui-final-qa-checklist.md` | evidence finalnego UI QA po zakończonej roadmapie UI polish |
 | `docs/release-checklist.md` | release, deployment, post-release validation i rollback |
 | `docs/versioning.md` | konwencja wersjonowania demo milestone |
 | `CHANGELOG.md` | historia zmian i milestone |
+| `FLOWDESK-CONTEXT.md` | trwały kontekst projektu, granice demo i zasady pracy |
 | `DONE.md` | skonsolidowany stan ukończonych roadmap i obecny baseline projektu |
 | `TO-DO.md` | aktualny backlog przyszłych zadań i parking lot |
-| `UI-improvements-plan.md` | zakończona roadmapa UI polish i status 10 punktów |
-| `UI-audit.md` | evidence audytu UI według widoków |
-| `UI-final-QA-checklist.md` | finalna checklista UI QA |
 
 ## Backend readiness i multi-user
 

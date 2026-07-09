@@ -1,12 +1,12 @@
-# FlowDesk Final UI QA Checklist
+# FlowDesk Final UI QA Checklist Evidence
 
 ## Purpose
 
-This checklist makes the final FlowDesk UI polish pass repeatable after roadmap points 1-9. It verifies responsive behavior, theme behavior, reduced motion, keyboard access, long text handling, accessibility smoke coverage, PWA guardrails, performance guardrails, generated file hygiene, and final diff hygiene.
+This archived checklist preserves QA evidence from the completed FlowDesk UI polish pass. It verifies responsive behavior, theme behavior, reduced motion, keyboard access, long text handling, accessibility smoke coverage, PWA guardrails, performance guardrails, generated file hygiene, and final diff hygiene.
 
 ## Prerequisites
 
-- UI roadmap points 1-9 are marked `Done` in `UI-improvements-plan.md`.
+- UI roadmap points 1-9 were completed before this final QA pass.
 - Runtime CSS and JavaScript generated files are refreshed only through project scripts.
 - No broad visual fixes, redesign work, new product behavior, or new dependencies are included in this QA pass.
 

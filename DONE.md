@@ -6,9 +6,8 @@ This document is the repository-level summary of completed FlowDesk roadmap work
 consolidates the useful status information that used to live in the older root
 planning documents and keeps the current project baseline easy to review.
 
-It does not replace detailed technical documentation in `README.md`, `docs/`,
-`FLOWDESK-CONTEXT.md`, `UI-improvements-plan.md`, `UI-audit.md`, or
-`UI-final-QA-checklist.md`.
+It does not replace detailed technical documentation in `README.md`, `docs/`, or
+`FLOWDESK-CONTEXT.md`.
 
 ## Current Baseline
 
@@ -60,16 +59,19 @@ management.
 
 ## Completed UI And Product Surface Work
 
+- completed the view-by-view UI audit and used it to drive the UI polish phase
 - dashboard, clients, client detail, projects, project detail, calendar, settings,
   login, invalid route, topbar, sidebar, drawer, modal, toast, and confirm dialog
   surfaces implemented
 - lightweight UI component system for buttons, form controls, page headers, empty
   states, tables, modals, drawers, confirm dialogs, toasts, and icons
 - design tokens and component conventions documented in `docs/design-system.md`
-- responsive shell, mobile navigation, focus return, modal and drawer behavior
-  improved through the completed UI polish phase
-- typography, spacing, dashboard readability, data-heavy views, forms, destructive
-  actions, microinteractions, reduced motion, and final UI QA completed
+- mobile navigation, responsive shell, spacing rhythm, typography, dashboard
+  readability, data-heavy views, forms, destructive actions, subtle surfaces,
+  microinteractions, and reduced motion completed through the UI polish phase
+- responsive QA, accessibility smoke coverage, PWA/performance guardrails, generated
+  file hygiene, and final diff hygiene preserved as checklist evidence in
+  `docs/qa/ui-final-qa-checklist.md`
 
 ## Completed Product Readiness Work
 
@@ -117,9 +119,7 @@ database, real auth, billing, payment provider integration, or network requests.
 - `docs/release-checklist.md`
 - `docs/versioning.md`
 - `docs/adr/*`
-- `UI-improvements-plan.md`
-- `UI-audit.md`
-- `UI-final-QA-checklist.md`
+- `docs/qa/ui-final-qa-checklist.md`
 
 ## Do Not Reimplement Without New Scope
 

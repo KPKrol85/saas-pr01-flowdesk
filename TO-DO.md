@@ -75,12 +75,17 @@ Suggested verification:
 - manual clean-browser smoke test against the deployed URL
 - PWA installability and service worker registration check
 
-## Priority 3 - Visual Evidence And Screenshots
+## Priority 3 - Visual Evidence And Manual UI QA
 
-Goal: create current, truthful portfolio visuals captured from the real running UI.
+Goal: create current, truthful portfolio visuals and close the remaining manual UI
+review gaps that automated Chromium checks do not fully cover.
 
 Scope:
 
+- manual real-device touch pass
+- manual screen-reader pass
+- cross-browser visual spot check beyond the configured Chromium coverage
+- final owner-led visual review before publishing on KP_Code Digital Studio
 - desktop dashboard
 - clients
 - projects
@@ -95,12 +100,16 @@ Acceptance criteria:
 - screenshots do not show production-only features
 - screenshots avoid real customer data, credentials, tokens, or secrets
 - images are refreshed after release-grade UI changes
+- any future CSS polish is small, targeted, and tied to a confirmed visual issue
+- no broad UI refactor, full redesign, design system rewrite, or framework migration
 
 Suggested verification:
 
 - run the app locally or against the final deployment URL
 - capture desktop and mobile viewports
 - inspect screenshots before adding them to any portfolio surface
+- document the real-device, screen-reader, and cross-browser results in a scoped QA
+  note if issues are found
 
 ## Priority 4 - Future Backend Planning
 
