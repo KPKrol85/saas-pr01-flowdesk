@@ -94,6 +94,7 @@ flowdesk/
   404.html
   _redirects               # konfiguracja redirectów pod hosting statyczny, np. Netlify
   CHANGELOG.md
+  DONE.md
   index.html
   manifest.webmanifest
   offline.html
@@ -103,6 +104,7 @@ flowdesk/
   service-worker-assets.js # wygenerowany manifest app-shell dla service workera
   service-worker.js
   sitemap.xml
+  TO-DO.md
 ```
 
 ## Architektura aplikacji
@@ -323,7 +325,11 @@ Lokalne artefakty takie jak `node_modules/`, `test-results/`, `playwright-report
 | `docs/release-checklist.md` | release, deployment, post-release validation i rollback |
 | `docs/versioning.md` | konwencja wersjonowania demo milestone |
 | `CHANGELOG.md` | historia zmian i milestone |
-| `PRODUCT-READINESS-plan.md` | roadmapa product-readiness i status kolejnych punktów |
+| `DONE.md` | skonsolidowany stan ukończonych roadmap i obecny baseline projektu |
+| `TO-DO.md` | aktualny backlog przyszłych zadań i parking lot |
+| `UI-improvements-plan.md` | zakończona roadmapa UI polish i status 10 punktów |
+| `UI-audit.md` | evidence audytu UI według widoków |
+| `UI-final-QA-checklist.md` | finalna checklista UI QA |
 
 ## Backend readiness i multi-user
 
@@ -411,15 +417,16 @@ Do dopracowania pozostają m.in. pełny focus management po złożonych przepły
 
 ## Kierunek rozwoju
 
-Rekomendowany kierunek to najpierw ustabilizować fundamenty jakości i architektury, a dopiero potem rozbudowywać domenę produktową. Szczegółowa analiza i 10 priorytetów implementacyjnych znajdują się w `implementation-plan.md`. Roadmapa rozwoju projektu znajduje się w `plan.md`.
+Rekomendowany kierunek to utrzymywać obecny stabilny baseline, a przyszłe prace prowadzić małymi, review-friendly zadaniami. Stan ukończonych roadmap jest skonsolidowany w `DONE.md`, a aktualny backlog dalszych prac znajduje się w `TO-DO.md`.
 
 Najważniejsze pierwsze kroki:
 
 1. Utrzymać istniejące quality gates: lint, format, unit, integration, e2e, a11y i build.
-2. Utrzymać PWA manifest, update flow, offline smoke tests i performance budgets przy każdej zmianie runtime.
-3. Utrzymywać dokumentację architektury, ADR-y, changelog, release checklistę i observability przy zmianach.
-4. Dopiero po stabilizacji procesów zdecydować o bundlerze, TypeScript albo frameworku.
-5. Przy przyszłym backendzie zaimplementować prawdziwe auth, serwerowy RBAC, walidację, storage, audyt i sync API zgodnie z `docs/api-contracts.md`.
+2. Doprowadzić publiczne demo do finalnego URL-a i uzupełnić deployment-specific metadata.
+3. Utrzymać PWA manifest, update flow, offline smoke tests i performance budgets przy każdej zmianie runtime.
+4. Utrzymywać dokumentację architektury, ADR-y, changelog, release checklistę i observability przy zmianach.
+5. Dopiero po realnej potrzebie zdecydować o bundlerze, TypeScript albo frameworku.
+6. Przy przyszłym backendzie zaimplementować prawdziwe auth, serwerowy RBAC, walidację, storage, audyt i sync API zgodnie z `docs/api-contracts.md`.
 
 ## Deployment
 
