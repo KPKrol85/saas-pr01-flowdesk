@@ -179,16 +179,47 @@ test('user can open a project detail route and update its checklist', async ({ p
   await expect(page.getByText('Zaktualizowano checklistę.')).toBeVisible();
 });
 
+test('edge states guide users through filtered empty and missing routes', async ({ page }) => {
+  await loginDemoUser(page);
+
+  await page.getByRole('link', { name: /Klienci/ }).click();
+  await page.getByLabel('Filtruj').fill('brak-klienta-e2e');
+
+  await expect(page.getByText('Filtry ukrywają klientów')).toBeVisible();
+  await expect(page.getByText('Brak klienta w podglądzie')).toBeVisible();
+
+  await page.getByRole('link', { name: /Zlecenia/ }).click();
+  await page.getByLabel('Status').selectOption('Done');
+  await page.getByLabel('Priorytet').selectOption('High');
+
+  await expect(page.getByText('Filtry ukrywają zlecenia')).toBeVisible();
+
+  await page.goto('/#/clients/missing-client');
+  await expect(page.getByRole('heading', { name: 'Klient nie znaleziony' })).toBeVisible();
+  await expect(page.getByText('Brak rekordu klienta')).toBeVisible();
+
+  await page.goto('/#/projects/missing-project');
+  await expect(page.getByRole('heading', { name: 'Zlecenie nie znalezione' })).toBeVisible();
+  await expect(page.getByText('Brak rekordu zlecenia')).toBeVisible();
+
+  await page.goto('/#/unknown-route');
+  await expect(page.getByRole('heading', { name: 'Nie znaleziono widoku' })).toBeVisible();
+  await expect(page.getByText('Dostępne widoki demo to dashboard, klienci, zlecenia, kalendarz i ustawienia.')).toBeVisible();
+});
+
 test('user archives important records instead of deleting them permanently', async ({ page }) => {
   await loginDemoUser(page);
 
   await page.getByRole('link', { name: /Klienci/ }).click();
-  await page.getByRole('button', { name: 'Archiwizuj' }).first().click();
+  await page
+    .getByRole('row', { name: /Nova Studio/ })
+    .getByRole('button', { name: 'Archiwizuj' })
+    .click();
   await page.locator('.modal__footer').getByRole('button', { name: 'Archiwizuj' }).click();
 
   await expect(page.getByText('Zarchiwizowano klienta.')).toBeVisible();
   await page.getByLabel('Zakres').selectOption('archived');
-  await expect(page.getByText('Nova Studio')).toBeVisible();
+  await expect(page.getByRole('row', { name: /Nova Studio/ })).toBeVisible();
   await expect(page.locator('.badge--danger', { hasText: 'Archiwum' }).first()).toBeVisible();
 });
 

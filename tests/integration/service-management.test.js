@@ -19,6 +19,20 @@ describe('service management workflows', () => {
     expect(container.querySelector('a[href="#/projects/p1"]')).not.toBeNull();
   });
 
+  it('renders useful missing-record guidance for detail routes', async () => {
+    const container = createTestContainer();
+    const { renderClientDetailView } = await import('../../js/views/clientDetailView.js');
+    const { renderProjectDetailView } = await import('../../js/views/projectDetailView.js');
+
+    renderClientDetailView(container, { id: 'missing-client' });
+    expect(container.textContent).toContain('Brak rekordu klienta');
+    expect(container.textContent).toContain('Wróć do klientów');
+
+    renderProjectDetailView(container, { id: 'missing-project' });
+    expect(container.textContent).toContain('Brak rekordu zlecenia');
+    expect(container.textContent).toContain('Wróć do zleceń');
+  });
+
   it('renders project detail tasks and accepts comments', async () => {
     const container = createTestContainer();
     const { renderProjectDetailView } = await import('../../js/views/projectDetailView.js');

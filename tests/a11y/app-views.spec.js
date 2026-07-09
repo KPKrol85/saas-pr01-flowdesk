@@ -48,6 +48,16 @@ test('settings import confirmation dialog has no axe violations', async ({ page 
   await expectNoA11yViolations(page);
 });
 
+test('invalid route empty state has no axe violations', async ({ page }) => {
+  await resetBrowserState(page);
+  await loginDemoUser(page);
+
+  await page.goto('/#/unknown-route');
+  await page.getByRole('heading', { name: 'Nie znaleziono widoku' }).waitFor();
+
+  await expectNoA11yViolations(page);
+});
+
 const protectedViews = [
   { name: 'dashboard', heading: 'Dashboard', open: async () => {} },
   { name: 'clients', heading: 'Klienci', open: async (page) => page.getByRole('link', { name: /Klienci/ }).click() },

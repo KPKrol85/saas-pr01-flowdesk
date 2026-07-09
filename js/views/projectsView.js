@@ -5,6 +5,7 @@ import { store } from '../core/store.js';
 import { PROJECT_PRIORITIES, PROJECT_SERVICE_LEVELS, PROJECT_STATUSES } from '../domain/constants.js';
 import { button } from '../components/button.js';
 import { openConfirmDialog } from '../components/confirmDialog.js';
+import { emptyState } from '../components/emptyState.js';
 import { inputField, selectField, setFieldError, textareaField } from '../components/formControls.js';
 import { openModal } from '../components/modal.js';
 import { pageHeader } from '../components/pageHeader.js';
@@ -15,6 +16,65 @@ import { escapeAttribute, escapeHTML } from '../utils/sanitize.js';
 const statusColumns = PROJECT_STATUSES;
 const priorityOptions = PROJECT_PRIORITIES;
 
+const isArchived = (record) => Boolean(record?.archivedAt);
+
+const getProjectRelationLabel = (project) => {
+  if (project.client) return project.client.name;
+  return project.clientId ? 'Klient niedostępny' : 'Bez klienta';
+};
+
+const getProjectsEmptyState = (state, filters) => {
+  const activeCount = state.projects.filter((project) => !isArchived(project)).length;
+  const archivedCount = state.projects.filter(isArchived).length;
+  const hasStatusFilter = filters.status !== 'all';
+  const hasPriorityFilter = filters.priority !== 'all';
+
+  if (!state.projects.length) {
+    return {
+      title: 'Brak zleceń w lokalnym demo',
+      description: 'Dodaj pierwsze zlecenie, aby rozpocząć pracę z tablicą statusów.',
+      iconName: 'projects'
+    };
+  }
+
+  if (filters.archive === 'archived' && !archivedCount) {
+    return {
+      title: 'Archiwum zleceń jest puste',
+      description: 'Zarchiwizowane zlecenia pojawią się tutaj po użyciu akcji Archiwizuj.',
+      iconName: 'projects'
+    };
+  }
+
+  if (filters.archive === 'active' && !activeCount) {
+    return {
+      title: 'Brak zleceń poza archiwum',
+      description: 'Wszystkie zlecenia są zarchiwizowane. Zmień zakres na Archiwum albo Wszystkie, aby je zobaczyć.',
+      iconName: 'projects'
+    };
+  }
+
+  if (hasStatusFilter || hasPriorityFilter) {
+    return {
+      title: 'Filtry ukrywają zlecenia',
+      description: 'Nie znaleziono zleceń dla wybranego statusu, priorytetu lub zakresu.',
+      iconName: 'search'
+    };
+  }
+
+  return {
+    title: 'Brak zleceń dla wybranego zakresu',
+    description: 'Zmień zakres tablicy, aby wrócić do dostępnych rekordów.',
+    iconName: 'projects'
+  };
+};
+
+const getColumnEmptyCopy = (status, filters) => {
+  if (filters.status !== 'all') return `Brak zleceń w statusie ${status} dla wybranych filtrów.`;
+  if (filters.priority !== 'all') return `Brak zleceń o priorytecie ${filters.priority} w tej kolumnie.`;
+  if (filters.archive === 'archived') return 'Brak zarchiwizowanych zleceń w tej kolumnie.';
+  return 'Brak zleceń w tej kolumnie.';
+};
+
 const projectModalContent = (project = {}, clients = []) => `
   <form id="projectForm" class="form-grid">
     ${inputField({ id: 'name', label: 'Nazwa', value: project.name || '', required: true })}
@@ -23,8 +83,9 @@ const projectModalContent = (project = {}, clients = []) => `
         id: 'client',
         label: 'Klient',
         value: project.clientId,
-        required: true,
-        options: clients.map((client) => ({ value: client.id, label: client.name }))
+        required: Boolean(clients.length),
+        helper: clients.length ? '' : 'Brak aktywnych klientów. Zlecenie można zapisać bez relacji i powiązać później.',
+        options: clients.length ? clients.map((client) => ({ value: client.id, label: client.name })) : [{ value: '', label: 'Bez klienta' }]
       })}
       ${selectField({
         id: 'status',
@@ -108,6 +169,9 @@ export const renderProjectsView = (container) => {
           ${button({ label: 'Dodaj zlecenie', id: 'addProject', variant: 'primary', iconName: 'plus', className: 'data-toolbar__action' })}
         </section>
 
+        ${
+          filtered.length
+            ? `
         <section class="kanban data-kanban">
           ${statusColumns
             .map((status) => {
@@ -126,7 +190,7 @@ export const renderProjectsView = (container) => {
                               return `
                               <article class="kanban__card data-card ${project.archivedAt ? 'data-card--archived' : ''}">
                                 <a class="data-card__title" href="#/projects/${encodeURIComponent(project.id)}"><strong>${escapeHTML(project.name)}</strong></a>
-                                <span class="input__helper data-card__meta">${escapeHTML(project.client?.name || 'Bez klienta')}</span>
+                                <span class="input__helper data-card__meta">${escapeHTML(getProjectRelationLabel(project))}</span>
                                 <div class="data-badges data-card__badges">
                                   <span class="badge ${badgeClass(project.priority)}">${escapeHTML(project.priority)}</span>
                                   <span class="badge ${badgeClass(project.status)}">${escapeHTML(project.status)}</span>
@@ -151,7 +215,7 @@ export const renderProjectsView = (container) => {
                             `;
                             })
                             .join('')
-                        : '<p class="input__helper">Brak elementów.</p>'
+                        : `<p class="input__helper">${escapeHTML(getColumnEmptyCopy(status, filterState))}</p>`
                     }
                   </div>
                 </div>
@@ -159,6 +223,9 @@ export const renderProjectsView = (container) => {
             })
             .join('')}
         </section>
+      `
+            : `<section class="card data-panel">${emptyState(getProjectsEmptyState(state, filterState))}</section>`
+        }
       </main>
     `;
   };

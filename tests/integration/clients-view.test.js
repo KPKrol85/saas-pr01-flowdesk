@@ -26,4 +26,21 @@ describe('clients view', () => {
     expect(container.textContent).toContain('Acme Service');
     expect(container.textContent).toContain('ops@acme-service.test');
   });
+
+  it('renders intentional empty and filtered client states', async () => {
+    const container = createTestContainer();
+    const { store } = await import('../../js/core/store.js');
+    const { renderClientsView } = await import('../../js/views/clientsView.js');
+
+    renderClientsView(container);
+    setControlValue('Filtruj', 'brak-klienta');
+
+    expect(container.textContent).toContain('Filtry ukrywają klientów');
+    expect(container.textContent).toContain('Brak klienta w podglądzie');
+
+    store.actions.restoreState({ clients: [], projects: [], events: [], ui: { theme: 'light' } });
+    renderClientsView(container);
+
+    expect(container.textContent).toContain('Brak klientów w lokalnym demo');
+  });
 });

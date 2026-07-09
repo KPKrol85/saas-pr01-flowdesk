@@ -12,6 +12,16 @@ import { showToast } from '../components/toast.js';
 import { formatDate } from '../utils/format.js';
 import { escapeHTML } from '../utils/sanitize.js';
 
+const getEventClientLabel = (event) => {
+  if (event.client) return event.client.name;
+  return event.clientId ? 'Klient niedostępny' : 'Bez klienta';
+};
+
+const getEventProjectLabel = (event) => {
+  if (event.project) return event.project.name;
+  return event.projectId ? 'Projekt niedostępny' : 'Bez projektu';
+};
+
 const eventModalContent = (event = {}, clients = [], projects = []) => `
   <form id="eventForm" class="form-grid">
     ${inputField({ id: 'title', label: 'Tytuł', value: event.title || '', required: true })}
@@ -21,14 +31,16 @@ const eventModalContent = (event = {}, clients = [], projects = []) => `
         id: 'client',
         label: 'Klient',
         value: event.clientId,
-        options: clients.map((client) => ({ value: client.id, label: client.name }))
+        helper: clients.length ? '' : 'Brak aktywnych klientów. Wydarzenie można zapisać bez relacji.',
+        options: clients.length ? clients.map((client) => ({ value: client.id, label: client.name })) : [{ value: '', label: 'Bez klienta' }]
       })}
     </div>
     ${selectField({
       id: 'project',
       label: 'Powiązany projekt',
       value: event.projectId,
-      options: projects.map((project) => ({ value: project.id, label: project.name }))
+      helper: projects.length ? '' : 'Brak aktywnych zleceń. Wydarzenie można zapisać bez relacji.',
+      options: projects.length ? projects.map((project) => ({ value: project.id, label: project.name })) : [{ value: '', label: 'Bez projektu' }]
     })}
   </form>
 `;
@@ -62,10 +74,10 @@ export const renderCalendarView = (container) => {
                       <div class="list__item data-list__item calendar-list__item">
                         <div class="data-list__main">
                           <strong>${escapeHTML(event.title)}</strong>
-                          <div class="input__helper data-list__meta">${escapeHTML(formatDate(event.date))} · ${escapeHTML(event.client?.name || 'Brak klienta')}</div>
+                          <div class="input__helper data-list__meta">${escapeHTML(formatDate(event.date))} · ${escapeHTML(getEventClientLabel(event))}</div>
                         </div>
                         <div class="data-list__side">
-                          <span class="badge badge--info">${escapeHTML(event.project?.name || 'Bez projektu')}</span>
+                          <span class="badge badge--info">${escapeHTML(getEventProjectLabel(event))}</span>
                           <div class="data-actions">
                             ${button({
                               label: 'Usuń',
@@ -80,7 +92,11 @@ export const renderCalendarView = (container) => {
                     `;
                     })
                     .join('')
-                : emptyState({ description: 'Brak wydarzeń. Dodaj nowe spotkanie.', iconName: 'calendar' })
+                : emptyState({
+                    title: 'Brak wydarzeń w kalendarzu',
+                    description: 'Dodaj spotkanie, deadline albo wizytę serwisową, aby zbudować prostą oś pracy.',
+                    iconName: 'calendar'
+                  })
             }
           </div>
         </section>

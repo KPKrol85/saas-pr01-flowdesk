@@ -17,6 +17,11 @@ const badgeClass = (value) => {
   return 'badge--info';
 };
 
+const getProjectClientLabel = (project, client) => {
+  if (client) return client.name;
+  return project.clientId ? 'Klient niedostępny' : 'Bez klienta';
+};
+
 const renderTasks = (project) =>
   project.tasks.length
     ? project.tasks
@@ -29,7 +34,11 @@ const renderTasks = (project) =>
           `
         )
         .join('')
-    : emptyState({ description: 'Brak checklisty dla zlecenia.', iconName: 'projects' });
+    : emptyState({
+        title: 'Brak checklisty',
+        description: 'To zlecenie nie ma jeszcze zadań operacyjnych.',
+        iconName: 'projects'
+      });
 
 const renderComments = (comments = []) =>
   comments.length
@@ -43,7 +52,11 @@ const renderComments = (comments = []) =>
           `
         )
         .join('')
-    : emptyState({ description: 'Brak komentarzy.', iconName: 'edit' });
+    : emptyState({
+        title: 'Brak komentarzy',
+        description: 'Komentarze operacyjne dodane przez formularz pojawią się tutaj.',
+        iconName: 'edit'
+      });
 
 const renderHistory = (history = []) =>
   history.length
@@ -59,7 +72,11 @@ const renderHistory = (history = []) =>
           `
         )
         .join('')
-    : emptyState({ description: 'Brak historii zmian.', iconName: 'calendar' });
+    : emptyState({
+        title: 'Brak historii zmian',
+        description: 'Historia pojawi się po utworzeniu, aktualizacji albo archiwizacji zlecenia.',
+        iconName: 'calendar'
+      });
 
 const renderEvents = (events = []) =>
   events.length
@@ -75,7 +92,11 @@ const renderEvents = (events = []) =>
           `
         )
         .join('')
-    : emptyState({ description: 'Brak wydarzeń dla tego zlecenia.', iconName: 'calendar' });
+    : emptyState({
+        title: 'Brak powiązanych wydarzeń',
+        description: 'Wydarzenia kalendarza powiązane z tym zleceniem pojawią się tutaj.',
+        iconName: 'calendar'
+      });
 
 export const renderProjectDetailView = (container, { id } = {}) => {
   const detail = selectProjectDetail(store.getState(), id);
@@ -88,7 +109,11 @@ export const renderProjectDetailView = (container, { id } = {}) => {
           description: 'Rekord nie istnieje albo został usunięty z danych demo.',
           actions: '<a class="btn btn--secondary" href="#/projects">Wróć do zleceń</a>'
         })}
-        ${emptyState({ title: 'Brak rekordu', description: 'Wybierz zlecenie z listy lub przywróć dane demo.', iconName: 'projects' })}
+        ${emptyState({
+          title: 'Brak rekordu zlecenia',
+          description: 'Ten adres nie pasuje do żadnego zlecenia w lokalnych danych demo. Wróć do listy zleceń albo przywróć dane startowe w ustawieniach.',
+          iconName: 'projects'
+        })}
       </main>
     `;
     return;
@@ -101,7 +126,7 @@ export const renderProjectDetailView = (container, { id } = {}) => {
     <main id="main" class="container">
       ${pageHeader({
         title: project.name,
-        description: `${project.status} · ${project.priority} · ${client?.name || 'Bez klienta'}`,
+        description: `${project.status} · ${project.priority} · ${getProjectClientLabel(project, client)}`,
         actions: `
           <a class="btn btn--secondary" href="#/projects">Wróć</a>
           ${archived ? button({ label: 'Przywróć', id: 'restoreProject', variant: 'secondary', iconName: 'reset' }) : button({ label: 'Archiwizuj', id: 'archiveProject', variant: 'danger', iconName: 'delete' })}
@@ -112,7 +137,11 @@ export const renderProjectDetailView = (container, { id } = {}) => {
         <div class="card detail-main data-panel">
           <h2 class="card__title">Podsumowanie zlecenia</h2>
           <div class="meta-grid">
-            <div><span class="input__helper">Klient</span><strong>${client ? `<a href="#/clients/${encodeURIComponent(client.id)}">${escapeHTML(client.name)}</a>` : 'Bez klienta'}</strong></div>
+            <div>
+              <span class="input__helper">Klient</span>
+              <strong>${client ? `<a href="#/clients/${encodeURIComponent(client.id)}">${escapeHTML(client.name)}</a>` : escapeHTML(getProjectClientLabel(project, client))}</strong>
+              ${!client && project.clientId ? '<span class="input__helper">Powiązany klient jest niedostępny w lokalnych danych demo.</span>' : ''}
+            </div>
             <div><span class="input__helper">Termin</span><strong>${escapeHTML(formatDate(project.dueDate))}</strong></div>
             <div><span class="input__helper">SLA</span><strong>${escapeHTML(project.sla.serviceLevel)}</strong></div>
             <div><span class="input__helper">Reakcja do</span><strong>${escapeHTML(formatDate(project.sla.responseDueDate))}</strong></div>
@@ -123,6 +152,7 @@ export const renderProjectDetailView = (container, { id } = {}) => {
             ${archived ? '<span class="badge badge--danger">Archiwum</span>' : ''}
           </div>
           <p>${escapeHTML(project.notes || 'Brak notatek.')}</p>
+          ${archived ? `<p class="input__helper data-archive-note">Archiwum od: ${escapeHTML(formatDate(project.archivedAt))}. Rekord pozostaje dostępny do przeglądu i można go przywrócić.</p>` : ''}
         </div>
 
         <div class="card data-panel">

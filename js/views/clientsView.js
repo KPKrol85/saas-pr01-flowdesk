@@ -12,12 +12,62 @@ import { pageHeader } from '../components/pageHeader.js';
 import { showToast } from '../components/toast.js';
 import { escapeAttribute, escapeHTML } from '../utils/sanitize.js';
 
+const isArchived = (record) => Boolean(record?.archivedAt);
+
+const getClientsEmptyState = (state, filters) => {
+  const activeCount = state.clients.filter((client) => !isArchived(client)).length;
+  const archivedCount = state.clients.filter(isArchived).length;
+  const hasTextFilter = Boolean(filters.term.trim());
+
+  if (!state.clients.length) {
+    return {
+      title: 'Brak klientów w lokalnym demo',
+      description: 'Dodaj pierwszego klienta, aby rozpocząć pracę z bazą klientów.',
+      iconName: 'clients'
+    };
+  }
+
+  if (hasTextFilter) {
+    return {
+      title: 'Filtry ukrywają klientów',
+      description: 'Nie znaleziono klientów dla wpisanej frazy. Wyczyść filtr tekstowy albo zmień zakres.',
+      iconName: 'search'
+    };
+  }
+
+  if (filters.archive === 'archived' && !archivedCount) {
+    return {
+      title: 'Archiwum klientów jest puste',
+      description: 'Zarchiwizowani klienci pojawią się tutaj po użyciu akcji Archiwizuj.',
+      iconName: 'clients'
+    };
+  }
+
+  if (filters.archive === 'active' && !activeCount) {
+    return {
+      title: 'Brak aktywnych klientów',
+      description: 'Wszystkie rekordy są w archiwum. Zmień zakres na Archiwum albo Wszyscy, aby je zobaczyć.',
+      iconName: 'clients'
+    };
+  }
+
+  return {
+    title: 'Brak klientów dla wybranych filtrów',
+    description: 'Zmień zakres lub sortowanie, aby wrócić do dostępnych rekordów.',
+    iconName: 'clients'
+  };
+};
+
 const renderDetails = (client) => {
   if (!client) {
     return `
       <div class="side-panel data-panel clients-preview">
         <h2>Podgląd klienta</h2>
-        <p class="input__helper">Wybierz klienta z listy, aby zobaczyć szczegóły.</p>
+        ${emptyState({
+          title: 'Brak klienta w podglądzie',
+          description: 'Wybierz rekord z listy. Gdy filtry nic nie zwracają, podgląd pozostaje pusty.',
+          iconName: 'clients'
+        })}
       </div>
     `;
   }
@@ -27,11 +77,11 @@ const renderDetails = (client) => {
       <h2>${escapeHTML(client.name)}</h2>
       <p class="input__helper">${escapeHTML(client.status)}</p>
       <div class="list data-meta-list">
-        <div class="data-meta-list__item"><strong>Email:</strong> ${escapeHTML(client.email)}</div>
-        <div class="data-meta-list__item"><strong>Telefon:</strong> ${escapeHTML(client.phone)}</div>
+        <div class="data-meta-list__item"><strong>Email:</strong> ${escapeHTML(client.email || 'Brak emaila')}</div>
+        <div class="data-meta-list__item"><strong>Telefon:</strong> ${escapeHTML(client.phone || 'Brak telefonu')}</div>
         <div class="data-meta-list__item"><strong>Segment:</strong> ${escapeHTML(client.segment)}</div>
         <div class="data-meta-list__item"><strong>Owner:</strong> ${escapeHTML(client.owner || 'Nieprzypisany')}</div>
-        <div class="data-meta-list__item"><strong>Notatki:</strong> ${escapeHTML(client.notes)}</div>
+        <div class="data-meta-list__item"><strong>Notatki:</strong> ${escapeHTML(client.notes || 'Brak notatek')}</div>
         <a class="btn btn--secondary" href="#/clients/${encodeURIComponent(client.id)}">Otwórz szczegóły</a>
       </div>
     </div>
@@ -80,6 +130,9 @@ export const renderClientsView = (container) => {
   const render = () => {
     const currentState = store.getState();
     const filtered = selectFilteredClients(currentState, filterState);
+    if (selectedId && !filtered.some((client) => client.id === selectedId)) {
+      selectedId = filtered[0]?.id || null;
+    }
     const rows = filtered
       .map(
         (client) => `
@@ -161,7 +214,7 @@ export const renderClientsView = (container) => {
                   </tbody>
                 </table>
               `
-                  : emptyState({ description: 'Brak klientów. Dodaj pierwszy rekord.', iconName: 'clients' })
+                  : emptyState(getClientsEmptyState(currentState, filterState))
               }
             </div>
           </div>

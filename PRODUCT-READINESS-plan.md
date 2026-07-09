@@ -240,6 +240,7 @@ Make demo data management safer, clearer, and easier to trust during a public de
 **Priority:** Medium
 **Risk Level:** Low
 **Recommended Task Type:** demo data, UX/content polish, frontend implementation, tests
+**Status:** Done - audited dashboard, clients, client detail, projects, project detail, calendar, settings, global search, drawer, modal, toast, invalid route, archived records, missing relation labels, storage-unavailable copy, and sparse demo states. Improved filtered empty states, missing-record guidance, archived-record explanations, no-relation modal helpers, and focused integration, e2e, and a11y coverage while preserving architecture and data boundaries.
 
 ### Goal
 

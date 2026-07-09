@@ -11,6 +11,8 @@ import { escapeHTML } from '../utils/sanitize.js';
 const renderTags = (tags = []) =>
   tags.length ? tags.map((tag) => `<span class="badge badge--info">${escapeHTML(tag)}</span>`).join('') : '<span class="input__helper">Brak tagów.</span>';
 
+const renderContactMeta = (contact) => [contact.role, contact.email || 'brak emaila', contact.phone || 'brak telefonu'].filter(Boolean).join(' · ');
+
 const renderContactList = (contacts = []) =>
   contacts.length
     ? contacts
@@ -19,13 +21,17 @@ const renderContactList = (contacts = []) =>
             <div class="list__item data-list__item">
               <div class="data-list__main">
                 <strong>${escapeHTML(contact.name || 'Kontakt')}</strong>
-                <div class="input__helper data-list__meta">${escapeHTML(contact.role)} · ${escapeHTML(contact.email || 'bez emaila')} · ${escapeHTML(contact.phone || 'bez telefonu')}</div>
+                <div class="input__helper data-list__meta">${escapeHTML(renderContactMeta(contact))}</div>
               </div>
             </div>
           `
         )
         .join('')
-    : emptyState({ description: 'Brak kontaktów dla klienta.', iconName: 'clients' });
+    : emptyState({
+        title: 'Brak kontaktów',
+        description: 'Kontakty osoby lub zespołu klienta pojawią się tutaj po uzupełnieniu rekordu.',
+        iconName: 'clients'
+      });
 
 const renderTimeline = (timeline = []) =>
   timeline.length
@@ -39,7 +45,11 @@ const renderTimeline = (timeline = []) =>
           `
         )
         .join('')
-    : emptyState({ description: 'Brak aktywności do wyświetlenia.', iconName: 'calendar' });
+    : emptyState({
+        title: 'Brak aktywności',
+        description: 'Aktywność klienta pojawi się po zmianach w rekordzie, zleceniach lub wydarzeniach.',
+        iconName: 'calendar'
+      });
 
 const renderProjectLinks = (projects = []) =>
   projects.length
@@ -58,7 +68,11 @@ const renderProjectLinks = (projects = []) =>
           `
         )
         .join('')
-    : emptyState({ description: 'Brak powiązanych zleceń.', iconName: 'projects' });
+    : emptyState({
+        title: 'Brak powiązanych zleceń',
+        description: 'Zlecenia przypisane do tego klienta pojawią się tutaj.',
+        iconName: 'projects'
+      });
 
 const renderEvents = (events = []) =>
   events.length
@@ -74,7 +88,11 @@ const renderEvents = (events = []) =>
           `
         )
         .join('')
-    : emptyState({ description: 'Brak powiązanych wydarzeń.', iconName: 'calendar' });
+    : emptyState({
+        title: 'Brak powiązanych wydarzeń',
+        description: 'Wydarzenia kalendarza przypisane do klienta pojawią się tutaj.',
+        iconName: 'calendar'
+      });
 
 export const renderClientDetailView = (container, { id } = {}) => {
   const detail = selectClientDetail(store.getState(), id);
@@ -87,7 +105,11 @@ export const renderClientDetailView = (container, { id } = {}) => {
           description: 'Rekord nie istnieje albo został usunięty z danych demo.',
           actions: '<a class="btn btn--secondary" href="#/clients">Wróć do klientów</a>'
         })}
-        ${emptyState({ title: 'Brak rekordu', description: 'Wybierz klienta z listy lub przywróć dane demo.', iconName: 'clients' })}
+        ${emptyState({
+          title: 'Brak rekordu klienta',
+          description: 'Ten adres nie pasuje do żadnego klienta w lokalnych danych demo. Wróć do listy klientów albo przywróć dane startowe w ustawieniach.',
+          iconName: 'clients'
+        })}
       </main>
     `;
     return;
@@ -111,14 +133,14 @@ export const renderClientDetailView = (container, { id } = {}) => {
         <div class="card detail-main data-panel">
           <h2 class="card__title">Profil klienta</h2>
           <div class="meta-grid">
-            <div><span class="input__helper">Email</span><strong>${escapeHTML(client.email)}</strong></div>
-            <div><span class="input__helper">Telefon</span><strong>${escapeHTML(client.phone || 'brak')}</strong></div>
+            <div><span class="input__helper">Email</span><strong>${escapeHTML(client.email || 'Brak emaila')}</strong></div>
+            <div><span class="input__helper">Telefon</span><strong>${escapeHTML(client.phone || 'Brak telefonu')}</strong></div>
             <div><span class="input__helper">Status</span><strong>${escapeHTML(client.status)}</strong></div>
             <div><span class="input__helper">Segment</span><strong>${escapeHTML(client.segment)}</strong></div>
           </div>
           <p>${escapeHTML(client.notes || 'Brak notatek.')}</p>
           <div class="tag-row data-tags">${renderTags(client.tags)}</div>
-          ${archived ? `<p class="input__helper data-archive-note">Archiwum od: ${escapeHTML(formatDate(client.archivedAt))}</p>` : ''}
+          ${archived ? `<p class="input__helper data-archive-note">Archiwum od: ${escapeHTML(formatDate(client.archivedAt))}. Rekord pozostaje dostępny do przeglądu i można go przywrócić.</p>` : ''}
         </div>
 
         <div class="card data-panel">

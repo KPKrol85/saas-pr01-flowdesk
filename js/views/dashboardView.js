@@ -78,7 +78,11 @@ export const renderDashboardView = (container) => {
                   `
                       )
                       .join('')
-                  : emptyState({ title: 'Brak zaplanowanych działań', description: 'Najbliższe zadania pojawią się tutaj automatycznie.', iconName: 'projects' })
+                  : emptyState({
+                      title: 'Brak zaplanowanych działań',
+                      description: 'Nie ma aktywnych zleceń z terminem do pokazania. Dodaj zlecenie albo przywróć rekord z archiwum.',
+                      iconName: 'projects'
+                    })
               }
             </div>
           </section>
@@ -104,7 +108,11 @@ export const renderDashboardView = (container) => {
                   `
                       )
                       .join('')
-                  : emptyState({ title: 'Brak pilnych zleceń', description: 'Nie ma otwartych zleceń wysokiego priorytetu.', iconName: 'projects' })
+                  : emptyState({
+                      title: 'Brak pilnych zleceń',
+                      description: 'Nie ma otwartych zleceń wysokiego priorytetu. To poprawny stan, gdy pilna praca została zamknięta albo zarchiwizowana.',
+                      iconName: 'projects'
+                    })
               }
             </div>
           </section>
@@ -130,7 +138,11 @@ export const renderDashboardView = (container) => {
                   `
                     )
                     .join('')
-                : emptyState({ title: 'Brak wydarzeń', description: 'Nie ma wydarzeń w najbliższych dniach.', iconName: 'calendar' })
+                : emptyState({
+                    title: 'Brak wydarzeń',
+                    description: 'Nie ma wydarzeń w najbliższych dniach. Nowe spotkania i deadline’y pojawią się tutaj po dodaniu do kalendarza.',
+                    iconName: 'calendar'
+                  })
             }
           </div>
         </section>

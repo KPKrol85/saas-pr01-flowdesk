@@ -282,5 +282,5 @@ router.init({
 registerServiceWorker();
 
 if (!storage.isAvailable()) {
-  showToast('Tryb bez trwałego zapisu. Dane demo mogą zniknąć po odświeżeniu.');
+  showToast('Tryb bez trwałego zapisu. Przeglądarka blokuje zapis lokalny, więc dane demo mogą zniknąć po odświeżeniu.');
 }
