@@ -7,6 +7,7 @@ import {
   archiveClientAction,
   archiveProjectAction,
   createClientAction,
+  createEventAction,
   createProjectAction,
   deleteClientAction,
   resetDemoDataAction,
@@ -19,6 +20,7 @@ import {
 } from '../../js/core/actions.js';
 
 const createState = () => migrateState(seedData, seedData);
+const createEmptyState = () => migrateState({ clients: [], projects: [], events: [], ui: { theme: 'light' } }, seedData);
 
 const createId = (prefix) => `${prefix}-test`;
 const actionContext = { createId, createNow: () => '2026-07-04T12:00:00.000Z' };
@@ -71,6 +73,40 @@ describe('domain actions', () => {
     expect(result.ok).toBe(false);
     expect(result.error).toBe(ACTION_ERRORS.VALIDATION);
     expect(result.issues).toContainEqual(expect.objectContaining({ field: 'clientId' }));
+  });
+
+  it('rejects non-empty references when the related collection has no matching records', () => {
+    const projectResult = createProjectAction(
+      createEmptyState(),
+      {
+        name: 'Orphan project',
+        clientId: 'missing-client',
+        status: 'Draft',
+        priority: 'High'
+      },
+      { createId }
+    );
+    const eventResult = createEventAction(
+      createEmptyState(),
+      {
+        title: 'Orphan event',
+        date: '2026-08-10',
+        clientId: 'missing-client',
+        projectId: 'missing-project'
+      },
+      { createId }
+    );
+
+    expect(projectResult).toMatchObject({
+      ok: false,
+      error: ACTION_ERRORS.VALIDATION
+    });
+    expect(projectResult.issues).toContainEqual(expect.objectContaining({ field: 'clientId' }));
+    expect(eventResult).toMatchObject({
+      ok: false,
+      error: ACTION_ERRORS.VALIDATION
+    });
+    expect(eventResult.issues).toEqual(expect.arrayContaining([expect.objectContaining({ field: 'clientId' }), expect.objectContaining({ field: 'projectId' })]));
   });
 
   it('returns not_found for missing updates', () => {
@@ -144,6 +180,24 @@ describe('domain actions', () => {
 
     expect(result.ok).toBe(false);
     expect(result.error).toBe(ACTION_ERRORS.INVALID_SCHEMA);
+  });
+
+  it('rejects imported state with duplicate top-level record ids', () => {
+    const result = restoreStateFromJsonAction(
+      JSON.stringify({
+        clients: [
+          { id: 'c-duplicate', name: 'First Client', email: 'first@test.pl' },
+          { id: 'c-duplicate', name: 'Second Client', email: 'second@test.pl' }
+        ],
+        projects: [],
+        events: []
+      }),
+      seedData
+    );
+
+    expect(result.ok).toBe(false);
+    expect(result.error).toBe(ACTION_ERRORS.INVALID_SCHEMA);
+    expect(result.issues).toContainEqual(expect.objectContaining({ field: 'json', message: expect.stringContaining('zduplikowane identyfikatory') }));
   });
 
   it('resets demo data through the migrated seed state', () => {

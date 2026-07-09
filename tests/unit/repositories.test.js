@@ -70,6 +70,29 @@ describe('repository layer', () => {
     expect(clientsRepository.getById('missing')).toMatchObject({ ok: false, error: REPOSITORY_ERRORS.NOT_FOUND });
   });
 
+  it('rejects duplicate record ids through predictable repository failures', () => {
+    const { adapter } = createMemoryStorage(seedData);
+    const repositoryAdapter = createLocalStorageRepositoryAdapter({ storageAdapter: adapter, seedState: seedData });
+    const { clientsRepository, projectsRepository } = createFlowDeskRepositories({ adapter: repositoryAdapter });
+
+    const duplicateCreate = clientsRepository.create({ id: 'c1', name: 'Duplicate Client', email: 'duplicate@test.pl' });
+    const duplicateReplace = projectsRepository.replaceAll([
+      { id: 'p-duplicate', name: 'First Job' },
+      { id: 'p-duplicate', name: 'Second Job' }
+    ]);
+
+    expect(duplicateCreate).toMatchObject({
+      ok: false,
+      error: REPOSITORY_ERRORS.VALIDATION,
+      issues: [expect.objectContaining({ field: 'id' })]
+    });
+    expect(duplicateReplace).toMatchObject({
+      ok: false,
+      error: REPOSITORY_ERRORS.VALIDATION,
+      issues: [expect.objectContaining({ field: 'id' })]
+    });
+  });
+
   it('exposes project and event repositories on the same adapter boundary', () => {
     const { adapter } = createMemoryStorage(seedData);
     const repositoryAdapter = createLocalStorageRepositoryAdapter({ storageAdapter: adapter, seedState: seedData });

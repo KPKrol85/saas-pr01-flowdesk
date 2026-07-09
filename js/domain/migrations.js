@@ -6,6 +6,15 @@ const normalizeArray = (value, fallback = []) => (Array.isArray(value) ? value :
 
 const collectIds = (items) => items.map((item) => item.id).filter(Boolean);
 
+const dedupeById = (items) => {
+  const seen = new Set();
+  return items.filter((item) => {
+    if (!item.id || seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
+};
+
 export const enforceRelationshipConsistency = (state) => {
   const clientIds = collectIds(state.clients);
 
@@ -47,9 +56,9 @@ export const migrateState = (rawState, seedState) => {
 
   const migrated = createStateModel({
     schemaVersion: CURRENT_SCHEMA_VERSION,
-    clients,
-    projects,
-    events,
+    clients: dedupeById(clients),
+    projects: dedupeById(projects),
+    events: dedupeById(events),
     ui: normalizeUiPreferences(source.ui || seed.ui)
   });
 

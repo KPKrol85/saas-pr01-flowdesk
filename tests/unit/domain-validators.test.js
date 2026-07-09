@@ -69,6 +69,15 @@ describe('domain validators', () => {
     expect(result.errors).toContainEqual({ field: 'clientId', message: 'Nieprawidłowy klient.' });
   });
 
+  it('allows migration recovery by default but supports strict project reference checks', () => {
+    const recoverable = validateProject({ id: 'p-test', name: 'Job', clientId: 'missing' }, { clientIds: [] });
+    const strict = validateProject({ id: 'p-test', name: 'Job', clientId: 'missing' }, { clientIds: [], requireKnownClient: true });
+
+    expect(recoverable.valid).toBe(true);
+    expect(strict.valid).toBe(false);
+    expect(strict.errors).toContainEqual({ field: 'clientId', message: 'Nieprawidłowy klient.' });
+  });
+
   it('normalizes events with default type and validates required dates', () => {
     const result = validateEvent({
       id: 'e-test',
@@ -80,6 +89,27 @@ describe('domain validators', () => {
     expect(result.valid).toBe(false);
     expect(result.value).toMatchObject({ title: 'Review call', type: 'General' });
     expect(result.errors).toContainEqual({ field: 'date', message: 'Wymagane pole.' });
+  });
+
+  it('supports strict event reference checks for action writes', () => {
+    const result = validateEvent(
+      {
+        id: 'e-test',
+        title: 'Review call',
+        date: '2026-08-10',
+        clientId: 'missing-client',
+        projectId: 'missing-project'
+      },
+      { clientIds: [], projectIds: [], requireKnownReferences: true }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        { field: 'clientId', message: 'Nieprawidłowy klient.' },
+        { field: 'projectId', message: 'Nieprawidłowy projekt.' }
+      ])
+    );
   });
 
   it('normalizes valid demo sessions and rejects invalid session email', () => {

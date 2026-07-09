@@ -15,6 +15,16 @@ export const createCollectionRepository = ({ adapter, collectionName }) => {
     return state[collectionName]?.find((record) => record.id === data?.id) || data;
   };
 
+  const hasDuplicateIds = (records) => {
+    const seen = new Set();
+    return records.some((record) => {
+      if (!record?.id) return false;
+      if (seen.has(record.id)) return true;
+      seen.add(record.id);
+      return false;
+    });
+  };
+
   const commitCollection = (records, data) => {
     const result = replaceCollection(records);
     return result.ok ? repositoryOk(resolveSavedData(result.state, data), result.state) : result;
@@ -29,7 +39,12 @@ export const createCollectionRepository = ({ adapter, collectionName }) => {
       return record ? repositoryOk(record, adapter.loadState()) : repositoryFail(REPOSITORY_ERRORS.NOT_FOUND);
     },
     create(input) {
-      return commitCollection([...listRecords(), input], input);
+      const records = listRecords();
+      if (input?.id && records.some((record) => record.id === input.id)) {
+        return repositoryFail(REPOSITORY_ERRORS.VALIDATION, [{ field: 'id', message: 'Duplicate record id.' }]);
+      }
+
+      return commitCollection([...records, input], input);
     },
     update(id, input) {
       const records = listRecords();
@@ -65,6 +80,8 @@ export const createCollectionRepository = ({ adapter, collectionName }) => {
     },
     replaceAll(records) {
       const nextRecords = Array.isArray(records) ? records : [];
+      if (hasDuplicateIds(nextRecords)) return repositoryFail(REPOSITORY_ERRORS.VALIDATION, [{ field: 'id', message: 'Duplicate record id.' }]);
+
       return commitCollection(nextRecords, nextRecords);
     }
   };

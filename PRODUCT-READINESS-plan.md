@@ -278,6 +278,7 @@ Make FlowDesk resilient and professional when records are missing, archived, fil
 **Priority:** High
 **Risk Level:** High
 **Recommended Task Type:** architecture readiness, frontend implementation, tests
+**Status:** Done - audited models, validators, migrations, action results, repository result shapes, relationship consistency, import validation, reset, archive, restore, delete behavior, RBAC readiness, safe rendering boundaries, and future API compatibility. Tightened strict relationship checks for action writes, rejected duplicate top-level record IDs during import, added safe duplicate-ID recovery for migrated local demo state, and covered the integrity paths with focused unit, integration, and e2e tests.
 
 ### Goal
 

@@ -336,6 +336,19 @@ test('user imports confirmed valid JSON and rejects unsafe JSON', async ({ page 
 
   await page.getByLabel('Dane JSON').fill(
     JSON.stringify({
+      clients: [
+        { id: 'c-duplicate', name: 'First Client', email: 'first@flowdesk.test' },
+        { id: 'c-duplicate', name: 'Second Client', email: 'second@flowdesk.test' }
+      ],
+      projects: [],
+      events: []
+    })
+  );
+  await page.getByRole('button', { name: 'Sprawdź i importuj JSON' }).click();
+  await expect(page.getByText(/Import zawiera zduplikowane identyfikatory rekordów/)).toBeVisible();
+
+  await page.getByLabel('Dane JSON').fill(
+    JSON.stringify({
       clients: [{ id: 'c-import', name: 'Imported Client', email: 'imported@flowdesk.test' }],
       projects: [],
       events: [],

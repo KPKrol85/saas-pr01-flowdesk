@@ -26,6 +26,20 @@ const collectIds = (items) => items.map((item) => item.id).filter(Boolean);
 
 const importSchemaMessage = 'Import musi zawierać pełny eksport FlowDesk JSON z tablicami clients, projects i events.';
 const importRecordMessage = 'Import zawiera rekordy, których nie można zweryfikować. Sprawdź wymagane pola i format email.';
+const importDuplicateIdMessage = 'Import zawiera zduplikowane identyfikatory rekordów. Usuń duplikaty klientów, zleceń lub wydarzeń.';
+
+const validateRecords = (items, validate) => items.map((item) => validate(item));
+
+const hasDuplicateRecordIds = (results) => {
+  const seen = new Set();
+  return results.some((result) => {
+    const id = result.value?.id;
+    if (!id) return false;
+    if (seen.has(id)) return true;
+    seen.add(id);
+    return false;
+  });
+};
 
 const validateImportSchema = (rawState) => {
   if (!isPlainObject(rawState)) {
@@ -36,12 +50,20 @@ const validateImportSchema = (rawState) => {
     return actionFail(ACTION_ERRORS.INVALID_SCHEMA, [{ field: 'json', message: importSchemaMessage }]);
   }
 
-  const invalidClient = rawState.clients.map((client) => validateClient(client)).find((result) => !result.valid);
-  const invalidProject = rawState.projects.map((project) => validateProject(project, { strictDate: false })).find((result) => !result.valid);
-  const invalidEvent = rawState.events.map((event) => validateEvent(event, { requireDate: false, strictDate: false })).find((result) => !result.valid);
+  const clientResults = validateRecords(rawState.clients, validateClient);
+  const projectResults = validateRecords(rawState.projects, (project) => validateProject(project, { strictDate: false }));
+  const eventResults = validateRecords(rawState.events, (event) => validateEvent(event, { requireDate: false, strictDate: false }));
+
+  const invalidClient = clientResults.find((result) => !result.valid);
+  const invalidProject = projectResults.find((result) => !result.valid);
+  const invalidEvent = eventResults.find((result) => !result.valid);
 
   if (invalidClient || invalidProject || invalidEvent) {
     return actionFail(ACTION_ERRORS.INVALID_SCHEMA, [{ field: 'json', message: importRecordMessage }]);
+  }
+
+  if (hasDuplicateRecordIds(clientResults) || hasDuplicateRecordIds(projectResults) || hasDuplicateRecordIds(eventResults)) {
+    return actionFail(ACTION_ERRORS.INVALID_SCHEMA, [{ field: 'json', message: importDuplicateIdMessage }]);
   }
 
   return null;
@@ -142,7 +164,8 @@ export const createProjectAction = (state, payload, context = {}) => {
   const result = validateProject(
     { ...payload, id: createId('project') },
     {
-      clientIds: collectIds(state.clients)
+      clientIds: collectIds(state.clients),
+      requireKnownClient: true
     }
   );
   if (!result.valid) return actionFail(ACTION_ERRORS.VALIDATION, result.errors);
@@ -161,7 +184,8 @@ export const updateProjectAction = (state, id, payload, context = {}) => {
   const result = validateProject(
     { ...existingProject, ...payload, id },
     {
-      clientIds: collectIds(state.clients)
+      clientIds: collectIds(state.clients),
+      requireKnownClient: true
     }
   );
   if (!result.valid) return actionFail(ACTION_ERRORS.VALIDATION, result.errors);
@@ -273,7 +297,8 @@ export const createEventAction = (state, payload, { createId } = {}) => {
     { ...payload, id: createId('event') },
     {
       clientIds: collectIds(state.clients),
-      projectIds: collectIds(state.projects)
+      projectIds: collectIds(state.projects),
+      requireKnownReferences: true
     }
   );
   if (!result.valid) return actionFail(ACTION_ERRORS.VALIDATION, result.errors);
@@ -290,7 +315,8 @@ export const updateEventAction = (state, id, payload) => {
     { ...existingEvent, ...payload, id },
     {
       clientIds: collectIds(state.clients),
-      projectIds: collectIds(state.projects)
+      projectIds: collectIds(state.projects),
+      requireKnownReferences: true
     }
   );
   if (!result.valid) return actionFail(ACTION_ERRORS.VALIDATION, result.errors);

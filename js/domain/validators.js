@@ -153,10 +153,10 @@ const createValidationResult = (value, errors) => ({
   value
 });
 
-const hasReference = (id, allowedIds = []) => {
+const hasReference = (id, allowedIds = [], { requireKnown = false } = {}) => {
   const normalized = normalizeString(id);
   if (!normalized) return true;
-  return allowedIds.length === 0 || allowedIds.includes(normalized);
+  return (!requireKnown && allowedIds.length === 0) || allowedIds.includes(normalized);
 };
 
 export const getFieldError = (result, field) => result.errors.find((error) => error.field === field)?.message || '';
@@ -221,7 +221,7 @@ export const normalizeProject = (input = {}) => {
   });
 };
 
-export const validateProject = (input, { requireId = true, strictDate = true, clientIds = [] } = {}) => {
+export const validateProject = (input, { requireId = true, strictDate = true, clientIds = [], requireKnownClient = false } = {}) => {
   const source = isPlainObject(input) ? input : {};
   const value = normalizeProject(source);
   const errors = [];
@@ -230,7 +230,7 @@ export const validateProject = (input, { requireId = true, strictDate = true, cl
   if (!value.name) errors.push({ field: 'name', message: 'Wymagane pole.' });
   if (strictDate && hasInvalidProvidedDate(source.dueDate)) errors.push({ field: 'dueDate', message: 'Nieprawidłowa data.' });
   if (strictDate && hasInvalidProvidedDate(source.sla?.responseDueDate)) errors.push({ field: 'responseDueDate', message: 'Nieprawidłowa data SLA.' });
-  if (!hasReference(value.clientId, clientIds)) errors.push({ field: 'clientId', message: 'Nieprawidłowy klient.' });
+  if (!hasReference(value.clientId, clientIds, { requireKnown: requireKnownClient })) errors.push({ field: 'clientId', message: 'Nieprawidłowy klient.' });
 
   return createValidationResult(value, errors);
 };
@@ -248,7 +248,7 @@ export const normalizeEvent = (input = {}) => {
   });
 };
 
-export const validateEvent = (input, { requireId = true, requireDate = true, strictDate = true, clientIds = [], projectIds = [] } = {}) => {
+export const validateEvent = (input, { requireId = true, requireDate = true, strictDate = true, clientIds = [], projectIds = [], requireKnownReferences = false } = {}) => {
   const source = isPlainObject(input) ? input : {};
   const value = normalizeEvent(source);
   const errors = [];
@@ -260,8 +260,8 @@ export const validateEvent = (input, { requireId = true, requireDate = true, str
   } else if (requireDate && !value.date) {
     errors.push({ field: 'date', message: 'Wymagane pole.' });
   }
-  if (!hasReference(value.clientId, clientIds)) errors.push({ field: 'clientId', message: 'Nieprawidłowy klient.' });
-  if (!hasReference(value.projectId, projectIds)) errors.push({ field: 'projectId', message: 'Nieprawidłowy projekt.' });
+  if (!hasReference(value.clientId, clientIds, { requireKnown: requireKnownReferences })) errors.push({ field: 'clientId', message: 'Nieprawidłowy klient.' });
+  if (!hasReference(value.projectId, projectIds, { requireKnown: requireKnownReferences })) errors.push({ field: 'projectId', message: 'Nieprawidłowy projekt.' });
 
   return createValidationResult(value, errors);
 };

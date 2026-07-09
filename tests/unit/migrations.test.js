@@ -65,4 +65,32 @@ describe('state migrations', () => {
     expect(migrated.events[0].clientId).toBe('');
     expect(migrated.events[0].projectId).toBe('');
   });
+
+  it('recovers duplicate stored ids by keeping the first valid record', () => {
+    const migrated = migrateState(
+      {
+        clients: [
+          { id: 'c-duplicate', name: 'First Client', email: 'first@test.pl' },
+          { id: 'c-duplicate', name: 'Second Client', email: 'second@test.pl' }
+        ],
+        projects: [
+          { id: 'p-duplicate', name: 'First Job', clientId: 'c-duplicate' },
+          { id: 'p-duplicate', name: 'Second Job', clientId: 'c-duplicate' }
+        ],
+        events: [
+          { id: 'e-duplicate', title: 'First Event', date: '2026-08-12', clientId: 'c-duplicate', projectId: 'p-duplicate' },
+          { id: 'e-duplicate', title: 'Second Event', date: '2026-08-13', clientId: 'c-duplicate', projectId: 'p-duplicate' }
+        ],
+        ui: { theme: 'dark' }
+      },
+      seedData
+    );
+
+    expect(migrated.clients).toHaveLength(1);
+    expect(migrated.clients[0]).toMatchObject({ id: 'c-duplicate', name: 'First Client' });
+    expect(migrated.projects).toHaveLength(1);
+    expect(migrated.projects[0]).toMatchObject({ id: 'p-duplicate', name: 'First Job', clientId: 'c-duplicate' });
+    expect(migrated.events).toHaveLength(1);
+    expect(migrated.events[0]).toMatchObject({ id: 'e-duplicate', title: 'First Event', clientId: 'c-duplicate', projectId: 'p-duplicate' });
+  });
 });

@@ -86,6 +86,22 @@ describe('service management workflows', () => {
     setControlValue(
       'Dane JSON',
       JSON.stringify({
+        clients: [
+          { id: 'c-duplicate', name: 'First Client', email: 'first@test.pl' },
+          { id: 'c-duplicate', name: 'Second Client', email: 'second@test.pl' }
+        ],
+        projects: [],
+        events: []
+      })
+    );
+    getButton('Sprawdź i importuj JSON').click();
+
+    expect(container.textContent).toContain('Import zawiera zduplikowane identyfikatory rekordów');
+    expect(store.getState().clients.length).toBe(initialClientCount);
+
+    setControlValue(
+      'Dane JSON',
+      JSON.stringify({
         clients: [{ id: 'c-import', name: 'Imported Client', email: 'imported@test.pl' }],
         projects: [],
         events: [],
