@@ -12,6 +12,7 @@ To jest kontrakt projektowy dla przyszłego backendu. Obecna aplikacja nie wykon
 - Każdy zasób biznesowy powinien być izolowany przez `organizationId`.
 - Backend powinien egzekwować RBAC niezależnie od frontendu.
 - Błędy powinny mieć stabilny kształt, który da się mapować na `repositoryFail`.
+- Plan, billing i audit log contracts są przyszłym planowaniem. Ten dokument nie oznacza, że FlowDesk ma live API, payment provider albo billing implementation.
 
 ## Standard odpowiedzi
 
@@ -94,6 +95,36 @@ Role wspierane przez frontend:
 - `Manager`
 - `Member`
 - `Viewer`
+
+## Plans, subscriptions i billing readiness
+
+Te kontrakty są planistyczne. Nie należy ich implementować w frontendzie przed wyborem backendu, payment providera, modelu subskrypcji i zasad prawnych.
+
+| Metoda | Endpoint                              | Uprawnienie          | Opis                                          |
+| ------ | ------------------------------------- | -------------------- | --------------------------------------------- |
+| `GET`  | `/api/v1/plans`                       | public lub member    | katalog dostępnych planów                     |
+| `GET`  | `/api/v1/subscription/current`        | `organization:admin` | aktywny plan, limity i status subskrypcji     |
+| `GET`  | `/api/v1/billing/invoices`            | `organization:admin` | historia faktur lub płatności                 |
+| `POST` | `/api/v1/billing/checkout-session`    | `organization:admin` | utworzenie sesji checkout u payment providera |
+| `POST` | `/api/v1/billing/customer-portal`     | `organization:admin` | przejście do portalu klienta billingowego     |
+| `POST` | `/api/v1/billing/webhooks/{provider}` | provider secret      | webhook payment providera po stronie backendu |
+
+Przykładowy kontrakt planu:
+
+```json
+{
+  "id": "plan_team",
+  "name": "Team",
+  "limits": {
+    "members": 10,
+    "activeClients": 250,
+    "activeProjects": 500
+  },
+  "features": ["audit_log", "advanced_export"]
+}
+```
+
+Plan limits powinny być egzekwowane przez backend. Frontend może pokazać komunikat UX, ale nie może być źródłem prawdy dla billing albo feature gating.
 
 ## Clients
 
@@ -203,6 +234,34 @@ Kody błędów konfliktów:
 - `record_archived`
 - `permission_denied`
 
+## Audit logs
+
+Audit log jest przyszłym kontraktem backendowym dla accountability. Nie istnieje w obecnym frontend-only demo.
+
+| Metoda | Endpoint                   | Uprawnienie          | Opis                                      |
+| ------ | -------------------------- | -------------------- | ----------------------------------------- |
+| `GET`  | `/api/v1/audit-log`        | `organization:admin` | lista zdarzeń audytowych organizacji      |
+| `GET`  | `/api/v1/audit-log/{id}`   | `organization:admin` | szczegóły pojedynczego zdarzenia audytu   |
+| `GET`  | `/api/v1/audit-log/export` | `data:export`        | eksport audytu zgodny z polityką retencji |
+
+Minimalny event:
+
+```json
+{
+  "id": "audit_123",
+  "organizationId": "org_123",
+  "actorUserId": "u_123",
+  "action": "project.archive",
+  "resourceType": "project",
+  "resourceId": "p_123",
+  "status": "success",
+  "requestId": "req_123",
+  "createdAt": "2026-07-09T10:00:00.000Z"
+}
+```
+
+Audit payload powinien unikać pełnych treści komentarzy, notatek, sekretów, tokenów i danych billingowych. Szczegółowy zakres retencji musi być decyzją backendowo-prawną.
+
 ## Mapowanie na frontend
 
 Przyszły adapter API powinien mapować:
@@ -213,6 +272,7 @@ Przyszły adapter API powinien mapować:
 - `403` na `repositoryFail('permission_denied')`
 - `404` na `repositoryFail('not_found')`
 - `409` na `repositoryFail('conflict_detected')`
+- plan limit errors na stabilny kod, np. `plan_limit_exceeded`, mapowany na komunikat UI bez zmiany lokalnego stanu
 - `5xx` na `repositoryFail('storage_failed')` lub osobny kod awarii API
 
 Frontend nie powinien ufać temu, że API zawsze zwróci idealne dane. Odpowiedzi nadal powinny przechodzić przez normalizację domenową.

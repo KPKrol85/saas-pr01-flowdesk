@@ -315,6 +315,7 @@ Lokalne artefakty takie jak `node_modules/`, `test-results/`, `playwright-report
 | `docs/design-system.md` | komponenty UI, tokeny i konwencje interfejsu |
 | `docs/backend-readiness.md` | przyszły backend, RBAC, multi-user i offline sync |
 | `docs/api-contracts.md` | projekt przyszłych endpointów i mapowanie błędów API |
+| `docs/future-saas-readiness.md` | przyszłe konta, workspace, plany, billing boundaries i audit logi |
 | `docs/pwa-strategy.md` | service worker, app-shell cache, offline i update lifecycle |
 | `docs/performance-budget.md` | budżety rozmiaru, Lighthouse i startup responsiveness |
 | `docs/observability.md` | lokalny kontrakt monitoringu i zasady danych |
@@ -340,6 +341,7 @@ Szczegóły:
 
 - `docs/backend-readiness.md` - architektura repozytoriów, RBAC, ograniczenia bezpieczeństwa i strategia offline,
 - `docs/api-contracts.md` - projekt przyszłych endpointów, payloadów, błędów i mapowania na repozytoria.
+- `docs/future-saas-readiness.md` - planistyczne granice kont, workspace, subskrypcji, billing, audit logów i organizacyjnych ustawień.
 
 ## Uwierzytelnianie demo
 

@@ -60,6 +60,22 @@ Sesja demo jest rozszerzana o kontekst:
 
 To nadal nie jest realne uwierzytelnianie. Dane sesji pochodzą z demo auth i służą jako kontrakt UI oraz przygotowanie pod przyszłe API.
 
+## Account i workspace readiness
+
+Obecny kontekst `user`, `organization` i `membership` opisuje jedną lokalną przestrzeń demo. Nie zapewnia multi-tenant isolation, zaproszeń, przełączania workspace, lifecycle konta ani ustawień organizacji.
+
+Przyszły backend musi zdefiniować:
+
+- rejestrację, logowanie, wylogowanie i lifecycle sesji,
+- tworzenie organizacji oraz właściciela workspace,
+- zaproszenia członków, akceptację zaproszeń i dezaktywację użytkowników,
+- zmianę ról, transfer ownership i usuwanie członkostw,
+- organizacyjne ustawienia, np. nazwa, timezone, locale i domyślne preferencje,
+- izolację danych po `organizationId` na każdym endpointzie,
+- prawa eksportu i usunięcia danych organizacji.
+
+Szczegółowa lista luk SaaS jest w `docs/future-saas-readiness.md`.
+
 ## RBAC
 
 RBAC znajduje się w `js/domain/rbac.js`. Role:
@@ -78,6 +94,8 @@ Kluczowe helpery:
 - `normalizeRole(role)`
 
 Na tym etapie RBAC jest warstwą gotowościową i testowanym kontraktem. Nie jest jeszcze egzekwowany szeroko w widokach, żeby nie zmieniać zachowania demo bez pełnego projektu uprawnień i backendowego enforcementu.
+
+Przyszły backend powinien rozstrzygnąć, czy uprawnienia wynikają wyłącznie z roli, czy mogą mieć wyjątki per członek. Operacje wysokiego ryzyka, takie jak import, eksport, reset, archiwizacja, przywracanie, usuwanie, zmiana ról i przyszłe działania billingowe, muszą być egzekwowane po stronie serwera i logowane audytowo.
 
 ## Metadane synchronizacji
 
@@ -121,3 +139,32 @@ Przyszły backend musi egzekwować:
 - strategię wygaszania sesji i rotacji tokenów, jeżeli tokeny zostaną użyte
 
 Frontendowe RBAC i walidacja są poprawą UX oraz wczesnym filtrem błędów, ale nie zastępują kontroli backendowej.
+
+## Monetization readiness
+
+Pole `Organization.plan` jest obecnie lokalnym kontraktem demo. Nie istnieją subskrypcje, płatności, faktury, usage limits, feature gates ani integracja z payment providerem.
+
+Przed implementacją monetizacji trzeba zaprojektować:
+
+- katalog planów i źródło prawdy dla aktywnego planu,
+- właściciela subskrypcji oraz kontakt billingowy,
+- trial, downgrade, cancelation i grace period,
+- widoczność faktur oraz historii płatności,
+- limity użycia, np. członkowie, aktywni klienci, aktywne zlecenia, eksport lub storage,
+- relację między plan limits a RBAC,
+- zachowanie eksportu i retencji danych po anulowaniu.
+
+Na tym etapie monetization readiness jest wyłącznie planowaniem produktu. FlowDesk nie ma payment providera, billing logic ani pricing enforcement.
+
+## Audit log readiness
+
+Przyszły audit log powinien objąć co najmniej:
+
+- logowanie, wylogowanie i zmiany sesji,
+- import, eksport i reset danych,
+- archiwizację, przywracanie i usuwanie rekordów,
+- zmianę ról, zaproszenia i usuwanie członków,
+- zmiany ustawień organizacji,
+- przyszłe zmiany planu, subskrypcji i billing-adjacent actions.
+
+Minimalny kontrakt audytu powinien zawierać actor id, organization id, action, resource type/id, timestamp, request id, status wyniku i bezpieczne streszczenie zmian. Log audytowy nie powinien przechowywać pełnych payloadów formularzy, sekretów ani nadmiarowych danych osobowych.

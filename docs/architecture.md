@@ -219,3 +219,19 @@ Przed produkcją wymagane są:
 - produkcyjne nagłówki security,
 - docelowe wartości SEO/Open Graph,
 - release i rollback process.
+
+## Future SaaS boundaries
+
+Obecne modele identity, RBAC, repository adapter i sync metadata są readiness layers. Nie implementują kont, subskrypcji, multi-tenant isolation, billing, audit logów ani backendowego enforcementu.
+
+Przed dodaniem backendu lub monetizacji osobne zadania muszą zdefiniować:
+
+- account i workspace lifecycle,
+- role, permissions i server-side enforcement,
+- plan/subscription source of truth,
+- audit log contracts,
+- usage limits i feature gating,
+- API adapter behavior oraz error mapping,
+- politykę danych dla billing i observability.
+
+Szczegółowe luki planistyczne są w `docs/future-saas-readiness.md`.
