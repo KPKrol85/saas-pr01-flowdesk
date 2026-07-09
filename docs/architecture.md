@@ -203,7 +203,7 @@ Obejmuje:
 - build,
 - performance budget.
 
-CI jest skonfigurowane w `.github/workflows/flowdesk-quality.yml`.
+Lokalna bramka jakości jest zebrana w `npm run check`. Jeżeli repozytorium dostanie workflow GitHub Actions, powinien on uruchamiać te same skrypty z `package.json` zamiast duplikować niestandardowe komendy.
 
 ## Deployment boundaries
 

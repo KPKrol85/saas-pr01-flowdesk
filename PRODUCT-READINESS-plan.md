@@ -355,6 +355,7 @@ Prepare FlowDesk to be presented publicly as a polished SaaS demo with clear bou
 **Priority:** High
 **Risk Level:** Low
 **Recommended Task Type:** release hygiene, documentation, tests
+**Status:** Done - audited `.gitignore`, tracked generated files, package scripts, release checklist, changelog, versioning, documentation map, PWA manifest generation, performance budget workflow, stale path references, GitHub Actions references, and local artifacts. Improved local artifact ignore rules, documented generated-file handling, aligned release checklist hygiene steps, corrected the current CI/workflow documentation boundary, and identified tracked Playwright run state for repository cleanup.
 
 ### Goal
 

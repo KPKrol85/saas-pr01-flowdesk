@@ -27,6 +27,14 @@ Desktop.ini
 *.swp
 *.swo
 
+# Local agent workspace files
+.codex/
+.agents/
+
+# Local prompt scratch files
+/PROMPT.md
+/PROMPT.local.md
+
 # Test, coverage, and QA output
 coverage/
 playwright-report/

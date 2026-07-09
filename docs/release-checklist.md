@@ -4,8 +4,10 @@
 
 - Confirm release scope and target version.
 - Confirm no unrelated files are included.
+- Confirm `git status --short` is easy to review before committing.
 - Confirm demo-only boundaries remain explicit.
 - Confirm generated files were produced by scripts.
+- Confirm local artifacts such as `node_modules/`, `test-results/`, `playwright-report/`, `coverage/`, `.lighthouseci/`, logs and cache folders are not tracked.
 
 ## Pre-release checks
 
@@ -50,6 +52,14 @@ git diff --check
 - Confirm app works after first visit with offline mode.
 - Confirm service worker update prompt appears without forced reload.
 - Confirm `offline.html` is still cached.
+
+## Generated files policy
+
+- Update `css/style.min.css` only through `npm run build:css` or `npm run build`.
+- Update `js/main.min.js` only through `npm run build:js` or `npm run build`.
+- Update `service-worker-assets.js` only through `npm run pwa:manifest` or `npm run build`.
+- Do not manually edit generated or minified files.
+- Do not commit local QA reports, Playwright run state, logs, caches or dependency folders.
 
 ## Version and changelog
 

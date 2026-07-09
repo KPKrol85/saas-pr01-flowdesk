@@ -294,6 +294,18 @@ Metadane publiczne:
 | `npm run check` | Uruchamia pełny lokalny zestaw jakości: PWA check, lint, testy, e2e, a11y, build i performance budget. |
 | `npm run images` | Kompresuje obrazy z `assets/images/*` do WebP, jeśli taki katalog istnieje. |
 
+## Release hygiene
+
+Pliki generowane, które są intencjonalnie commitowane:
+
+- `css/style.min.css` - aktualizowany przez `npm run build:css` albo `npm run build`.
+- `js/main.min.js` - aktualizowany przez `npm run build:js` albo `npm run build`.
+- `service-worker-assets.js` - aktualizowany przez `npm run pwa:manifest` oraz automatycznie przed `npm run build`.
+
+Nie edytuj tych plików ręcznie. Po zmianach runtime, manifestu, CSS, JS, fontów lub ikon uruchom `npm run build` i potwierdź `npm run pwa:check`.
+
+Lokalne artefakty takie jak `node_modules/`, `test-results/`, `playwright-report/`, `coverage/`, `.lighthouseci/`, logi, cache i katalogi workspace agenta są ignorowane przez `.gitignore`. Przed commitem sprawdź `git status --short`, żeby potwierdzić, że w diffie są tylko pliki związane z zakresem zadania.
+
 ## Mapa dokumentacji
 
 | Dokument | Zakres |
@@ -310,6 +322,7 @@ Metadane publiczne:
 | `docs/release-checklist.md` | release, deployment, post-release validation i rollback |
 | `docs/versioning.md` | konwencja wersjonowania demo milestone |
 | `CHANGELOG.md` | historia zmian i milestone |
+| `PRODUCT-READINESS-plan.md` | roadmapa product-readiness i status kolejnych punktów |
 
 ## Backend readiness i multi-user
 
