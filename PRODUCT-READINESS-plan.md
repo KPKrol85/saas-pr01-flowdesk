@@ -317,6 +317,7 @@ Strengthen client-side data integrity without pretending frontend validation rep
 **Priority:** Medium
 **Risk Level:** Low
 **Recommended Task Type:** documentation, UX/content polish, release hygiene
+**Status:** Done - audited README, release checklist, public metadata, manifest, robots, sitemap, demo login copy, screenshot strategy, deployment URL placeholders, and static presentation boundaries. Improved portfolio demo instructions, safer demo-oriented metadata, pending deployment URL guidance, visible demo-auth wording, and public screenshot strategy while preserving architecture, routing, PWA strategy, data model, validation, and product workflows.
 
 ### Goal
 

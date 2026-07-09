@@ -10,7 +10,7 @@ export const renderLoginView = (container) => {
     <main class="login" id="main">
       <div class="login__card">
         <h1 class="login__title">Zaloguj się do FlowDesk</h1>
-        <p class="login__desc">FlowDesk pokazuje panel pracy dla zespołu usługowego. Wpisz dowolny firmowy email i hasło demo, aby przejść do przykładowej przestrzeni.</p>
+        <p class="login__desc">FlowDesk pokazuje panel pracy dla zespołu usługowego. Użyj fikcyjnego emaila, np. demo@flowdesk.test, i hasła demo o długości minimum 6 znaków. To nie jest prawdziwe logowanie.</p>
         <form id="loginForm" class="form-grid" novalidate>
           ${inputField({ id: 'email', label: 'Email', type: 'email', placeholder: 'anna@firma.pl', required: true, helper: 'Użyj formatu: imie@firma.pl', autocomplete: 'email' })}
           ${inputField({ id: 'password', label: 'Hasło', type: 'password', required: true, helper: 'Minimum 6 znaków.', autocomplete: 'current-password', minLength: 6 })}

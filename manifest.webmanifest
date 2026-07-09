@@ -1,7 +1,7 @@
 {
   "name": "FlowDesk",
   "short_name": "FlowDesk",
-  "description": "Service Management Dashboard dla małych firm usługowych.",
+  "description": "Frontend-only Service Management Dashboard demo dla małych firm usługowych.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0b0f1a",

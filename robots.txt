@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://example.com/flowdesk/sitemap.xml
+# Add a deployment-specific Sitemap URL after the public URL is known.

@@ -242,6 +242,37 @@ npm run dev
 
 Projekt należy uruchamiać przez lokalny serwer HTTP. Otwieranie `index.html` bezpośrednio przez `file://` nie jest zalecane, ponieważ aplikacja korzysta ze ścieżek absolutnych, modułów ES i service workera.
 
+## Publiczne demo i portfolio review
+
+FlowDesk można oceniać jako frontend-only SaaS demo pokazujące service management workflow, a nie jako gotowy produkt dla danych klientów.
+
+Szybki dostęp po uruchomieniu lokalnym:
+
+- Wejdź na `#/login`.
+- Użyj fikcyjnego emaila, np. `demo@flowdesk.test`.
+- Użyj dowolnego hasła demo o długości minimum 6 znaków, np. `demo123`.
+- Logowanie tworzy wyłącznie lokalną sesję demo w `localStorage`; nie ma serwerowej weryfikacji użytkownika.
+
+Granice publicznego demo:
+
+- Dane klientów, zleceń i wydarzeń są przykładowe albo lokalnie utworzone w przeglądarce.
+- Eksport, import i reset to narzędzia danych demo, nie backup ani cloud sync.
+- Nie należy wprowadzać prawdziwych danych klientów, sekretów, tokenów ani produkcyjnych credentiali.
+- FlowDesk nie zawiera backendu, produkcyjnego auth, bazy danych, live API, billing ani synchronizacji w chmurze.
+
+Strategia screenshotów:
+
+- Screenshoty nie są obecnie commitowane jako osobny pakiet portfolio.
+- Przyszłe screenshoty powinny być przechwycone z aktualnie uruchomionego UI, bez makiet niezgodnych z produktem.
+- Minimalny zestaw powinien obejmować desktop dashboard, klientów, zlecenia, kalendarz, ustawienia oraz mobilny shell.
+- Screenshoty trzeba odświeżać po zmianach UI o charakterze release-grade.
+
+Metadane publiczne:
+
+- `index.html` ma demo-oriented title, description i social preview copy.
+- Docelowy publiczny URL nie jest jeszcze zapisany w repozytorium.
+- `canonical`, `og:url`, absolutny `og:image`, `robots.txt` sitemap URL i produkcyjne `sitemap.xml` należy uzupełnić dopiero po wyborze finalnego adresu deploymentu.
+
 ## Komendy npm
 
 | Komenda | Opis |
@@ -379,7 +410,7 @@ Najważniejsze pierwsze kroki:
 
 Projekt jest przygotowany jako statyczna aplikacja, więc może być hostowany np. na Netlify, Cloudflare Pages, GitHub Pages lub dowolnym serwerze statycznym. Plik `_redirects` sugeruje kompatybilność z Netlify.
 
-Przed publikacją trzeba zmienić wartości produkcyjne w `index.html`, `sitemap.xml`, `robots.txt` i metadanych Open Graph, szczególnie `canonical`, `og:url` oraz `og:image`.
+Przed publikacją trzeba uzupełnić wartości produkcyjne w `index.html`, `sitemap.xml`, `robots.txt` i metadanych Open Graph, szczególnie `canonical`, `og:url`, absolutny `og:image`, `Sitemap` oraz `<loc>`. Do czasu wyboru finalnego URL-a repozytorium nie powinno wskazywać placeholderów typu `example.com`.
 
 Release i rollback należy prowadzić według `docs/release-checklist.md`. Przy nazwanych milestone trzeba zaktualizować `CHANGELOG.md` i wersję zgodnie z `docs/versioning.md`.
 

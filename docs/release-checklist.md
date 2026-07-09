@@ -65,6 +65,10 @@ git diff --check
 - Ensure `_redirects` or hosting equivalent supports SPA fallback.
 - Ensure production security headers are configured at hosting level.
 - Ensure `index.html`, `sitemap.xml`, `robots.txt`, canonical and Open Graph URLs are production values.
+- Replace pending deployment URL metadata only after the final public URL is known.
+- Confirm README public demo notes still describe frontend-only scope, demo auth and local demo data accurately.
+- Capture portfolio screenshots from the current running UI only: desktop dashboard, clients, projects, calendar, settings and mobile shell.
+- Confirm screenshots do not show mocked, outdated or production-only functionality.
 - Ensure old service worker cache can be replaced by the new cache version.
 
 ## Post-release validation
