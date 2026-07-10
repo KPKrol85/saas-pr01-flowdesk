@@ -30,6 +30,19 @@ explicitly.
 Goal: prepare FlowDesk for a public portfolio demo without overstating production
 readiness.
 
+Current status:
+
+- canonical public origin is confirmed as `https://saas-pr01-flowdesk.netlify.app/`
+- direct demo login URL is confirmed as
+  `https://saas-pr01-flowdesk.netlify.app/#/login`
+- repository-level metadata and release documentation have been prepared for the
+  confirmed public URLs
+- the public Netlify deployment is maintained separately through `kp-code-portfolio`
+  and must not be inspected, modified, or deployed from this repository
+- Priority 2 remains active until the owner-managed deployment sync publishes the
+  updated metadata and live `index.html`, `robots.txt`, and `sitemap.xml` match the
+  confirmed canonical origin
+
 Scope:
 
 - choose the final deployment URL
