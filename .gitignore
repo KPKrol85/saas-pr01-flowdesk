@@ -31,6 +31,9 @@ Desktop.ini
 .codex/
 .agents/
 
+# Local project workflow files
+/FLOWDESK-CONTEXT.md
+
 # Local prompt scratch files
 /PROMPT.md
 /PROMPT.local.md

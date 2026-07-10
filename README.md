@@ -96,7 +96,6 @@ flowdesk/
   _redirects               # konfiguracja redirectów pod hosting statyczny, np. Netlify
   CHANGELOG.md
   DONE.md
-  FLOWDESK-CONTEXT.md
   index.html
   manifest.webmanifest
   offline.html
@@ -334,7 +333,6 @@ Lokalne artefakty takie jak `node_modules/`, `test-results/`, `playwright-report
 | `docs/release-checklist.md` | release, deployment, post-release validation i rollback |
 | `docs/versioning.md` | konwencja wersjonowania demo milestone |
 | `CHANGELOG.md` | historia zmian i milestone |
-| `FLOWDESK-CONTEXT.md` | trwały kontekst projektu, granice demo i zasady pracy |
 | `DONE.md` | skonsolidowany stan ukończonych roadmap i obecny baseline projektu |
 | `TO-DO.md` | aktualny backlog przyszłych zadań i parking lot |
 

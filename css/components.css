@@ -492,7 +492,8 @@
   border: 1px solid var(--border);
   padding: var(--space-8) var(--space-12);
   background: var(--bg-elev);
-  min-width: 240px;
+  min-width: 360px;
+  font-size: var(--fs-14);
 }
 
 .search__results {

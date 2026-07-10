@@ -6,8 +6,7 @@ This document is the repository-level summary of completed FlowDesk roadmap work
 consolidates the useful status information that used to live in the older root
 planning documents and keeps the current project baseline easy to review.
 
-It does not replace detailed technical documentation in `README.md`, `docs/`, or
-`FLOWDESK-CONTEXT.md`.
+It does not replace detailed technical documentation in `README.md` or `docs/`.
 
 ## Current Baseline
 
@@ -22,8 +21,8 @@ management.
 
 ## Completed Repository And Tooling Work
 
-- standalone repository context established at
-  `C:\Users\KPKro\MY FILES\repos\saas-pr01-flowdesk`
+- standalone repository context established at the `saas-pr01-flowdesk` repository
+  root
 - root `.gitignore` covering dependencies, logs, local env files, reports, caches,
   editor files, and local artifacts
 - `package-lock.json` preserved as a committed dependency lockfile
@@ -109,7 +108,6 @@ implementation.
 ## Completed Documentation Set
 
 - `README.md` as the main developer and portfolio entrypoint
-- `FLOWDESK-CONTEXT.md` as the durable project context and work-style memory
 - `CHANGELOG.md` with the current named milestone summary
 - `docs/architecture.md`
 - `docs/design-system.md`
@@ -127,8 +125,8 @@ implementation.
 
 ## Completed Final Review And Demo Closure
 
-- verified `DONE.md`, `TO-DO.md`, `README.md`, and `FLOWDESK-CONTEXT.md` align
-  on the standalone frontend-only demo state
+- verified `DONE.md`, `TO-DO.md`, `README.md`, and `docs/` align on the standalone
+  frontend-only demo state
 - confirmed removed root roadmap filenames no longer have active Markdown
   references
 - confirmed future work is represented in `TO-DO.md` instead of obsolete planning

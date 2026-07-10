@@ -6,7 +6,7 @@ Date: 2026-07-10
 
 Tested source:
 
-- repository: `C:\Users\KPKro\MY FILES\repos\saas-pr01-flowdesk`
+- repository: `saas-pr01-flowdesk` repository root
 - branch: `main`
 - base commit before this QA pass: `da7acf0`
 - source of truth: current local FlowDesk application, not the separately maintained Netlify copy
@@ -70,10 +70,10 @@ Limitation:
 
 - the repository Playwright config defines only the `chromium` project
 - Firefox/WebKit spot checks were attempted without changing permanent config or installing new runtimes
-- Playwright could not launch the expected Firefox executable:
-  `C:\Users\KPKro\AppData\Local\ms-playwright\firefox-1532\firefox\firefox.exe`
-- Playwright could not launch the expected WebKit executable:
-  `C:\Users\KPKro\AppData\Local\ms-playwright\webkit-2311\Playwright.exe`
+- Playwright could not launch the expected Firefox runtime executable under
+  `firefox-1532/firefox/firefox.exe`
+- Playwright could not launch the expected WebKit runtime executable under
+  `webkit-2311/Playwright.exe`
 - no new browser runtimes were installed for this task
 
 ## Owner Manual QA Checklist
