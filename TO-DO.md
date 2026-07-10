@@ -6,6 +6,9 @@ This document is the current repository-level backlog for realistic future FlowD
 work. It replaces older root roadmap documents as the compact place to decide what
 should happen next.
 
+Completed Priority 1 is recorded in `DONE.md`. Remaining priority numbers preserve
+the original backlog order.
+
 Items below are planning targets. They do not authorize backend implementation,
 real authentication, billing, payment integrations, a database, framework migration,
 new dependencies, or production security claims unless a future task scopes that work
@@ -21,32 +24,6 @@ explicitly.
 - do not manually edit generated or minified files
 - do not add new dependencies for polish or convenience without a clear scoped reason
 - keep future tasks small enough to review and commit as one logical change
-
-## Priority 1 - Final Review And Demo Closure
-
-Goal: confirm the current completed roadmap state is clean, reviewable, and ready for
-the next public-demo step.
-
-Scope:
-
-- run the appropriate local quality gate for the current repository state
-- confirm `DONE.md`, `TO-DO.md`, `README.md`, and `FLOWDESK-CONTEXT.md` stay aligned
-- confirm no old root planning document references remain after consolidation
-- confirm git status is reviewable before the next commit
-
-Acceptance criteria:
-
-- no broken Markdown links to removed roadmap files
-- no source, generated, PWA, dependency, or test artifact changes bundled into the
-  consolidation work
-- current future work is represented in this file instead of obsolete root plans
-
-Suggested verification:
-
-- search Markdown files for removed root roadmap filenames
-- `npm run lint`
-- `git diff --check`
-- `git status --short`
 
 ## Priority 2 - Portfolio Release Package
 
