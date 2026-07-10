@@ -70,6 +70,21 @@ Suggested verification:
 Goal: create current, truthful portfolio visuals and close the remaining manual UI
 review gaps that automated Chromium checks do not fully cover.
 
+Current status:
+
+- local visual evidence has been captured from the current FlowDesk application
+  into `docs/qa/priority-3-screenshots/`
+- scoped QA evidence is recorded in `docs/qa/priority-3-visual-evidence.md`
+- Chromium visual smoke coverage has been completed for the captured app surfaces
+- one confirmed visual issue was fixed: desktop clients table action labels no
+  longer wrap inside words
+- Firefox and WebKit visual smoke checks remain pending because matching
+  Playwright browser executables are unavailable in the current environment
+- manual physical-device touch testing, genuine screen-reader testing, and final
+  owner-led portfolio review remain pending
+- Priority 3 remains active until the pending manual and unavailable browser gates
+  are completed and documented
+
 Scope:
 
 - manual real-device touch pass

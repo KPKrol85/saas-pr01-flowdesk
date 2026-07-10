@@ -538,8 +538,10 @@
 }
 
 .data-actions .btn {
+  flex: 0 0 auto;
   min-width: 0;
   padding: var(--space-8) var(--space-10);
+  white-space: nowrap;
 }
 
 .data-list {
