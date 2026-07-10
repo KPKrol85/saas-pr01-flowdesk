@@ -81,18 +81,21 @@ views
   -> migrations/domain validation
 ```
 
-Docelowy przepływ z backendem:
+Proposed przepływ z backendem po osobnej migracji asynchronicznej:
 
 ```text
 views
-  -> store facade
+  -> store facade + request states
   -> actions/selectors
-  -> repositories
-  -> API adapter
+  -> Promise-based repositories
+  -> HTTP API adapter
   -> backend validation/auth/RBAC/storage
 ```
 
-Widoki nie powinny importować `localStorage`, adapterów storage ani bezpośrednio mutować kolekcji.
+Widoki nie powinny importować `localStorage`, adapterów storage ani bezpośrednio
+mutować kolekcji. Obecna synchroniczna fasada nie może zostać podmieniona na
+adapter sieciowy bez jawnego etapu dla loading, error, cancellation, retry i
+concurrency states.
 
 ## Store, actions and selectors
 
@@ -106,7 +109,9 @@ Widoki nie powinny importować `localStorage`, adapterów storage ani bezpośred
 - preferencje UI,
 - import/export/reset.
 
-Akcje zwracają przewidywalny kształt `{ ok, data, error, issues }`.
+Akcje zwracają `{ ok: true, data, nextState }` albo
+`{ ok: false, error, issues }`. Store zapisuje `nextState` i zwraca widokom
+uproszczony wynik `{ ok, data }` albo istniejący błąd.
 
 `js/core/selectors.js` zawiera czyste selektory dla widoków, dashboardu, relacji, filtrów i global search.
 
@@ -121,7 +126,10 @@ Akcje zwracają przewidywalny kształt `{ ok, data, error, issues }`.
 - `collectionRepository`,
 - `repositoryResults`.
 
-Aktywną implementacją jest `localStorage`, ale granica repozytoriów przygotowuje migrację do API bez przepisywania widoków.
+Aktywną implementacją jest synchroniczny `localStorage`. Granica repozytoriów
+ogranicza przyszłe zmiany widoków, ale live API wymaga Promise-based repository
+contract i dostosowania store. Plan tej migracji znajduje się w
+`docs/backend-readiness.md`, a wire contract w `docs/api-contracts.md`.
 
 ## UI component system
 
@@ -180,7 +188,9 @@ Szczegóły są w `docs/pwa-strategy.md`.
 - in-memory buffer,
 - brak requestów sieciowych.
 
-Moduł nie zbiera danych osobowych i nie zastępuje produkcyjnego monitoringu backendowego.
+Moduł nie zbiera danych osobowych i nie zastępuje produkcyjnego monitoringu
+backendowego. Request correlation, structured logs, audit separation i Deferred
+provider decisions są opisane w `docs/observability.md`.
 
 ## Tests and quality gates
 
@@ -222,16 +232,21 @@ Przed produkcją wymagane są:
 
 ## Future SaaS boundaries
 
-Obecne modele identity, RBAC, repository adapter i sync metadata są readiness layers. Nie implementują kont, subskrypcji, multi-tenant isolation, billing, audit logów ani backendowego enforcementu.
+Obecne modele identity, RBAC, repository adapter i sync metadata są readiness
+layers. Nie implementują kont, subskrypcji, multi-tenant isolation, billing,
+audit logów ani backendowego enforcementu.
 
-Przed dodaniem backendu lub monetizacji osobne zadania muszą zdefiniować:
+Przyszłe źródła prawdy są rozdzielone następująco:
 
-- account i workspace lifecycle,
-- role, permissions i server-side enforcement,
-- plan/subscription source of truth,
-- audit log contracts,
-- usage limits i feature gating,
-- API adapter behavior oraz error mapping,
-- politykę danych dla billing i observability.
+- `docs/backend-readiness.md` - target architecture, data authority, security
+  invariants, migracje i kolejność wdrożenia,
+- `docs/api-contracts.md` - endpointy, envelope, błędy, idempotency, concurrency i
+  mapowanie adaptera,
+- `docs/future-saas-readiness.md` - Proposed/Deferred owner decision register,
+- `docs/observability.md` - telemetryka, request correlation i podział względem
+  security audit,
+- `docs/adr/008-provider-neutral-backend-boundary.md` - nadrzędna decyzja w
+  statusie Proposed.
 
-Szczegółowe luki planistyczne są w `docs/future-saas-readiness.md`.
+Monetization pozostaje osobnym, Deferred product scope. Żaden z tych dokumentów
+nie zmienia aktualnego frontend-only runtime.

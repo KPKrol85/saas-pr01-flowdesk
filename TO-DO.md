@@ -133,6 +133,27 @@ Scope:
 - request correlation and observability provider boundary
 - offline sync and conflict resolution model
 
+Current status (2026-07-10):
+
+- the current frontend readiness layers and their demo-only limitations are
+  mapped in `docs/backend-readiness.md`
+- provider-neutral session, organization lifecycle, tenant isolation,
+  server-side RBAC, persistence, validation, audit, correlation, and phased
+  migration boundaries are documented
+- `docs/api-contracts.md` now defines Proposed organization scoping, stable
+  envelopes, pagination, idempotency, online concurrency, error mapping, and a
+  Deferred offline-sync contract
+- `docs/future-saas-readiness.md` is the canonical Proposed/Deferred owner
+  decision register
+- `docs/adr/008-provider-neutral-backend-boundary.md` records the architecture
+  decision with status Proposed
+- Priority 4 remains active because backend technology, deployment topology,
+  identity provider, storage/recovery targets, final RBAC delete policy, data and
+  audit retention, observability constraints, and offline/conflict scope still
+  require owner approval
+- no backend runtime, API adapter, network request, dependency, deployment, or
+  current frontend behavior was added by this planning milestone
+
 Acceptance criteria:
 
 - backend work is documented as a future architecture task

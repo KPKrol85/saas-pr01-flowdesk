@@ -1,122 +1,144 @@
 # FlowDesk future SaaS readiness
 
-## Status
+## Status and document ownership
 
-This document is planning-only. FlowDesk remains a frontend-only SaaS demo with demo authentication, local demo persistence, no backend, no database, no live API, no cloud sync, no billing provider and no production account management.
+This document is the canonical decision register for future FlowDesk backend and
+SaaS work. FlowDesk remains a frontend-only demo with demo authentication,
+`localStorage` persistence, no backend, no live API, no tenant isolation, no
+cloud sync, no billing provider, and no production account management.
 
-The goal is to identify the product and architecture decisions that must exist before future backend, account, workspace, subscription or audit-log implementation starts.
+Detailed responsibilities are intentionally kept elsewhere:
 
-## Current demo boundaries
+- [`backend-readiness.md`](backend-readiness.md) owns target architecture,
+  security invariants, data ownership, migration boundaries, and delivery phases
+- [`api-contracts.md`](api-contracts.md) owns the proposed HTTP contract
+- [`observability.md`](observability.md) owns telemetry and request-correlation
+  boundaries
+- ADR [`008-provider-neutral-backend-boundary.md`](adr/008-provider-neutral-backend-boundary.md)
+  records the proposed architecture decision
 
-- `js/core/auth.demo.js` creates a local demo session and does not verify a user on a server.
-- `js/domain/identity.js` provides demo `User`, `Organization` and `Membership` models.
-- `js/domain/rbac.js` defines stable role and permission names for UI readiness only.
-- `js/repositories/localStorageRepositoryAdapter.js` is the active persistence adapter.
-- `js/domain/syncMetadata.js` is a readiness hook, not a production sync queue.
-- Settings show demo profile, role, organization, preferences and local data tools, not real account management.
+## Decision status
 
-## Backend prerequisites
+- **Accepted** - already true for the current frontend demo or explicitly
+  approved for future implementation.
+- **Proposed** - recommended baseline that still requires owner approval before
+  implementation.
+- **Deferred** - cannot be finalized without owner input, infrastructure,
+  technology, legal, privacy, or cost constraints.
 
-Before implementation, a backend task must define:
+Merging documentation does not change a Proposed or Deferred decision to
+Accepted.
 
-- authentication provider or session strategy,
-- organization and workspace ownership model,
-- server-side organization isolation for every resource,
-- server-side RBAC enforcement for every protected operation,
-- persistence model and migration strategy,
-- server-side validation for all mutations and imports,
-- audit logging for security-relevant and destructive actions,
-- monitoring, request correlation and operational logging,
-- production security headers and deployment responsibilities.
+## Accepted current boundaries
 
-Frontend validation, demo RBAC and local migrations may improve UX, but they cannot be the source of truth for production data or permissions.
+- `js/core/auth.demo.js` is demo-only and does not verify identity on a server.
+- `js/domain/identity.js` provides local readiness models, not production
+  accounts.
+- `js/domain/rbac.js` is a frontend UX contract, not authorization.
+- `js/repositories/localStorageRepositoryAdapter.js` is the active synchronous
+  demo adapter.
+- `js/domain/syncMetadata.js` is a readiness hook, not an outbox or sync engine.
+- `js/core/observability.js` is local and does not provide production monitoring.
+- Server-side identity, tenant isolation, authorization, validation,
+  persistence, audit, and conflict decisions must become authoritative before
+  production use.
 
-## Account and workspace model gaps
+## Priority 4 decision register
 
-Future implementation must clarify:
+| ID    | Decision                                               | Recommended baseline                                                                     | Status                    | Owner                                  | Required before         | Resolution reference               |
+| ----- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------- | ------------------------- | -------------------------------------- | ----------------------- | ---------------------------------- |
+| FB-01 | backend runtime, framework, and service hosting        | select for operational fit after scope and budget are known                              | Deferred                  | project owner + backend lead           | backend foundation      | future technology ADR              |
+| FB-02 | API origin and network topology                        | prefer same-origin browser/API deployment where practical                                | Deferred                  | project owner + infrastructure owner   | backend foundation      | future deployment ADR              |
+| FB-03 | identity provider, recovery, and MFA                   | provider-neutral integration; FlowDesk owns authorization                                | Deferred                  | project owner + security owner         | identity and sessions   | future identity ADR                |
+| FB-04 | browser session transport                              | revocable server session in `Secure`, `HttpOnly` cookie with CSRF protection             | Proposed                  | project owner + security owner         | identity and sessions   | ADR 008 and backend readiness      |
+| FB-05 | organization and workspace relationship                | one `Organization` equals one workspace and tenant boundary                              | Proposed                  | product owner                          | organization isolation  | ADR 008 and backend readiness      |
+| FB-06 | multi-organization switching                           | one verified active organization context per request                                     | Proposed                  | product owner + backend lead           | organization isolation  | API contracts                      |
+| FB-07 | final role matrix and hard-delete permissions          | preserve current role names; deny hard delete until explicit permissions are approved    | Deferred                  | product owner + security owner         | server RBAC             | future RBAC ADR or approved matrix |
+| FB-08 | invitations, last Owner rule, and ownership re-auth    | one-time expiring invites; never allow removal of the last active Owner                  | Proposed                  | product owner + security owner         | organization lifecycle  | backend readiness                  |
+| FB-09 | database, migration tooling, and schema strategy       | server-owned schema with tested migrations, backup gate, and roll-forward plan           | Deferred                  | backend lead + infrastructure owner    | persistence             | future persistence ADR             |
+| FB-10 | recovery targets and rollback                          | define RPO, RTO, backup retention, restore tests, and rollback criteria                  | Deferred                  | project owner + infrastructure owner   | persistence             | operations plan                    |
+| FB-11 | API pagination, rate limits, and idempotency retention | cursor pagination, bounded pages, stable idempotency scope                               | Proposed; values Deferred | backend lead + infrastructure owner    | online API              | API contracts                      |
+| FB-12 | online concurrency                                     | use server revision with `ETag`/`If-Match`; reject stale writes                          | Proposed                  | backend lead + frontend lead           | online API              | API contracts                      |
+| FB-13 | data retention, export, deactivation, and deletion     | deactivate first; permanent deletion only after policy and recovery gates                | Deferred                  | product owner + legal/privacy owner    | organization launch     | future data lifecycle ADR          |
+| FB-14 | audit retention and access                             | immutable, tenant-scoped audit events with separate access and retention policy          | Deferred                  | security owner + legal/privacy owner   | audit and observability | observability/audit policy         |
+| FB-15 | observability provider, region, sampling, and budget   | provider-neutral adapter with redaction and request correlation                          | Deferred                  | project owner + infrastructure owner   | audit and observability | observability plan                 |
+| FB-16 | eligible demo-data import                              | explicit preview, validation, tenant assignment, idempotency, and audit; never automatic | Deferred                  | product owner                          | migration rollout       | import decision record             |
+| FB-17 | offline writes as a product requirement                | ship online-first; add an outbox only after demonstrated need                            | Deferred                  | product owner                          | optional offline sync   | future offline ADR                 |
+| FB-18 | conflict policy, tombstones, and conflict UX           | no silent merge for business records; user-visible resolution                            | Deferred                  | product owner + frontend/backend leads | optional offline sync   | future offline ADR                 |
 
-- account signup, invite, accept invite, login, logout and password/session lifecycle,
-- user profile ownership and what data can be edited by the user,
-- organization creation, transfer of ownership and deletion,
-- membership invitations, role changes, revocation and disabled users,
-- workspace switching if one user belongs to multiple organizations,
-- organization-level settings such as name, timezone, locale and default preferences,
-- data export and deletion rights for organization owners,
-- whether personal preferences are user-level or organization-level.
+## Organization and account lifecycle gates
 
-The current demo context is a single local workspace and should not be treated as proof of multi-tenant behavior.
+Future implementation must satisfy the lifecycle rules in
+[`backend-readiness.md`](backend-readiness.md) before account-management UI is
+added:
 
-## RBAC and permission boundaries
+- organization creation and initial Owner membership are atomic,
+- invitations bind a verified identity to one organization,
+- role changes, suspension, removal, ownership transfer, and deactivation are
+  server-authorized and audited,
+- the final active Owner cannot be removed or demoted,
+- session revocation follows membership suspension or removal,
+- export, retention, reactivation, and deletion behavior is approved before
+  organization deactivation is exposed.
 
-The frontend currently exposes `Owner`, `Manager`, `Member` and `Viewer` role names with stable permission strings. A production backend must still decide:
+The current settings view is demo profile/preferences UI and is not proof that
+these workflows exist.
 
-- which endpoints each role can access,
-- whether permissions are role-only or can be overridden per member,
-- how destructive actions, import, export and billing administration are restricted,
-- how archived, restored and deleted records are audited,
-- how plan limits interact with permissions,
-- how permission errors map back to form, toast or repository failures.
+## RBAC and permission gate
 
-Frontend role checks should remain UX hints until server authorization exists.
+The frontend role names and permission strings may seed a server matrix, but
+they do not approve it. Before server endpoints are implemented, the owner must
+approve:
 
-## Monetization planning boundaries
+- operations available to each role,
+- whether per-member overrides are permitted,
+- explicit permissions for hard delete,
+- restrictions on import, export, organization settings, and audit access,
+- treatment of archived records and relationships,
+- whether any plan limits will interact with permissions in a later product
+  scope.
 
-FlowDesk does not implement billing. Future monetization planning should define:
+Until that approval, server authorization is deny-by-default and hard delete is
+denied.
 
-- plan catalog ownership and plan names,
-- whether `Organization.plan` is read-only from billing state or edited by admins,
-- subscription owner and billing contact,
-- trial, cancellation, downgrade and grace-period behavior,
-- invoice and payment history visibility,
-- usage limits such as members, active clients, active projects, exports or storage,
-- feature gates for advanced reporting, audit logs or multi-workspace access,
-- data export and retention behavior after cancellation,
-- integration boundary for a future payment provider.
+## Monetization planning boundary
 
-Do not add pricing tables, payment provider SDKs, billing logic or plan enforcement until these decisions are explicitly scoped.
+Monetization is not part of Priority 4 implementation planning. All items below
+remain Deferred and must not create backend endpoints, SDKs, pricing UI, feature
+gates, or production claims in this task.
 
-## Audit log requirements
+| ID     | Decision                                         | Status   | Owner                               |
+| ------ | ------------------------------------------------ | -------- | ----------------------------------- |
+| MON-01 | plan catalog and source of truth                 | Deferred | product owner                       |
+| MON-02 | subscription owner and billing contact           | Deferred | product owner                       |
+| MON-03 | trial, cancellation, downgrade, and grace period | Deferred | product owner + legal owner         |
+| MON-04 | invoice and payment-history visibility           | Deferred | product owner + legal owner         |
+| MON-05 | usage limits and enforcement                     | Deferred | product owner + backend lead        |
+| MON-06 | feature gates and interaction with RBAC          | Deferred | product owner + security owner      |
+| MON-07 | retention and export after cancellation          | Deferred | product owner + legal/privacy owner |
+| MON-08 | payment provider boundary                        | Deferred | project owner + backend lead        |
 
-A future audit log should capture enough context to support accountability without storing excessive sensitive data:
+The local `Organization.plan` field remains demo metadata and is not billing
+state.
 
-- actor user id and organization id,
-- action name and affected resource type/id,
-- timestamp and request id,
-- before/after summary for high-risk changes,
-- result status and failure reason where useful,
-- source metadata such as session id or IP only if privacy policy allows it,
-- retention, export and access rules.
+## Implementation gate
 
-Audit log requirements apply especially to login/session events, membership changes, role changes, imports, exports, resets, archive/restore/delete actions, plan changes and billing-adjacent actions.
+Priority 4 may be considered planning-complete only when all material rows
+required for phases 1-5 have an approved resolution reference and ADR 008 can
+move from Proposed to Accepted. Offline rows may remain Deferred only if the
+approved product scope explicitly excludes offline writes.
 
-## API prerequisites
+Until then:
 
-`docs/api-contracts.md` describes future endpoints at a contract level. Before coding an API adapter, later tasks should define:
-
-- exact response and error envelopes,
-- pagination, filtering and sorting rules,
-- optimistic concurrency fields such as `revision` or `etag`,
-- conflict resolution UX,
-- request id propagation into observability,
-- mapping from API errors to `repositoryFail`,
-- permission and plan-limit error codes,
-- audit-log event contracts.
-
-The frontend should continue to normalize backend responses before trusting them.
+- no backend runtime or provider is implied,
+- no API adapter or network request is authorized,
+- no production auth, RBAC, tenant isolation, persistence, audit, or monitoring
+  claim is valid,
+- `TO-DO.md` must keep Priority 4 active.
 
 ## Out of scope now
 
-This readiness document does not authorize:
-
-- backend implementation,
-- real authentication,
-- database schemas,
-- API requests or adapters,
-- payment provider integration,
-- billing or pricing logic,
-- cloud sync,
-- account or organization management implementation,
-- audit log implementation,
-- production security claims.
-
-Any later implementation should be a separate scoped task with updated acceptance criteria and verification gates.
+This register does not authorize backend implementation, database schemas,
+account-management UI, API requests, provider SDKs, billing, payments, pricing,
+cloud sync, framework migration, generated-file edits, deployment changes, or
+Netlify publication.

@@ -86,10 +86,14 @@ The 10-point product-readiness roadmap has been completed and consolidated here:
 7. data integrity and validation rules
 8. portfolio and public presentation readiness
 9. release hygiene and repository cleanliness
-10. future backend and monetization readiness
+10. baseline future-backend and monetization readiness documentation
 
 The completed work preserved the frontend-only architecture and did not add backend,
 database, real auth, billing, payment provider integration, or network requests.
+
+This completed roadmap item records the earlier readiness baseline only. It does not
+close the active Priority 4 architecture decision in `TO-DO.md` or authorize backend
+implementation.
 
 ## Completed PWA, Performance, And Observability Work
 

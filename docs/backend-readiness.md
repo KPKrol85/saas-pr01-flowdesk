@@ -1,170 +1,367 @@
 # FlowDesk backend readiness
 
-## Cel
+## Status i odpowiedzialność dokumentu
 
-Ten dokument opisuje przygotowanie FlowDesk pod przyszły backend, prawdziwe uwierzytelnianie, organizacje, wielu użytkowników, role, uprawnienia i synchronizację offline. Obecna aplikacja nadal pozostaje frontend-only demo i nie wykonuje żadnych requestów sieciowych do API.
+Ten dokument jest planem architektury przyszłego backendu. FlowDesk pozostaje
+frontend-only demo bez backendu, bazy danych, requestów API, produkcyjnego auth,
+izolacji tenantów, monitoringu i synchronizacji chmurowej.
 
-## Aktualny przepływ danych
+Decyzje opisane jako **Proposed** wymagają zatwierdzenia przed implementacją.
+Pozycje **Deferred** są jawnie zablokowane przez decyzję właściciela, wybór
+technologii albo ograniczenia infrastruktury. ADR
+[`008-provider-neutral-backend-boundary.md`](adr/008-provider-neutral-backend-boundary.md)
+zbiera nadrzędną decyzję architektoniczną i pozostaje w statusie Proposed.
 
-Obecny przepływ pozostaje zgodny z wcześniejszą architekturą:
+Źródła prawdy dla przyszłych prac:
 
-1. Widoki korzystają ze store'a, akcji i selektorów.
-2. Akcje domenowe walidują oraz mutują stan.
-3. Store zapisuje wynik przez warstwę persistence.
-4. Persistence korzysta z adaptera repozytoriów opartego o `localStorage`.
-5. Dane z `localStorage` są traktowane jako niezaufane i przechodzą przez migracje oraz normalizację.
+- ten dokument definiuje granice odpowiedzialności, bezpieczeństwa, danych,
+  migracji oraz kolejność wdrożenia,
+- [`api-contracts.md`](api-contracts.md) definiuje przyszły kontrakt HTTP,
+  błędy, idempotency, concurrency i mapowanie na frontend,
+- [`future-saas-readiness.md`](future-saas-readiness.md) jest rejestrem
+  nierozstrzygniętych decyzji właściciela,
+- [`observability.md`](observability.md) definiuje granice telemetryczne i
+  korelację requestów.
 
-To oznacza, że obecne UI i przepływy demo działają tak jak wcześniej, ale `localStorage` nie jest już bezpośrednim fundamentem domeny.
+## Mapa aktualnego stanu
 
-## Granica repozytoriów
+| Obszar        | Co istnieje dziś                                        | Ograniczenie demo                                          | Granica do ponownego użycia                              | Przyszłe źródło prawdy                             |
+| ------------- | ------------------------------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------------- |
+| Auth          | fasada `js/core/auth.js` i lokalna sesja `auth.demo.js` | dowolny poprawny email tworzy sesję Owner w `localStorage` | stabilna fasada auth i oczekiwany kontekst sesji         | serwerowa sesja i zweryfikowana tożsamość          |
+| Identity      | modele `User`, `Organization`, `Membership`             | jeden lokalny workspace bez lifecycle                      | nazwy modeli i relacja membership                        | backend oraz zweryfikowany identity provider       |
+| RBAC          | role, permissions, `can()` i `hasPermission()`          | helpery nie chronią danych ani operacji                    | nazwy ról i większość permission strings                 | deny-by-default enforcement na serwerze            |
+| Stan          | store, akcje, selektory i przewidywalne wyniki          | synchroniczna mutacja całego lokalnego stanu               | fasada store, akcje domenowe i selektory                 | kanoniczne odpowiedzi API                          |
+| Persistence   | repozytoria i adapter `localStorage`                    | dane są lokalne dla przeglądarki                           | dependency injection i wynik repozytorium                | trwały storage serwera                             |
+| Walidacja     | normalizatory, walidatory i migracje schema v3          | kontrola klienta może zostać pominięta                     | UX, formularze, import preview i normalizacja odpowiedzi | walidacja i integralność po stronie serwera        |
+| Sync          | `syncMetadata.js` z `revision` i statusami              | hook nie jest używany przez kolejkę ani UI                 | słownik statusów i koncepcja rewizji                     | serwerowe wersje, idempotency i decyzje konfliktów |
+| Observability | zsanityzowany bufor in-memory i reporter hook           | brak backendowych logów, request IDs i alertów             | bezpieczny adapter frontendowy                           | monitoring, logi i korelacja po stronie usługi     |
 
-Warstwa repozytoriów znajduje się w `js/repositories/`:
+Żadna z obecnych warstw frontendowych nie jest produkcyjnym mechanizmem
+bezpieczeństwa.
 
-- `localStorageRepositoryAdapter.js` - aktywna implementacja demo oparta o `localStorage`, migracje i normalizację stanu
-- `collectionRepository.js` - wspólne operacje kolekcji: `list`, `getById`, `create`, `update`, `archive`, `restore`, `remove`, `replaceAll`
-- `clientsRepository.js` - repozytorium klientów
-- `projectsRepository.js` - repozytorium zleceń
-- `eventsRepository.js` - repozytorium wydarzeń
-- `repositoryResults.js` - spójne kształty wyników `{ ok, data, state }` i `{ ok, error, issues }`
-- `index.js` - fabryka `createFlowDeskRepositories`
+## Proponowane invariants architektury
 
-Repozytoria są nadal synchroniczne, ponieważ aktywnym adapterem jest `localStorage`, ale ich kontrakt jest gotowy do zastąpienia adapterem API. Widoki nie powinny importować adaptera ani bezpośrednio czytać `localStorage`.
+Przed rozpoczęciem implementacji należy zatwierdzić następujące zasady:
 
-## Docelowy adapter API
+1. Serwer jest autorytatywny dla identity context, członkostw, ról, uprawnień,
+   danych domenowych, relacji, wersji rekordów i audytu.
+2. Organizacja jest granicą tenanta. Każdy odczyt i zapis jest scope'owany przez
+   membership wyprowadzone ze zweryfikowanej sesji.
+3. `organizationId` z URL, nagłówka lub payloadu jest wyłącznie kontekstem
+   routingu i nigdy nie jest dowodem dostępu.
+4. Autoryzacja działa deny-by-default. Brak jawnego uprawnienia oznacza odmowę.
+5. Frontendowe auth, RBAC i validation pozostają warstwami UX.
+6. `localStorage` nie jest źródłem prawdy dla sesji ani danych chmurowych.
+7. Preferencje lokalnego UI, takie jak theme i reduced motion, mogą pozostać
+   lokalne, dopóki osobna decyzja nie przeniesie ich na profil użytkownika.
+8. Pierwszy backend działa online-first. Offline writes są opcjonalnym,
+   późniejszym etapem.
 
-Przyszły adapter API powinien zachować te same odpowiedzialności:
+## Authentication i sesje
 
-- ładowanie aktualnego stanu lub kolekcji z backendu
-- zapis po walidacji po stronie klienta i serwera
-- normalizacja odpowiedzi do domenowych modeli FlowDesk
-- mapowanie błędów API na `repositoryFail`
-- obsługa konfliktów i metadanych synchronizacji
+### Podział odpowiedzialności
 
-Wdrożenie API nie powinno wymagać przepisywania widoków. Największa zmiana powinna dotyczyć implementacji adaptera oraz rozszerzenia auth o prawdziwą sesję.
+- Identity provider, jeżeli zostanie wybrany, potwierdza tożsamość i obsługuje
+  credential lifecycle właściwy dla danego mechanizmu.
+- FlowDesk mapuje zweryfikowaną tożsamość na `User`, aktywne `Membership`,
+  `Organization`, role i permissions.
+- Serwer FlowDesk waliduje sesję przy każdym chronionym requeście. Frontend nie
+  może sam potwierdzić tożsamości ani roli.
 
-## Modele identity
+### Proponowany model przeglądarkowy
 
-Frontend ma teraz lekkie modele gotowościowe w `js/domain/identity.js`:
+- Serwer tworzy revocable session z bezwzględnym czasem wygaśnięcia i opcjonalnym
+  idle timeoutem.
+- Przeglądarka otrzymuje opaque session identifier w cookie `Secure`, `HttpOnly`
+  i z restrykcyjnym `SameSite` dobranym do zatwierdzonej topologii wdrożenia.
+- Tokeny sesji, refresh tokeny i credentiale nie trafiają do `localStorage` ani
+  do JavaScript-readable storage.
+- Dla cookie-auth każda mutacja wymaga ochrony CSRF właściwej dla wybranego
+  backendu, co najmniej kontroli `Origin`/`Referer` oraz tokenu CSRF. Requesty
+  `GET` nie mogą mutować danych.
+- Dokładny identity provider, recovery flow, MFA, session timeout i topologia
+  same-origin/cross-origin pozostają Deferred.
 
-- `User`
-- `Organization`
-- `Membership`
+### Lifecycle i zachowanie frontendu
 
-Sesja demo jest rozszerzana o kontekst:
+1. Login kończy się dopiero po potwierdzeniu identity i utworzeniu serwerowej
+   sesji.
+2. Przy starcie aplikacja odczytuje `/api/v1/auth/session`; brak ważnej sesji
+   prowadzi do `#/login` bez używania lokalnej sesji jako fallbacku.
+3. Logout unieważnia sesję po stronie serwera, czyści stan użytkownika i dopiero
+   potem przechodzi do loginu.
+4. `401 unauthenticated` oznacza sesję nieobecną, wygasłą lub unieważnioną.
+   Frontend usuwa z pamięci prywatne dane i żąda ponownego logowania.
+5. `403 permission_denied` nie wylogowuje użytkownika; UI zachowuje kontekst i
+   pokazuje bezpieczny komunikat odmowy.
+6. Revocation członkostwa lub organizacji obowiązuje najpóźniej przy kolejnym
+   requestcie albo odświeżeniu sesji.
+
+## Organization i workspace lifecycle
+
+Proposed baseline traktuje `Organization` jako pojedynczy workspace i granicę
+tenanta. Osobny model workspace powstanie tylko po zatwierdzeniu rzeczywistego
+przypadku produktu.
+
+- Utworzenie organizacji atomowo tworzy pierwsze aktywne `Membership` z rolą
+  Owner.
+- Użytkownik może mieć członkostwa w wielu organizacjach, ale każdy request ma
+  jeden jawny organization context zweryfikowany względem sesji.
+- Zaproszenie ma docelową organizację, proponowaną rolę, jednorazowy token, czas
+  wygaśnięcia i status. Akceptacja wiąże zweryfikowanego użytkownika z
+  organizacją.
+- Zmiana roli, zawieszenie i usunięcie członkostwa wymagają
+  `organization:admin`, kontroli tenant scope oraz eventu audytowego.
+- Organizacja zawsze musi mieć co najmniej jednego aktywnego Ownera. Ostatni
+  Owner nie może obniżyć własnej roli ani usunąć członkostwa.
+- Transfer ownership wymaga wskazania aktywnego członka, ponownego potwierdzenia
+  operacji i atomowej zmiany ról. Szczegóły ponownej autoryzacji są Deferred.
+- Zawieszone lub usunięte membership natychmiast traci dostęp do nowych
+  requestów; aktywne sesje muszą zostać unieważnione albo ponownie ocenione.
+- Dezaktywacja organizacji blokuje mutacje i nowe sesje w tym workspace. Okres
+  read-only, eksport, retencja, ponowna aktywacja i trwałe usunięcie wymagają
+  decyzji właściciela oraz wymagań prawnych.
+
+Billing, płatności i produkcyjne zarządzanie kontem nie są częścią tego zadania.
+
+## Server-side RBAC i tenant isolation
+
+Aktualne role `Owner`, `Manager`, `Member` i `Viewer` mogą pozostać nazwami
+kontraktowymi. Serwer musi jednak utrzymywać własną, wersjonowaną macierz
+permissions i nie może ufać liście permissions zwróconej wcześniej do klienta.
+
+| Operacja                             | Istniejący frontendowy kontrakt | Wymaganie serwera                                                |
+| ------------------------------------ | ------------------------------- | ---------------------------------------------------------------- |
+| list/read client, project, event     | `*:read`                        | aktywne membership, tenant scope i permission read               |
+| create/update                        | `*:write`                       | tenant scope, permission write, validation i relationship checks |
+| archive/restore client lub project   | `*:archive`                     | tenant scope, permission archive i audit                         |
+| import                               | `data:import`                   | permission, idempotency, pełna walidacja i audit                 |
+| export                               | `data:export`                   | permission, tenant-scoped dataset i audit                        |
+| settings                             | `settings:write`                | rozdzielenie ustawień user/org i właściwy permission             |
+| memberships i organization lifecycle | `organization:admin`            | Owner/approved admin policy, invariants własności i audit        |
+| hard delete                          | brak dedykowanych permissions   | deny do czasu zatwierdzenia `*:delete` i roli uprawnionej        |
+
+Reguły enforcementu:
+
+- Query do zasobu biznesowego zawsze zawiera serwerowo ustalony tenant scope.
+- Relacje, np. `project.clientId` i `event.projectId`, muszą wskazywać rekordy z
+  tej samej organizacji.
+- Zasób z innej organizacji jest traktowany jak nieistniejący i zwraca
+  tenant-safe `not_found`; brak roli w bieżącej organizacji zwraca
+  `permission_denied`.
+- Read, write, archive, restore, delete, import i export mają osobne jawne
+  kontrole. Uprawnienie write nie implikuje hard delete.
+- Frontend może ukrywać niedostępne akcje, ale odmowa serwera jest ostateczna.
+
+## Własność danych
+
+| Dane                                                 | Autorytatywny właściciel                       | Uwagi                                                    |
+| ---------------------------------------------------- | ---------------------------------------------- | -------------------------------------------------------- |
+| zewnętrzna tożsamość i credentiale                   | identity provider lub zatwierdzona usługa auth | FlowDesk nie przechowuje credentiali bez osobnej decyzji |
+| profil `User` używany przez FlowDesk                 | backend FlowDesk                               | powiązany ze zweryfikowaną identity                      |
+| `Organization`, `Membership`, role i permissions     | backend FlowDesk                               | każda zmiana jest walidowana i audytowana                |
+| clients, projects, events, comments, tasks i relacje | backend FlowDesk                               | tenant-scoped, server IDs i server timestamps            |
+| audit events                                         | backendowy audit store                         | append-only dla zwykłych użytkowników                    |
+| operational logs i metrics                           | system observability                           | inna retencja i dostęp niż audit                         |
+| theme i reduced motion                               | lokalny frontend                               | mogą pozostać w local storage jako preferencje UI        |
+| dane aktualnego demo                                 | lokalna przeglądarka                           | nie są automatycznie danymi konta ani chmury             |
+
+## Persistence i migracja granicy repozytoriów
+
+Obecny store, persistence i collection repositories są synchroniczne. Nie można
+bezpośrednio podmienić `localStorageRepositoryAdapter` na adapter sieciowy bez
+osobnej migracji asynchronicznej.
+
+Proposed future contract:
 
 ```js
-{
-  (user, organization, membership, role, lastLogin);
-}
+Promise<{ ok: true, data, state }>
+Promise<{ ok: false, error, issues }>
 ```
 
-To nadal nie jest realne uwierzytelnianie. Dane sesji pochodzą z demo auth i służą jako kontrakt UI oraz przygotowanie pod przyszłe API.
+Kształt wyniku pozostaje zgodny z `repositoryOk`/`repositoryFail`, ale:
 
-## Account i workspace readiness
+- `state` może być `null` albo kontrolowanym cache snapshotem i nie reprezentuje
+  pełnej prawdy serwera,
+- store musi obsłużyć `idle`, `loading`, `success` i `error` per operacja,
+- mutacje początkowo są pessimistic: UI commit następuje po odpowiedzi serwera,
+- adapter przyjmuje `AbortSignal` dla anulowania oczekiwania klienta,
+- anulowanie requestu przez frontend nie oznacza, że serwer nie zaakceptował
+  mutacji; retry wymaga idempotency key,
+- automatyczny retry jest dozwolony tylko dla bezpiecznych odczytów albo
+  idempotentnych mutacji,
+- widoki zachowują store/actions/selectors jako punkt integracji, ale będą
+  wymagały osobnego zadania na async loading i error states.
 
-Obecny kontekst `user`, `organization` i `membership` opisuje jedną lokalną przestrzeń demo. Nie zapewnia multi-tenant isolation, zaproszeń, przełączania workspace, lifecycle konta ani ustawień organizacji.
+Bezpieczna kolejność migracji adaptera:
 
-Przyszły backend musi zdefiniować:
+1. Zatwierdzić kontrakty API i rozszerzone kody błędów.
+2. Wprowadzić asynchroniczny interfejs repozytoriów za testowalną fabryką.
+3. Dostosować store facade do Promise results bez bezpośrednich requestów w
+   widokach.
+4. Uruchomić online-only API adapter za jawnym mechanizmem rollout/rollback.
+5. Porównać zapis i odczyt na kontrolowanych danych testowych.
+6. Dopiero po stabilizacji rozważyć import danych demo lub offline outbox.
 
-- rejestrację, logowanie, wylogowanie i lifecycle sesji,
-- tworzenie organizacji oraz właściciela workspace,
-- zaproszenia członków, akceptację zaproszeń i dezaktywację użytkowników,
-- zmianę ról, transfer ownership i usuwanie członkostw,
-- organizacyjne ustawienia, np. nazwa, timezone, locale i domyślne preferencje,
-- izolację danych po `organizationId` na każdym endpointzie,
-- prawa eksportu i usunięcia danych organizacji.
+## Identyfikatory, schemat i migracje
 
-Szczegółowa lista luk SaaS jest w `docs/future-saas-readiness.md`.
+- Backend generuje opaque, stabilne identyfikatory i serwerowe timestamps.
+- `organizationId`, `id`, `createdAt`, `updatedAt`, audit fields i `revision` są
+  server-controlled i nie mogą być nadpisane przez zwykły payload klienta.
+- Relacje są egzekwowane przez storage i warstwę aplikacyjną w ramach jednego
+  tenanta.
+- Lokalny `CURRENT_SCHEMA_VERSION = 3` dotyczy wyłącznie demo state. Nie jest
+  wersją przyszłej bazy ani API.
+- Migracje backendowe mają własną numerację, review, test na kopii danych,
+  backup/restore gate oraz plan roll-forward. Rollback jest dozwolony tylko,
+  gdy migracja i model danych są rzeczywiście odwracalne.
+- Wdrożenie nie może uruchamiać nowej wersji aplikacji przed potwierdzeniem
+  kompatybilnej wersji schematu.
+- Import kwalifikujących się danych demo, jeśli zostanie zatwierdzony, jest
+  jawną operacją użytkownika: preview, walidacja, tenant assignment, idempotency,
+  atomowy commit i audit. Automatyczny upload z `localStorage` jest zabroniony.
+- RPO, RTO, backup provider, database vendor i narzędzie migracji są Deferred.
 
-## RBAC
+## Server-side validation
 
-RBAC znajduje się w `js/domain/rbac.js`. Role:
+Każdy payload klienta, query parameter, plik importu i identyfikator relacji jest
+niezaufany, nawet gdy frontend wykonał walidację.
 
-| Rola    | Przeznaczenie                                            |
-| ------- | -------------------------------------------------------- |
-| Owner   | pełna administracja organizacją i danymi                 |
-| Manager | zarządzanie operacjami bez administracji organizacją     |
-| Member  | praca operacyjna na klientach, zleceniach i wydarzeniach |
-| Viewer  | odczyt i eksport bez modyfikacji danych                  |
+Serwer musi:
 
-Kluczowe helpery:
+- rozdzielić create/update input od response modelu,
+- przycinać i normalizować dozwolone stringi według jawnych reguł,
+- walidować enumy, daty, długości, rozmiar kolekcji i typy,
+- odrzucać nieznane lub server-controlled fields zgodnie z kontraktem,
+- chronić unikalność identyfikatorów i innych zatwierdzonych kluczy,
+- sprawdzać istnienie i tenant scope każdej relacji,
+- egzekwować immutable fields i dozwolone przejścia statusów,
+- walidować pełny import przed atomowym zapisem,
+- zwracać bezpieczne issues bez stack trace, query, sekretów i danych innego
+  tenanta.
 
-- `can(role, permission)`
-- `hasPermission(userContext, permission)`
-- `normalizeRole(role)`
+Frontend może utrzymywać zgodne komunikaty i normalizatory, ale backend nie może
+zakładać wspólnego runtime ani importować kodu walidacji z przeglądarki bez
+osobnej decyzji technologicznej.
 
-Na tym etapie RBAC jest warstwą gotowościową i testowanym kontraktem. Nie jest jeszcze egzekwowany szeroko w widokach, żeby nie zmieniać zachowania demo bez pełnego projektu uprawnień i backendowego enforcementu.
+## Audit log
 
-Przyszły backend powinien rozstrzygnąć, czy uprawnienia wynikają wyłącznie z roli, czy mogą mieć wyjątki per członek. Operacje wysokiego ryzyka, takie jak import, eksport, reset, archiwizacja, przywracanie, usuwanie, zmiana ról i przyszłe działania billingowe, muszą być egzekwowane po stronie serwera i logowane audytowo.
+Security audit log jest oddzielny od operational logs i od widocznej w UI
+historii aktywności. Jest serwerowy, append-only dla standardowych operacji i
+nie może być modyfikowany przez endpointy domenowe.
 
-## Metadane synchronizacji
+Minimalny event zawiera:
 
-Lekki kontrakt metadanych znajduje się w `js/domain/syncMetadata.js`:
+- `id`, `timestamp`, `requestId` i wynik (`success`, `denied`, `failed`),
+- actor type/id oraz organization id,
+- action, target resource type/id i bezpieczny reason code,
+- allowlistowane before/after metadata dla zmian wysokiego ryzyka,
+- źródło systemowe lub session id tylko, gdy polityka prywatności na to pozwala.
 
-- `syncStatus`: `synced`, `pending`, `conflict`
-- `revision`: lokalny lub serwerowy numer rewizji
-- `createdAt`
-- `updatedAt`
+Audit obejmuje co najmniej: login/logout/revocation, invitations, zmiany ról,
+transfer ownership, deactivation, import/export, archive/restore/delete,
+ustawienia organizacji i odrzucone operacje administracyjne.
 
-Moduł udostępnia normalizację i helper `markPendingSync`, ale obecne modele klientów, zleceń i wydarzeń nie dostały globalnej migracji pól sync. To celowo ogranicza ryzyko w demo i zostawia metadane jako hook dla przyszłego adaptera API.
+Pełne formularze, komentarze, notatki, tokeny, credentiale i sekrety są
+redagowane. Retencja, eksport, dostęp audytorów, lokalizacja danych i zasady
+usunięcia wymagają decyzji właściciela oraz review prawnego.
 
-## Strategia offline i konflikty
+## Request correlation i observability
 
-Docelowa strategia powinna być następująca:
+- Serwer tworzy albo normalizuje canonical `requestId` na granicy requestu,
+  zwraca go w `X-Request-ID` i `meta.requestId` oraz propaguje do logów, błędów i
+  audit eventów.
+- Client-generated correlation value może być zapisany osobno, ale nie zastępuje
+  serwerowego identyfikatora.
+- Logi są strukturalne i zawierają route template, method, status, latency,
+  service/environment oraz bezpieczne identyfikatory korelacyjne.
+- Payloady, cookies, auth headers, tokeny, notatki i bezpośrednie PII nie trafiają
+  do zwykłych logów.
+- Frontend może przekazać `requestId` do zsanityzowanego `captureError`, aby
+  połączyć błąd UI z odpowiedzią API.
+- Monitoring provider pozostaje adapterem. Wybór dostawcy, regionu, sampling,
+  alert ownership, koszt i retencja są Deferred.
 
-1. Zmiana lokalna oznacza rekord jako `pending` i zwiększa `revision`.
-2. Adapter zapisuje zmianę lokalnie, a osobna kolejka sync przygotowuje payload do API.
-3. Backend porównuje `revision`, `updatedAt` albo `etag`.
-4. Jeżeli serwerowa rewizja jest zgodna, zmiana zostaje przyjęta i rekord wraca do `synced`.
-5. Jeżeli serwerowa rewizja jest nowsza, rekord przechodzi do `conflict`.
-6. Konflikty operacyjne powinny być rozwiązywane manualnie dla danych biznesowych, a automatycznie tylko dla pól niskiego ryzyka.
+Pełny podział odpowiedzialności znajduje się w
+[`observability.md`](observability.md).
 
-Rekomendowane domyślne podejście:
+## Offline sync i konflikty
 
-- `last-write-wins` tylko dla preferencji UI
-- manual conflict resolution dla klientów, zleceń, komentarzy i wydarzeń
-- serwerowa walidacja jako ostateczne źródło prawdy
-- audyt zmian dla operacji destrukcyjnych i archiwizacji
+Offline writes są **Deferred** i nie blokują pierwszej wersji backendu. Obecne
+PWA cache oraz `syncMetadata.js` nie stanowią implementacji synchronizacji.
 
-## Granice bezpieczeństwa
+Jeśli funkcja zostanie zatwierdzona:
 
-Przyszły backend musi egzekwować:
+1. Serwer pozostaje canonical state.
+2. Klient używa trwałego outboxa z `mutationId`, `idempotencyKey`, typem operacji,
+   payloadem, `baseRevision`, czasem i statusem.
+3. Operacje zależne zachowują kolejność; niezależne mogą być przetwarzane
+   osobno.
+4. Retry używa tego samego klucza idempotency i nie tworzy duplikatu.
+5. Serwer porównuje `baseRevision` z aktualną rewizją i zwraca canonical record
+   albo jawny konflikt.
+6. Częściowo zaakceptowany batch zwraca wynik per mutation. Klient utrzymuje
+   failed/conflicted entries i odświeża canonical snapshot przed kolejną próbą.
+7. `localStorage` nie jest traktowany jako kopia chmurowa ani źródło prawdy.
 
-- uwierzytelnianie i sesje po stronie serwera
-- autoryzację RBAC dla każdego endpointu
-- izolację danych po `organizationId`
-- walidację payloadów po stronie serwera
-- audyt operacji administracyjnych i destrukcyjnych
-- nagłówki bezpieczeństwa hostingu
-- strategię wygaszania sesji i rotacji tokenów, jeżeli tokeny zostaną użyte
+Domyślne limity merge:
 
-Frontendowe RBAC i walidacja są poprawą UX oraz wczesnym filtrem błędów, ale nie zastępują kontroli backendowej.
+| Dane                                      | Automatyczne zachowanie            | Konflikt wymagający użytkownika       |
+| ----------------------------------------- | ---------------------------------- | ------------------------------------- |
+| lokalne preferencje UI                    | last-write-wins może być dozwolone | brak, dopóki pozostają lokalne        |
+| create z ponowionym `mutationId`          | zwrócenie poprzedniego wyniku      | różny payload dla tego samego klucza  |
+| clients, projects i events                | brak field-level auto-merge        | równoległa zmiana tego samego rekordu |
+| comments jako append-only                 | idempotentne ponowienie dodania    | edycja/usunięcie lub brak parenta     |
+| archive, restore, delete i zmiana relacji | brak automatycznego merge          | każda revision mismatch               |
 
-## Monetization readiness
+UI musi pokazać odrzuconą lub skonfliktowaną zmianę, wersję serwera i bezpieczną
+akcję ponów/odrzuć. Cicha utrata lokalnej lub serwerowej zmiany jest zabroniona.
 
-Pole `Organization.plan` jest obecnie lokalnym kontraktem demo. Nie istnieją subskrypcje, płatności, faktury, usage limits, feature gates ani integracja z payment providerem.
+## Fazy przyszłej implementacji
 
-Przed implementacją monetizacji trzeba zaprojektować:
+1. **Owner decisions i ADR approval** - backend runtime, deployment topology,
+   auth, storage, retencja, RBAC delete policy i zakres offline.
+2. **Backend foundation** - konfiguracja, secrets boundary, API versioning,
+   response envelope, request correlation, migracje i podstawowa telemetryka.
+3. **Identity i sessions** - login/logout/session validation, expiry, revocation i
+   usunięcie `localStorage` jako auth authority.
+4. **Organization isolation i RBAC** - lifecycle, memberships, invitations,
+   tenant-scoped reads/writes, deny-by-default i audit administracyjny.
+5. **Persistence i online API** - schemat, migracje, server validation,
+   repozytoria, CRUD oraz Promise-based frontend adapter.
+6. **Data operations** - bezpieczny import/export, recovery, backup gates i
+   audyt operacji destrukcyjnych.
+7. **Observability hardening** - provider adapter, alerty, retention i korelacja
+   frontend-backend.
+8. **Optional offline sync** - outbox, idempotent retries, tombstones, conflict
+   UI i testy recovery dopiero po zatwierdzeniu produktu.
 
-- katalog planów i źródło prawdy dla aktywnego planu,
-- właściciela subskrypcji oraz kontakt billingowy,
-- trial, downgrade, cancelation i grace period,
-- widoczność faktur oraz historii płatności,
-- limity użycia, np. członkowie, aktywni klienci, aktywne zlecenia, eksport lub storage,
-- relację między plan limits a RBAC,
-- zachowanie eksportu i retencji danych po anulowaniu.
+Każda faza wymaga osobnego scope'u, testów, security review, rollout planu i
+rollback criteria. Ten dokument nie tworzy runtime scaffolding.
 
-Na tym etapie monetization readiness jest wyłącznie planowaniem produktu. FlowDesk nie ma payment providera, billing logic ani pricing enforcement.
+## Nierozstrzygnięte decyzje właściciela
 
-## Audit log readiness
+| Decyzja                                            | Dlaczego blokuje implementację                      |
+| -------------------------------------------------- | --------------------------------------------------- |
+| backend runtime, framework i hosting               | określa deployment, migracje, sekrety i operacje    |
+| API origin i topologia sieciowa                    | określa cookies, CSRF, CORS i session policy        |
+| identity provider, recovery, MFA i timeouty        | określa login oraz lifecycle sesji                  |
+| database/storage i wymagania RPO/RTO               | określa schemat, migracje, backup i recovery        |
+| organization/workspace model i multi-workspace UX  | określa tenant routing i session context            |
+| finalna macierz ról oraz hard-delete permissions   | blokuje bezpieczny enforcement destrukcyjnych akcji |
+| invitation expiry i ownership re-auth              | określa lifecycle członkostwa                       |
+| retencja, eksport i usunięcie danych               | wymaga decyzji produktu i prawnej                   |
+| audit access, retention i privacy metadata         | określa compliance i storage                        |
+| observability provider, region, sampling i budżet  | określa produkcyjny monitoring                      |
+| idempotency retention, rate limits i page limits   | określa operacyjne kontrakty API                    |
+| kwalifikacja danych demo do importu                | określa migrację użytkownika                        |
+| wymóg offline writes i finalna polityka konfliktów | blokuje outbox, tombstones i conflict UI            |
 
-Przyszły audit log powinien objąć co najmniej:
+Status oraz miejsce zatwierdzenia tych wyborów są utrzymywane w
+[`future-saas-readiness.md`](future-saas-readiness.md).
 
-- logowanie, wylogowanie i zmiany sesji,
-- import, eksport i reset danych,
-- archiwizację, przywracanie i usuwanie rekordów,
-- zmianę ról, zaproszenia i usuwanie członków,
-- zmiany ustawień organizacji,
-- przyszłe zmiany planu, subskrypcji i billing-adjacent actions.
+## Poza zakresem
 
-Minimalny kontrakt audytu powinien zawierać actor id, organization id, action, resource type/id, timestamp, request id, status wyniku i bezpieczne streszczenie zmian. Log audytowy nie powinien przechowywać pełnych payloadów formularzy, sekretów ani nadmiarowych danych osobowych.
+Ten plan nie autoryzuje implementacji backendu, bazy, requestów sieciowych,
+produkcyjnego auth, account management, billing, płatności, nowych zależności,
+zmiany frameworka ani ręcznej edycji plików wygenerowanych.
