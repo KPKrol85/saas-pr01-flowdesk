@@ -250,7 +250,11 @@ Projekt należy uruchamiać przez lokalny serwer HTTP. Otwieranie `index.html` b
 
 FlowDesk można oceniać jako frontend-only SaaS demo pokazujące service management workflow, a nie jako gotowy produkt dla danych klientów.
 
-Szybki dostęp po uruchomieniu lokalnym:
+Publiczne demo:
+
+- Otwórz `https://saas-pr01-flowdesk.netlify.app/#/login`.
+
+Szybki dostęp lokalny po uruchomieniu projektu:
 
 - Wejdź na `#/login`.
 - Użyj fikcyjnego emaila, np. `demo@flowdesk.test`.
@@ -273,9 +277,11 @@ Strategia screenshotów:
 
 Metadane publiczne:
 
-- `index.html` ma demo-oriented title, description i social preview copy.
-- Docelowy publiczny URL nie jest jeszcze zapisany w repozytorium.
-- `canonical`, `og:url`, absolutny `og:image`, `robots.txt` sitemap URL i produkcyjne `sitemap.xml` należy uzupełnić dopiero po wyborze finalnego adresu deploymentu.
+- Canonical public origin: `https://saas-pr01-flowdesk.netlify.app/`.
+- Direct demo login URL: `https://saas-pr01-flowdesk.netlify.app/#/login`.
+- `index.html` ma demo-oriented title, description, `canonical`, `og:url` i absolutne social image URL.
+- `robots.txt` wskazuje publiczny sitemap URL.
+- `sitemap.xml` wskazuje canonical public origin.
 
 ## Komendy npm
 
@@ -423,7 +429,7 @@ Rekomendowany kierunek to utrzymywać obecny stabilny baseline, a przyszłe prac
 Najważniejsze pierwsze kroki:
 
 1. Utrzymać istniejące quality gates: lint, format, unit, integration, e2e, a11y i build.
-2. Doprowadzić publiczne demo do finalnego URL-a i uzupełnić deployment-specific metadata.
+2. Utrzymać publiczne URL-e i deployment-specific metadata w zgodzie z canonical public origin.
 3. Utrzymać PWA manifest, update flow, offline smoke tests i performance budgets przy każdej zmianie runtime.
 4. Utrzymywać dokumentację architektury, ADR-y, changelog, release checklistę i observability przy zmianach.
 5. Dopiero po realnej potrzebie zdecydować o bundlerze, TypeScript albo frameworku.
@@ -433,7 +439,9 @@ Najważniejsze pierwsze kroki:
 
 Projekt jest przygotowany jako statyczna aplikacja, więc może być hostowany np. na Netlify, Cloudflare Pages, GitHub Pages lub dowolnym serwerze statycznym. Plik `_redirects` sugeruje kompatybilność z Netlify.
 
-Przed publikacją trzeba uzupełnić wartości produkcyjne w `index.html`, `sitemap.xml`, `robots.txt` i metadanych Open Graph, szczególnie `canonical`, `og:url`, absolutny `og:image`, `Sitemap` oraz `<loc>`. Do czasu wyboru finalnego URL-a repozytorium nie powinno wskazywać placeholderów typu `example.com`.
+Publiczny deployment działa pod `https://saas-pr01-flowdesk.netlify.app/`, a bezpośredni link do logowania demo to `https://saas-pr01-flowdesk.netlify.app/#/login`. Deployment i publikacja Netlify są utrzymywane poza tym repozytorium przez owner-managed workflow w `kp-code-portfolio`.
+
+Wartości produkcyjne w `index.html`, `sitemap.xml`, `robots.txt` i metadanych Open Graph powinny pozostać spójne z canonical public origin. Repozytorium nie powinno wskazywać placeholderów typu `example.com`, lokalnych adresów ani tymczasowych preview URL-i jako canonical.
 
 Release i rollback należy prowadzić według `docs/release-checklist.md`. Przy nazwanych milestone trzeba zaktualizować `CHANGELOG.md` i wersję zgodnie z `docs/versioning.md`.
 
