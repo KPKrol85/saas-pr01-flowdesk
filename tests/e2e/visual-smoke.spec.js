@@ -37,3 +37,21 @@ for (const view of protectedViews) {
     });
   });
 }
+test('public legal pages are reachable from login', async ({ page }) => {
+  await resetBrowserState(page);
+
+  const legalPages = [
+    { href: '/polityka-prywatnosci.html', link: 'Polityka prywatności', heading: 'Polityka prywatności' },
+    { href: '/regulamin.html', link: 'Regulamin', heading: 'Regulamin Serwisu' },
+    { href: '/cookies.html', link: 'Polityka cookies', heading: 'Polityka cookies' }
+  ];
+
+  for (const legalPage of legalPages) {
+    await expect(page.getByRole('link', { name: legalPage.link, exact: true })).toHaveAttribute('href', legalPage.href);
+    const response = await page.goto(legalPage.href);
+    expect(response?.ok()).toBeTruthy();
+    await expect(page.getByRole('heading', { name: legalPage.heading, exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Otwórz demo', exact: true })).toHaveAttribute('href', '/#/login');
+    await page.goto('/#/login');
+  }
+});

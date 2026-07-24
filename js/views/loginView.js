@@ -27,7 +27,14 @@ export const renderLoginView = (container) => {
           </ul>
           <p class="login__portfolio-note">Frontend-only portfolio demo. Dane działają lokalnie w tej przeglądarce.</p>
         </div>
-        <p class="login__attribution">KP_Code Digital Studio</p>
+        <div class="login__product-footer">
+          <nav class="login__legal-links" aria-label="Dokumenty prawne">
+            <a href="/polityka-prywatnosci.html">Polityka prywatności</a>
+            <a href="/regulamin.html">Regulamin</a>
+            <a href="/cookies.html">Polityka cookies</a>
+          </nav>
+          <p class="login__attribution">KP_Code Digital Studio</p>
+        </div>
       </section>
 
       <section class="login__auth" aria-labelledby="loginTitle">

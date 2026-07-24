@@ -887,6 +887,31 @@
   line-height: 1.5;
 }
 
+.login__product-footer {
+  display: grid;
+  gap: var(--space-12);
+}
+
+.login__legal-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8) var(--space-16);
+}
+
+.login__legal-links a {
+  color: rgba(246, 251, 255, 0.76);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-medium);
+  line-height: 1.4;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.login__legal-links a:hover,
+.login__legal-links a:focus-visible {
+  color: #ffffff;
+}
 .login__attribution {
   margin: 0;
   color: rgba(246, 251, 255, 0.56);
@@ -1031,5 +1056,11 @@
 @media (min-width: 80rem) {
   .kanban {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 43.74rem) {
+  .login__product-footer {
+    gap: var(--space-8);
   }
 }
