@@ -1,448 +1,421 @@
 # FlowDesk
 
-FlowDesk to demonstracyjna aplikacja SPA typu Service Management Dashboard dla małych firm usługowych i zespołów obsługujących klientów, zlecenia, wizyty oraz działania operacyjne. Projekt pokazuje, jak może wyglądać lekki panel SaaS do prowadzenia pracy od klienta, przez zlecenie, po terminy, priorytety i podstawowe KPI.
+## PL
 
-Demo jest skierowane do portfolio review: w pierwszej minucie ma pokazać spójny produktowy scenariusz dla zespołu usługowego, a jednocześnie jasno oddzielić warstwę demonstracyjną od produkcyjnego systemu. Aplikacja obejmuje przykładowe dane klientów, zleceń, wydarzeń, dashboard operacyjny, globalne wyszukiwanie, bezpieczne akcje demo, eksport/import JSON, reset danych oraz preferencje użytkownika.
+### Przegląd projektu
 
-Aktualna wersja działa w całości po stronie przeglądarki. Nie ma backendu, prawdziwego uwierzytelniania, zewnętrznej bazy danych, live API, billing ani synchronizacji w chmurze. Stan aplikacji jest zapisywany lokalnie w `localStorage`, a dane startowe pochodzą z `js/data/seed.js`. Projekt jest dobrym początkiem pod rozwój produktu, ale przed użyciem produkcyjnym wymaga backendowego auth, trwałej persystencji, walidacji serwerowej, security headers, monitoringu i docelowej architektury API.
+FlowDesk jest frontendową aplikacją SPA typu Service Management Dashboard dla małych zespołów usługowych. Projekt demonstruje obsługę klientów, zleceń, wydarzeń i podstawowych wskaźników operacyjnych w statycznym interfejsie SaaS zbudowanym w HTML, CSS i Vanilla JavaScript ES Modules.
 
-## Narracja demo
+Aplikacja działa wyłącznie w przeglądarce. Uwierzytelnianie ma charakter demonstracyjny, a dane są przechowywane lokalnie przez `localStorage` za granicą repozytoriów. Repozytorium nie zawiera backendu, zewnętrznej bazy danych, produkcyjnego auth, live API, billingu ani synchronizacji w chmurze.
 
-- **Docelowy użytkownik:** właściciel, manager operacyjny albo mały zespół serwisowy, który musi widzieć klientów, aktywne zlecenia, terminy, priorytety i kolejne działania w jednym miejscu.
-- **Główny problem:** rozproszone informacje o klientach, zleceniach, wydarzeniach i statusach utrudniają codzienną obsługę usług.
-- **Obietnica demo:** FlowDesk pokazuje, jak frontendowy panel SaaS może uporządkować prosty proces service management bez ciężkiego systemu enterprise.
-- **Główne powierzchnie:** dashboard, klienci, szczegóły klienta, zlecenia, szczegóły zlecenia, kalendarz, ustawienia, topbar search, sidebar, modal, drawer i toast.
-- **Granice demo:** dane są lokalne, auth jest demonstracyjne, RBAC i sync metadata są kontraktami gotowościowymi, a produkcja wymaga backendu, bazy danych i kontroli bezpieczeństwa po stronie serwera.
+### Wersja online
 
-## Najważniejsze funkcje
+[Otwórz publiczne demo FlowDesk](https://saas-pr01-flowdesk.netlify.app/).
 
-- Logowanie demonstracyjne z walidacją emaila i hasła.
-- Guard routingu blokujący widoki aplikacji bez aktywnej sesji demo.
-- Dashboard z KPI, aktywnymi zleceniami, wydarzeniami i działaniami wymagającymi uwagi.
-- Widok klientów z filtrowaniem, sortowaniem, segmentami, ownerami, tagami, kontaktami, archiwizacją i panelem szczegółów.
-- Osobne trasy szczegółów klientów i zleceń z historią aktywności, relacjami i metadanymi operacyjnymi.
-- Widok zleceń w formie prostego kanbana z filtrami statusu, priorytetu i archiwum.
-- Checklisty zleceń, SLA, estymacje, komentarze i historia zmian.
-- Globalne wyszukiwanie w topbarze po klientach, zleceniach i wydarzeniach.
-- Widok kalendarza z wydarzeniami powiązanymi z klientami i zleceniami.
-- Ustawienia użytkownika: motyw jasny/ciemny, ograniczenie animacji, eksport JSON, walidowany import JSON i reset danych demo.
-- Warstwa repozytoriów dla klientów, zleceń i wydarzeń z aktywnym adapterem `localStorage`.
-- Demo context użytkownika, organizacji, członkostwa, roli i uprawnień jako przygotowanie pod multi-user.
-- PWA: manifest, generowany app-shell cache, widok offline i kontrolowany update prompt.
-- Observability readiness: lokalne przechwytywanie błędów i kontrakt pod przyszły monitoring.
-- Podstawy dostępności: skip link, focus-visible, modal z `aria-modal`, obsługa ESC, preferencja reduced motion.
+Niezalogowany użytkownik jest kierowany do `#/login`. Do demonstracyjnego logowania można użyć fikcyjnego adresu, np. `demo@flowdesk.test`, oraz dowolnego hasła o długości co najmniej 6 znaków, np. `demo123`. Dane logowania nie są wysyłane do serwera.
 
-## Stack technologiczny
+### Kluczowe funkcje
 
-- HTML5 jako entrypoint aplikacji.
-- CSS z podziałem na tokeny, bazę, layout, komponenty i widoki.
-- JavaScript ES Modules bez frameworka frontendowego.
-- Hash routing oparty o `window.location.hash`.
-- `localStorage` jako aktywny adapter repozytoriów dla danych demo.
-- Service Worker i Web App Manifest dla trybu PWA.
-- Generowany manifest assetów service workera i statyczny performance budget.
-- Lekki moduł observability bez zewnętrznego providera.
-- PostCSS + cssnano do budowy CSS.
-- Terser do minifikacji JS.
-- `serve` do lokalnego uruchamiania projektu.
-- Vitest i Playwright dla testów jednostkowych, integracyjnych, e2e i dostępności.
+- Trasy hash dla logowania oraz chronionych sesją demo widoków dashboardu, klientów, szczegółów klienta, zleceń, szczegółów zlecenia, kalendarza i ustawień.
+- Dashboard z KPI, aktywnymi zleceniami, nadchodzącymi wydarzeniami i elementami wymagającymi uwagi.
+- Zarządzanie klientami z wyszukiwaniem, filtrowaniem, sortowaniem, edycją, archiwizacją, przywracaniem i powiązanymi szczegółami.
+- Kanban zleceń z filtrami statusu i priorytetu oraz szczegółami obejmującymi checklisty, SLA, estymacje, komentarze i historię.
+- Tworzenie, edycja i usuwanie wydarzeń kalendarza powiązanych z klientami i zleceniami.
+- Globalne wyszukiwanie klientów, zleceń i wydarzeń oraz szybkie akcje dodawania.
+- Motyw jasny i ciemny, preferencja ograniczenia animacji, eksport JSON, walidowany import JSON i reset danych demo.
+- Walidacja domenowa, migracje stanu, bezpieczne renderowanie tekstu i potwierdzenia akcji destrukcyjnych.
+- Manifest aplikacji, service worker, cache app-shell, fallback offline i kontrolowany komunikat o aktualizacji.
 
-## Struktura projektu
+### Stack technologiczny
+
+- **Runtime:** HTML5, CSS, Vanilla JavaScript ES Modules i routing oparty na hash fragmentach.
+- **API przeglądarki:** `localStorage`, Service Worker, Cache API, Web App Manifest i `Blob`.
+- **Style:** design tokens oraz źródłowe warstwy `base`, `layout`, `components` i `views`.
+- **Build:** PostCSS, `postcss-import`, cssnano i Terser.
+- **Testy:** Vitest z jsdom, Playwright oraz `@axe-core/playwright`.
+- **Jakość kodu:** ESLint, Stylelint, Prettier i własne walidatory PWA oraz budżetu wydajności.
+- **Development lokalny:** `serve`, uruchamiany przez skrypt npm.
+
+### Architektura
+
+`index.html` ładuje kanoniczne pliki źródłowe `css/style.css` i `js/main.js`. Bootstrap inicjalizuje motyw, observability readiness, shell aplikacji, routing, globalne wyszukiwanie, komponenty nawigacyjne oraz rejestrację service workera.
+
+Router w `js/core/router.js` obsługuje statyczne i dynamiczne trasy hash oraz guard sesji demo. Widoki korzystają z fasady store'a, jawnych akcji i selektorów, a zapis przechodzi przez warstwę persistence, repozytoria i aktywny adapter `localStorage`:
 
 ```text
-flowdesk/
-  assets/
-    fonts/                 # lokalne fonty Inter
-    icons/                 # ikony PWA
-  css/
-    base.css               # reset, fonty, focus, globalne reguły
-    components.css         # przyciski, pola, karty, badge, modal, drawer, toast
-    layout.css             # shell aplikacji, topbar, sidebar, kontenery
-    style.css              # główny plik importujący CSS
-    style.min.css          # zbudowany/minifikowany CSS
-    tokens.css             # design tokens, kolory, spacing, font sizes, z-index
-    views.css              # style widoków biznesowych
-  docs/
-    api-contracts.md       # projekt przyszłych kontraktów API
-    architecture.md        # architektura aplikacji i przepływ danych
-    adr/                   # Architecture Decision Records
-    backend-readiness.md   # backend, RBAC, multi-user i strategia offline
-    definition-of-done.md  # kryteria gotowości zmian
-    design-system.md       # dokumentacja komponentów i tokenów UI
-    observability.md       # kontrakt monitoringu frontendowego
-    performance-budget.md  # budżety JS/CSS/app-shell i progi Lighthouse
-    pwa-strategy.md        # cache strategies, offline i update lifecycle
-    qa/                    # evidence z zakończonych przebiegów QA
-    release-checklist.md   # release, deployment i rollback
-    versioning.md          # konwencja wersjonowania
-  js/
-    components/            # sidebar, topbar, modal, drawer, table, toast, form controls
-    core/                  # auth, router, store, helpery DOM
-    data/                  # dane startowe demo
-    domain/                # modele, słowniki, walidacja, migracje, identity, RBAC, sync metadata
-    repositories/          # repozytoria i aktywny adapter localStorage
-    utils/                 # formatowanie, storage, walidatory
-    views/                 # widoki aplikacji
-    main.js                # bootstrap aplikacji, shell, rejestracja service workera
-  tests/
-    a11y/                  # Playwright + axe checks
-    e2e/                   # krytyczne ścieżki użytkownika
-    integration/           # testy DOM i przepływów modułowych
-    unit/                  # testy domeny, store'a, akcji, repozytoriów i komponentów
-  scripts/
-    check-performance-budget.js          # szybki lokalny gate rozmiarów app-shell
-    generate-service-worker-manifest.js  # generator service-worker-assets.js
-  404.html
-  _redirects               # konfiguracja redirectów pod hosting statyczny, np. Netlify
-  CHANGELOG.md
-  DONE.md
-  index.html
-  manifest.webmanifest
-  offline.html
-  package.json
-  postcss.config.js
-  robots.txt
-  service-worker-assets.js # wygenerowany manifest app-shell dla service workera
-  service-worker.js
-  sitemap.xml
-  TO-DO.md
+views
+  -> store
+  -> actions / selectors
+  -> persistence
+  -> repositories
+  -> localStorage adapter
+  -> migrations / domain validation
 ```
 
-## Architektura aplikacji
+`js/components/` zawiera współdzielone elementy UI, a `js/domain/` modele, walidatory, migracje, kontekst identity, kontrakt RBAC i metadane przyszłej synchronizacji. `js/core/auth.js` pozostaje fasadą dla implementacji demo w `js/core/auth.demo.js`. Identity, RBAC i sync metadata są warstwami gotowości frontendowej, a nie backendowym mechanizmem bezpieczeństwa.
 
-Aplikacja jest zorganizowana jako statyczna SPA z modułami ES. `index.html` ładuje `css/style.css` i `js/main.js`. Bootstrap w `main.js` odpowiada za ustawienie motywu, wyrenderowanie shell layoutu, obsługę topbara, sidebaru, drawera, szybkiego dodawania, wylogowania oraz rejestrację service workera.
+### Struktura projektu
 
-Routing znajduje się w `js/core/router.js`. Aktualna ścieżka jest odczytywana z hash fragmentu URL, np. `#/dashboard`. Router sprawdza sesję demo z `js/core/auth.js`; jeśli użytkownik nie jest zalogowany, przekierowuje na `#/login`.
-
-Stan aplikacji znajduje się w `js/core/store.js`. Store przechowuje kolekcje `clients`, `projects`, `events` oraz `ui`, uruchamia jawne akcje domenowe i zapisuje wynik przez `js/core/persistence.js`. Persistence korzysta z aktywnego adaptera `localStorage` z `js/repositories/localStorageRepositoryAdapter.js`, dlatego obecny zapis nadal trafia pod klucz `flowdesk_state_v1`, ale szczegóły storage są zamknięte za granicą repozytoriów.
-
-Repozytoria w `js/repositories/` udostępniają operacje kolekcji dla klientów, zleceń i wydarzeń. To jest granica migracji pod przyszłe API: widoki nie powinny znać szczegółów `localStorage`, a przyszły adapter backendowy powinien zachować ten sam kształt wyników operacji.
-
-Sesja demo jest zapisywana oddzielnie pod kluczem `flowdesk_session_v1`. `js/domain/identity.js` definiuje frontendowe modele `User`, `Organization` i `Membership`, a `js/domain/rbac.js` definiuje role `Owner`, `Manager`, `Member`, `Viewer` oraz helpery uprawnień. To przygotowanie pod multi-user, nie realny mechanizm bezpieczeństwa.
-
-Widoki w `js/views/` renderują HTML bezpośrednio do kontenera i samodzielnie podpinają event listenery. Ten model jest wystarczający dla obecnego rozmiaru projektu, ale przy rozbudowie warto wydzielić wspólne komponenty formularzy, bezpieczne renderowanie danych użytkownika, selektory store'a oraz warstwę domenową.
-
-## Dostępne trasy
-
-| Trasa | Widok | Opis |
-| --- | --- | --- |
-| `#/login` | `loginView.js` | Logowanie demo i walidacja formularza. |
-| `#/dashboard` | `dashboardView.js` | KPI, najbliższe działania i ostatnie zlecenia. |
-| `#/clients` | `clientsView.js` | Lista klientów, filtrowanie, sortowanie, CRUD i szczegóły. |
-| `#/clients/:id` | `clientDetailView.js` | Szczegóły klienta, kontakty, tagi, powiązane zlecenia i aktywność. |
-| `#/projects` | `projectsView.js` | Kanban zleceń, filtrowanie, CRUD. |
-| `#/projects/:id` | `projectDetailView.js` | Szczegóły zlecenia, SLA, checklisty, komentarze i historia. |
-| `#/calendar` | `calendarView.js` | Lista wydarzeń powiązanych z klientami i zleceniami. |
-| `#/settings` | `settingsView.js` | Preferencje, eksport danych, reset danych demo. |
-
-## Model danych demo
-
-### Client
-
-```js
-{
-  id: 'c1',
-  name: 'Nova Studio',
-  email: 'hello@novastudio.pl',
-  phone: '+48 605 010 120',
-  status: 'Aktywny',
-  notes: 'Stały klient od 2022. Preferuje kontakt mailowy.',
-  contacts: [{ id: 'ct1', name: 'Marta Nowak', role: 'Operations Lead', email: 'marta@novastudio.pl' }],
-  tags: ['retainer', 'web'],
-  segment: 'Agency',
-  owner: 'Alicja Maj',
-  activity: [{ id: 'a1', text: 'Uzgodniono zakres wdrożenia.', date: 'ISO date' }],
-  archivedAt: ''
-}
+```text
+digital-studio-saas-pr01-flowdesk/
+|-- assets/
+|   |-- fonts/
+|   |-- icons/
+|   `-- logo/
+|-- css/
+|   |-- tokens.css
+|   |-- base.css
+|   |-- layout.css
+|   |-- components.css
+|   |-- views.css
+|   |-- style.css
+|   `-- style.min.css
+|-- docs/
+|   |-- adr/
+|   |-- qa/
+|   `-- *.md
+|-- js/
+|   |-- components/
+|   |-- core/
+|   |-- data/
+|   |-- domain/
+|   |-- repositories/
+|   |-- utils/
+|   `-- views/
+|-- scripts/
+|-- tests/
+|   |-- unit/
+|   |-- integration/
+|   |-- e2e/
+|   `-- a11y/
+|-- index.html
+|-- manifest.webmanifest
+|-- service-worker.js
+|-- service-worker-assets.js
+|-- offline.html
+|-- package.json
+`-- README.md
 ```
 
-### Project
+### Instalacja i development lokalny
 
-```js
-{
-  id: 'p1',
-  name: 'Wdrożenie panelu klienta',
-  clientId: 'c1',
-  status: 'In progress',
-  priority: 'High',
-  dueDate: 'ISO date',
-  notes: 'Oczekuje na feedback do makiet.',
-  tasks: [{ id: 't1', title: 'Dostarczyć makiety dashboardu', done: true }],
-  sla: { serviceLevel: 'Priority', responseDueDate: 'ISO date' },
-  estimate: { hours: 42, value: 16800, currency: 'PLN' },
-  comments: [{ id: 'cm1', author: 'Alicja Maj', body: 'Komentarz operacyjny', date: 'ISO date' }],
-  history: [{ id: 'h1', text: 'Status zmieniony na In progress.', date: 'ISO date' }],
-  completedAt: '',
-  archivedAt: ''
-}
-```
-
-### Event
-
-```js
-{
-  id: 'e1',
-  title: 'Weekly status call',
-  date: 'ISO date',
-  clientId: 'c1',
-  projectId: 'p1',
-  type: 'Meeting'
-}
-```
-
-### UI preferences
-
-```js
-{
-  theme: 'light',
-  reducedMotion: false
-}
-```
-
-### User, Organization, Membership
-
-```js
-{
-  user: { id: 'u-demo-owner', name: 'Alicja Maj', email: 'alicja@flowdesk.pl', status: 'active' },
-  organization: { id: 'org-flowdesk-demo', name: 'FlowDesk Demo Workspace', plan: 'demo' },
-  membership: { id: 'mem-demo-owner', userId: 'u-demo-owner', organizationId: 'org-flowdesk-demo', role: 'Owner' }
-}
-```
-
-### Sync metadata hook
-
-```js
-{
-  sync: {
-    createdAt: 'ISO date',
-    updatedAt: 'ISO date',
-    revision: 1,
-    syncStatus: 'pending'
-  }
-}
-```
-
-Metadane synchronizacji są obecnie lekkim hookiem dla przyszłych adapterów API. Nie zostały globalnie dodane do wszystkich rekordów demo.
-
-## Uruchomienie lokalne
-
-Wymagania:
-
-- Node.js LTS.
-- npm.
-
-Instalacja zależności:
+Repozytorium używa npm i zawiera `package-lock.json`. Nie deklaruje konkretnej wersji Node.js.
 
 ```bash
-npm install
-```
-
-Uruchomienie lokalnego serwera:
-
-```bash
+npm ci
 npm run dev
 ```
 
-Projekt należy uruchamiać przez lokalny serwer HTTP. Otwieranie `index.html` bezpośrednio przez `file://` nie jest zalecane, ponieważ aplikacja korzysta ze ścieżek absolutnych, modułów ES i service workera.
+Po uruchomieniu należy użyć adresu wypisanego przez `serve`. Projekt wymaga lokalnego serwera HTTP; uruchamianie `index.html` przez `file://` nie obsługuje poprawnie modułów, ścieżek absolutnych i service workera.
 
-## Publiczne demo i portfolio review
+### Dostępne skrypty
 
-FlowDesk można oceniać jako frontend-only SaaS demo pokazujące service management workflow, a nie jako gotowy produkt dla danych klientów.
-
-Publiczne demo:
-
-- Otwórz `https://saas-pr01-flowdesk.netlify.app/#/login`.
-
-Szybki dostęp lokalny po uruchomieniu projektu:
-
-- Wejdź na `#/login`.
-- Użyj fikcyjnego emaila, np. `demo@flowdesk.test`.
-- Użyj dowolnego hasła demo o długości minimum 6 znaków, np. `demo123`.
-- Logowanie tworzy wyłącznie lokalną sesję demo w `localStorage`; nie ma serwerowej weryfikacji użytkownika.
-
-Granice publicznego demo:
-
-- Dane klientów, zleceń i wydarzeń są przykładowe albo lokalnie utworzone w przeglądarce.
-- Eksport, import i reset to narzędzia danych demo, nie backup ani cloud sync.
-- Nie należy wprowadzać prawdziwych danych klientów, sekretów, tokenów ani produkcyjnych credentiali.
-- FlowDesk nie zawiera backendu, produkcyjnego auth, bazy danych, live API, billing ani synchronizacji w chmurze.
-
-Strategia screenshotów:
-
-- Screenshoty nie są obecnie commitowane jako osobny pakiet portfolio.
-- Przyszłe screenshoty powinny być przechwycone z aktualnie uruchomionego UI, bez makiet niezgodnych z produktem.
-- Minimalny zestaw powinien obejmować desktop dashboard, klientów, zlecenia, kalendarz, ustawienia oraz mobilny shell.
-- Screenshoty trzeba odświeżać po zmianach UI o charakterze release-grade.
-
-Metadane publiczne:
-
-- Canonical public origin: `https://saas-pr01-flowdesk.netlify.app/`.
-- Direct demo login URL: `https://saas-pr01-flowdesk.netlify.app/#/login`.
-- `index.html` ma demo-oriented title, description, `canonical`, `og:url` i absolutne social image URL.
-- `robots.txt` wskazuje publiczny sitemap URL.
-- `sitemap.xml` wskazuje canonical public origin.
-
-## Komendy npm
-
-| Komenda | Opis |
+| Komenda | Zakres |
 | --- | --- |
 | `npm run dev` | Uruchamia statyczny serwer przez `serve`. |
-| `npm run pwa:manifest` | Generuje `service-worker-assets.js` na podstawie runtime app-shell. |
-| `npm run pwa:check` | Sprawdza, czy wygenerowany manifest service workera jest aktualny. |
-| `npm run perf:budget` | Sprawdza gzipowane budżety JS, CSS, app-shell i pojedynczych assetów. |
-| `npm run lighthouse` | Uruchamia lokalny szybki gate budżetu wydajności; pełna konfiguracja Lighthouse CI jest w `lighthouserc.cjs`. |
-| `npm run lint` | Uruchamia ESLint, Stylelint i Prettier check. |
-| `npm run format` | Formatuje pliki przez Prettier. |
-| `npm run test:unit` | Uruchamia testy jednostkowe Vitest. |
-| `npm run test:integration` | Uruchamia testy integracyjne Vitest. |
-| `npm run test:e2e` | Uruchamia testy end-to-end Playwright. |
-| `npm run test:a11y` | Uruchamia testy dostępności Playwright + axe. |
-| `npm run build:css` | Buduje `css/style.min.css` przez PostCSS i cssnano. |
-| `npm run build:js` | Minifikuje `js/main.js` przez Terser. Obecnie nie bundluje całego drzewa modułów. |
-| `npm run build` | Generuje manifest PWA, buduje CSS i entrypoint JS. |
-| `npm run check` | Uruchamia pełny lokalny zestaw jakości: PWA check, lint, testy, e2e, a11y, build i performance budget. |
-| `npm run images` | Kompresuje obrazy z `assets/images/*` do WebP, jeśli taki katalog istnieje. |
+| `npm run lint` | Uruchamia ESLint, Stylelint i `prettier --check`. |
+| `npm run format` | Formatuje obsługiwane pliki przez Prettier. |
+| `npm run test` | Uruchamia testy jednostkowe i integracyjne Vitest. |
+| `npm run test:unit` | Uruchamia katalog `tests/unit`. |
+| `npm run test:integration` | Uruchamia katalog `tests/integration`. |
+| `npm run test:e2e` | Uruchamia testy Playwright z katalogu `tests/e2e`. |
+| `npm run test:a11y` | Uruchamia testy Playwright i axe z katalogu `tests/a11y`. |
+| `npm run pwa:manifest` | Generuje `service-worker-assets.js`. |
+| `npm run pwa:check` | Sprawdza aktualność wygenerowanego manifestu app-shell. |
+| `npm run build` | Generuje manifest PWA oraz buduje minifikowane pliki CSS i JS. |
+| `npm run perf:budget` | Sprawdza gzipowane limity zasobów app-shell. |
+| `npm run lighthouse` | Deleguje do `npm run perf:budget`; nie uruchamia Lighthouse CLI. |
+| `npm run check` | Uruchamia PWA check, lint, testy, build i budżet wydajności. |
 
-## Release hygiene
+### Build i pliki generowane
 
-Pliki generowane, które są intencjonalnie commitowane:
+```bash
+npm run build
+```
 
-- `css/style.min.css` - aktualizowany przez `npm run build:css` albo `npm run build`.
-- `js/main.min.js` - aktualizowany przez `npm run build:js` albo `npm run build`.
-- `service-worker-assets.js` - aktualizowany przez `npm run pwa:manifest` oraz automatycznie przed `npm run build`.
+Lifecycle `prebuild` najpierw generuje manifest app-shell. Następnie build tworzy trzy intencjonalnie śledzone pliki:
 
-Nie edytuj tych plików ręcznie. Po zmianach runtime, manifestu, CSS, JS, fontów lub ikon uruchom `npm run build` i potwierdź `npm run pwa:check`.
+- `service-worker-assets.js` z `scripts/generate-service-worker-manifest.js`;
+- `css/style.min.css` z `css/style.css` przez PostCSS i cssnano;
+- `js/main.min.js` z `js/main.js` przez Terser.
 
-Lokalne artefakty takie jak `node_modules/`, `test-results/`, `playwright-report/`, `coverage/`, `.lighthouseci/`, logi, cache i katalogi workspace agenta są ignorowane przez `.gitignore`. Przed commitem sprawdź `git status --short`, żeby potwierdzić, że w diffie są tylko pliki związane z zakresem zadania.
+Nie należy edytować tych plików ręcznie. Build nie używa bundlera, nie tworzy katalogu `dist/`, a `build:js` minifikuje tylko entrypoint `js/main.js`. Aktualny runtime nadal ładuje źródłowe `css/style.css` i `js/main.js`, natomiast generator app-shell pomija pliki minifikowane.
 
-## Mapa dokumentacji
+### Testy i walidacja
 
-| Dokument | Zakres |
+Vitest uruchamia testy jednostkowe domeny, store'a, akcji, repozytoriów, migracji, persystencji i komponentów oraz testy integracyjne widoków i przepływów. Playwright jest skonfigurowany dla Chromium i obejmuje krytyczne ścieżki, nawigację mobilną, scenariusze PWA/wydajnościowe oraz visual smoke. Osobny zestaw Playwright + axe sprawdza główne widoki i stany interaktywne.
+
+Główną lokalną bramką jakości jest:
+
+```bash
+npm run check
+```
+
+Skrypt wykonuje również build, dlatego może zaktualizować śledzone pliki generowane.
+
+### Wdrożenie
+
+FlowDesk jest wdrażany jako statyczna zawartość katalogu repozytorium. Plik `_redirects` zapewnia fallback SPA zgodny z Netlify. Publiczny origin, `canonical`, Open Graph, `robots.txt` i `sitemap.xml` wskazują `https://saas-pr01-flowdesk.netlify.app/`.
+
+Publikacja Netlify i synchronizacja deploymentu są utrzymywane przez właściciela poza tym repozytorium, w repozytorium `kp-code-portfolio`. FlowDesk nie zawiera skryptu wdrożeniowego ani workflow GitHub Actions. Procedury release i rollback opisuje [`docs/release-checklist.md`](docs/release-checklist.md).
+
+### Dostępność
+
+Interfejs zawiera skip link, semantyczne obszary `main`, etykiety formularzy, komunikaty błędów, widoczne focus states i obsługę ograniczenia animacji. Modale i mobilny drawer używają nazwanych dialogów, blokują fokus, reagują na `Escape` i przywracają fokus do elementu otwierającego. Globalne wyszukiwanie i menu użytkownika obsługują klawiaturę.
+
+Repozytorium zawiera automatyczne testy axe dla głównych widoków i wybranych stanów interaktywnych. Te mechanizmy i testy nie stanowią deklaracji formalnej zgodności z WCAG.
+
+### SEO
+
+`index.html` zawiera tytuł, meta description, canonical URL, metadane Open Graph i Twitter oraz absolutne adresy publicznych assetów społecznościowych. `robots.txt` wskazuje publiczny `sitemap.xml`, a sitemap zawiera canonical origin.
+
+Routing aplikacji używa hash fragmentów, dlatego wszystkie widoki korzystają z jednego dokumentu HTML, a sitemap opisuje wyłącznie publiczny origin. Repozytorium dokumentuje istniejącą implementację metadanych, bez deklarowania wyników pozycjonowania.
+
+### PWA i obsługa offline
+
+Warstwa PWA składa się z `manifest.webmanifest`, rejestracji service workera, `service-worker.js`, generowanego `service-worker-assets.js`, ikon oraz `offline.html`. Service worker używa network-first dla nawigacji, cache-first dla app-shell i zasobów statycznych oraz network-only z odpowiedzią `503` dla przyszłych żądań `/api/*` w trybie offline.
+
+Nowy service worker czeka na decyzję użytkownika; aplikacja pokazuje trwały toast aktualizacji i wysyła `SKIP_WAITING` dopiero po wybraniu odświeżenia. Opisane mechanizmy nie są deklaracją kompletnej instalowalności we wszystkich przeglądarkach.
+
+### Wydajność
+
+Runtime nie używa frameworka ani bundlera i korzysta z lokalnych fontów. `scripts/check-performance-budget.js` oblicza rozmiary gzip dla JavaScriptu, CSS, całego app-shell i pojedynczych assetów. `lighthouserc.cjs` definiuje progi dla osobnego uruchomienia Lighthouse CI, ale bieżący skrypt `npm run lighthouse` wykonuje wyłącznie lokalny checker budżetu.
+
+README nie publikuje wyników Lighthouse ani innych pomiarów wydajności.
+
+### Dane i trwałość stanu
+
+Dane startowe pochodzą z `js/data/seed.js`. Stan klientów, zleceń, wydarzeń i preferencji UI jest normalizowany przez migracje oraz walidatory domenowe i zapisywany pod kluczem `flowdesk_state_v1`. Sesja demo jest walidowana osobno i przechowywana pod `flowdesk_session_v1`.
+
+Eksport tworzy lokalny plik JSON. Import wymaga pełnego schematu, sprawdza rekordy i zduplikowane identyfikatory, a zapis następuje dopiero po potwierdzeniu. Jeśli `localStorage` jest niedostępny, aplikacja działa bez trwałego zapisu i informuje o tym użytkownika. Nie ma zdalnego backupu ani synchronizacji.
+
+### Utrzymanie projektu
+
+- Kanoniczne style znajdują się w `css/*.css`, a entrypoint w `css/style.css`.
+- Kanoniczny bootstrap JavaScript znajduje się w `js/main.js`; moduły pozostają w `js/components/`, `js/core/`, `js/domain/`, `js/repositories/`, `js/utils/` i `js/views/`.
+- Po zmianach runtime, CSS, fontów, ikon lub manifestu należy uruchomić `npm run build` i `npm run pwa:check`.
+- Wersjonowanie i historia zmian są opisane w [`docs/versioning.md`](docs/versioning.md) oraz [`CHANGELOG.md`](CHANGELOG.md).
+- Architektura i decyzje znajdują się w [`docs/architecture.md`](docs/architecture.md) oraz [`docs/adr/`](docs/adr/).
+- Konwencje UI opisuje [`docs/design-system.md`](docs/design-system.md).
+- Granice przyszłego backendu opisują [`docs/backend-readiness.md`](docs/backend-readiness.md) i [`docs/api-contracts.md`](docs/api-contracts.md).
+- Strategie PWA, wydajności i observability opisują [`docs/pwa-strategy.md`](docs/pwa-strategy.md), [`docs/performance-budget.md`](docs/performance-budget.md) i [`docs/observability.md`](docs/observability.md).
+- Kryteria zmian i release opisują [`docs/definition-of-done.md`](docs/definition-of-done.md) oraz [`docs/release-checklist.md`](docs/release-checklist.md).
+
+### Granice bieżącej wersji
+
+- Logowanie sprawdza wyłącznie format emaila i minimalną długość hasła, a następnie tworzy lokalną sesję demo.
+- `localStorage` nie jest przeznaczony do danych poufnych, tokenów ani produkcyjnych rekordów klientów.
+- Identity, RBAC i sync metadata są kontraktami frontendowymi bez serwerowego egzekwowania uprawnień.
+- Projekt nie ma backendu, bazy danych, live API, multi-tenant isolation, billingu ani cloud sync.
+- Observability przechowuje sanitizowany bufor błędów w pamięci i nie wysyła danych do zewnętrznego providera.
+- Build nie tworzy kompletnego, zbundlowanego artefaktu produkcyjnego.
+
+## EN
+
+### Project Overview
+
+FlowDesk is a frontend SPA that demonstrates a Service Management Dashboard for small service teams. The project covers clients, service jobs, events, and basic operational metrics in a static SaaS-style interface built with HTML, CSS, and Vanilla JavaScript ES Modules.
+
+The application runs entirely in the browser. Authentication is demo-only, and data is persisted locally through `localStorage` behind repository boundaries. The repository has no backend, external database, production authentication, live API, billing, or cloud synchronization.
+
+### Live Version
+
+[Open the public FlowDesk demo](https://saas-pr01-flowdesk.netlify.app/).
+
+Unauthenticated users are redirected to `#/login`. Demo access accepts a fictional address such as `demo@flowdesk.test` and any password with at least 6 characters, such as `demo123`. Credentials are not sent to a server.
+
+### Key Features
+
+- Hash routes for login and demo-session-protected dashboard, client, client-detail, project, project-detail, calendar, and settings views.
+- Dashboard with KPIs, active projects, upcoming events, and items requiring attention.
+- Client management with search, filtering, sorting, editing, archiving, restoration, and linked detail data.
+- Project kanban with status and priority filters plus detail views for checklists, SLA, estimates, comments, and history.
+- Creation, editing, and deletion of calendar events linked to clients and projects.
+- Global search across clients, projects, and events, plus quick-create actions.
+- Light and dark themes, reduced-motion preference, JSON export, validated JSON import, and demo-data reset.
+- Domain validation, state migrations, safe text rendering, and confirmation for destructive actions.
+- Application manifest, service worker, app-shell cache, offline fallback, and a controlled update prompt.
+
+### Tech Stack
+
+- **Runtime:** HTML5, CSS, Vanilla JavaScript ES Modules, and hash-based routing.
+- **Browser APIs:** `localStorage`, Service Worker, Cache API, Web App Manifest, and `Blob`.
+- **Styling:** design tokens with source layers for `base`, `layout`, `components`, and `views`.
+- **Build:** PostCSS, `postcss-import`, cssnano, and Terser.
+- **Testing:** Vitest with jsdom, Playwright, and `@axe-core/playwright`.
+- **Code quality:** ESLint, Stylelint, Prettier, and custom PWA and performance-budget validators.
+- **Local development:** `serve`, started through an npm script.
+
+### Architecture
+
+`index.html` loads the canonical source files `css/style.css` and `js/main.js`. The bootstrap initializes the theme, observability readiness, application shell, routing, global search, navigation components, and service worker registration.
+
+The router in `js/core/router.js` handles static and dynamic hash routes plus the demo-session guard. Views use the store facade, explicit actions, and selectors, while writes pass through persistence, repositories, and the active `localStorage` adapter:
+
+```text
+views
+  -> store
+  -> actions / selectors
+  -> persistence
+  -> repositories
+  -> localStorage adapter
+  -> migrations / domain validation
+```
+
+`js/components/` contains shared UI elements, while `js/domain/` contains models, validators, migrations, identity context, the RBAC contract, and future synchronization metadata. `js/core/auth.js` remains a facade for the demo implementation in `js/core/auth.demo.js`. Identity, RBAC, and sync metadata are frontend-readiness layers, not backend security mechanisms.
+
+### Project Structure
+
+```text
+digital-studio-saas-pr01-flowdesk/
+|-- assets/
+|   |-- fonts/
+|   |-- icons/
+|   `-- logo/
+|-- css/
+|   |-- tokens.css
+|   |-- base.css
+|   |-- layout.css
+|   |-- components.css
+|   |-- views.css
+|   |-- style.css
+|   `-- style.min.css
+|-- docs/
+|   |-- adr/
+|   |-- qa/
+|   `-- *.md
+|-- js/
+|   |-- components/
+|   |-- core/
+|   |-- data/
+|   |-- domain/
+|   |-- repositories/
+|   |-- utils/
+|   `-- views/
+|-- scripts/
+|-- tests/
+|   |-- unit/
+|   |-- integration/
+|   |-- e2e/
+|   `-- a11y/
+|-- index.html
+|-- manifest.webmanifest
+|-- service-worker.js
+|-- service-worker-assets.js
+|-- offline.html
+|-- package.json
+`-- README.md
+```
+
+### Installation and Local Development
+
+The repository uses npm and includes `package-lock.json`. It does not declare a specific Node.js version.
+
+```bash
+npm ci
+npm run dev
+```
+
+Use the address printed by `serve` after startup. The project requires a local HTTP server; opening `index.html` through `file://` does not correctly support modules, absolute paths, and the service worker.
+
+### Available Scripts
+
+| Command | Scope |
 | --- | --- |
-| `docs/architecture.md` | moduły, routing, store, repozytoria, PWA, observability i granice deploymentu |
-| `docs/adr/` | decyzje architektoniczne i ich konsekwencje |
-| `docs/design-system.md` | komponenty UI, tokeny i konwencje interfejsu |
-| `docs/backend-readiness.md` | przyszły backend, RBAC, multi-user i offline sync |
-| `docs/api-contracts.md` | projekt przyszłych endpointów i mapowanie błędów API |
-| `docs/future-saas-readiness.md` | przyszłe konta, workspace, plany, billing boundaries i audit logi |
-| `docs/pwa-strategy.md` | service worker, app-shell cache, offline i update lifecycle |
-| `docs/performance-budget.md` | budżety rozmiaru, Lighthouse i startup responsiveness |
-| `docs/observability.md` | lokalny kontrakt monitoringu i zasady danych |
-| `docs/definition-of-done.md` | kryteria gotowości zmiany |
-| `docs/qa/ui-final-qa-checklist.md` | evidence finalnego UI QA po zakończonej roadmapie UI polish |
-| `docs/release-checklist.md` | release, deployment, post-release validation i rollback |
-| `docs/versioning.md` | konwencja wersjonowania demo milestone |
-| `CHANGELOG.md` | historia zmian i milestone |
-| `DONE.md` | skonsolidowany stan ukończonych roadmap i obecny baseline projektu |
-| `TO-DO.md` | aktualny backlog przyszłych zadań i parking lot |
+| `npm run dev` | Starts a static server through `serve`. |
+| `npm run lint` | Runs ESLint, Stylelint, and `prettier --check`. |
+| `npm run format` | Formats supported files through Prettier. |
+| `npm run test` | Runs the Vitest unit and integration suites. |
+| `npm run test:unit` | Runs the `tests/unit` directory. |
+| `npm run test:integration` | Runs the `tests/integration` directory. |
+| `npm run test:e2e` | Runs Playwright tests from `tests/e2e`. |
+| `npm run test:a11y` | Runs Playwright and axe tests from `tests/a11y`. |
+| `npm run pwa:manifest` | Generates `service-worker-assets.js`. |
+| `npm run pwa:check` | Verifies that the generated app-shell manifest is current. |
+| `npm run build` | Generates the PWA manifest and builds minified CSS and JS files. |
+| `npm run perf:budget` | Checks gzipped app-shell asset limits. |
+| `npm run lighthouse` | Delegates to `npm run perf:budget`; it does not run Lighthouse CLI. |
+| `npm run check` | Runs the PWA check, linting, tests, build, and performance budget. |
 
-## Backend readiness i multi-user
+### Build and Generated Files
 
-FlowDesk ma teraz przygotowaną granicę migracji pod backend:
+```bash
+npm run build
+```
 
-- `localStorage` jest aktywnym adapterem demo, ale nie stałym fundamentem domeny,
-- `clientsRepository`, `projectsRepository` i `eventsRepository` zamykają operacje kolekcji za spójnym kontraktem,
-- `createFlowDeskRepositories` pozwala w przyszłości podmienić adapter lokalny na adapter API,
-- store nadal pozostaje kompatybilną fasadą dla widoków i zapisuje dane przez persistence,
-- identity context zawiera demo użytkownika, organizację, membership i rolę,
-- RBAC definiuje role `Owner`, `Manager`, `Member`, `Viewer` oraz stabilne nazwy uprawnień,
-- `syncMetadata` definiuje statusy `synced`, `pending`, `conflict`, rewizję i znaczniki czasu dla przyszłej synchronizacji.
+The `prebuild` lifecycle first generates the app-shell manifest. The build then creates three intentionally tracked files:
 
-Szczegóły:
+- `service-worker-assets.js` from `scripts/generate-service-worker-manifest.js`;
+- `css/style.min.css` from `css/style.css` through PostCSS and cssnano;
+- `js/main.min.js` from `js/main.js` through Terser.
 
-- `docs/backend-readiness.md` - architektura repozytoriów, RBAC, ograniczenia bezpieczeństwa i strategia offline,
-- `docs/api-contracts.md` - projekt przyszłych endpointów, payloadów, błędów i mapowania na repozytoria.
-- `docs/future-saas-readiness.md` - planistyczne granice kont, workspace, subskrypcji, billing, audit logów i organizacyjnych ustawień.
+Do not edit these files manually. The build does not use a bundler or create a `dist/` directory, and `build:js` minifies only the `js/main.js` entry point. The current runtime still loads the source `css/style.css` and `js/main.js`, while the app-shell generator excludes the minified files.
 
-## Uwierzytelnianie demo
+### Testing and Validation
 
-Logowanie jest jawnie demonstracyjne i znajduje się w `js/core/auth.demo.js`. Plik `js/core/auth.js` jest tylko kompatybilną fasadą dla obecnego importu `auth`.
+Vitest covers unit tests for the domain layer, store, actions, repositories, migrations, persistence, and components, as well as integration tests for views and workflows. Playwright is configured for Chromium and covers critical flows, mobile navigation, PWA/performance scenarios, and visual smoke checks. A separate Playwright + axe suite checks the main views and selected interactive states.
 
-Aplikacja nie sprawdza użytkownika po stronie serwera. Wymaga jedynie poprawnego formatu emaila i hasła o długości minimum 6 znaków. Po zalogowaniu zapisuje przykładową sesję w `localStorage`, rozszerzoną o demo `user`, `organization`, `membership` i `role`.
+The primary local quality gate is:
 
-To rozwiązanie nadaje się wyłącznie do prototypu. W wersji produkcyjnej konieczne będą prawdziwe uwierzytelnianie, sesje lub tokeny, autoryzacja RBAC po stronie backendu, ochrona danych oraz trwała baza danych.
+```bash
+npm run check
+```
 
-## Bezpieczeństwo i granice demo
+The script also runs the build, so it may update tracked generated files.
 
-FlowDesk jest aplikacją frontend-only. `localStorage` nie jest bezpiecznym miejscem na dane poufne, tokeny ani sekrety. Obecny store traktuje dane z `localStorage` oraz importowany JSON jako niezaufane: stan przechodzi przez migrację, walidację domenową i reguły spójności przed zapisem oraz odczytem.
+### Deployment
 
-Dane renderowane z formularzy, seedów i odzyskanego `localStorage` są escapowane helperami `escapeHTML`, `escapeAttribute` i `safeText`. Toasty renderują tekst przez `textContent`, a payloady HTML są wyświetlane jako tekst, nie jako wykonywalny DOM.
+FlowDesk is deployed as static repository-root content. `_redirects` provides a Netlify-compatible SPA fallback. The public origin, `canonical`, Open Graph, `robots.txt`, and `sitemap.xml` point to `https://saas-pr01-flowdesk.netlify.app/`.
 
-`index.html` zawiera konserwatywną meta Content Security Policy dla hostingu statycznego: lokalne moduły JS, lokalny CSS, fonty, manifest, service worker i obrazy z tego samego originu. Produkcyjny hosting powinien przenieść CSP do nagłówków HTTP i rozszerzyć ją o docelowe domeny API, monitoring oraz politykę raportowania.
+Netlify publishing and deployment synchronization are owner-managed outside this repository through the `kp-code-portfolio` repository. FlowDesk contains no deployment script or GitHub Actions workflow. Release and rollback procedures are documented in [`docs/release-checklist.md`](docs/release-checklist.md).
 
-Eksport JSON jest generowany jako `Blob` z aplikacyjnego stanu. Import JSON jest dostępny w ustawieniach jako narzędzie demo i przechodzi przez `restoreStateFromJson`, migracje oraz normalizację domenową. Niepoprawny JSON jest odrzucany bez nadpisania obecnego stanu.
+### Accessibility
 
-Wersja produkcyjna wymaga backendowego uwierzytelniania, autoryzacji, bezpiecznej persystencji, walidacji po stronie serwera, nagłówków bezpieczeństwa na hostingu, ochrony przed CSRF tam, gdzie pojawią się cookies, oraz kontroli uprawnień dla danych organizacji.
+The interface includes a skip link, semantic `main` regions, form labels, error messages, visible focus states, and reduced-motion handling. Modals and the mobile drawer use named dialogs, trap focus, respond to `Escape`, and restore focus to the invoking control. Global search and the user menu support keyboard interaction.
 
-## PWA i offline
+The repository includes automated axe tests for the main views and selected interactive states. These mechanisms and tests are not a declaration of formal WCAG compliance.
 
-`service-worker.js` korzysta z wygenerowanego `service-worker-assets.js`, który zawiera runtime app-shell: HTML, manifest, źródłowe CSS, moduły JS, fonty i ikony PWA. Lista jest generowana przez `npm run pwa:manifest` i sprawdzana przez `npm run pwa:check`.
+### SEO
 
-Dla żądań nawigacyjnych service worker używa strategii network-first z fallbackiem do cached `index.html`, a potem `offline.html`. App-shell, moduły JS, CSS, fonty i ikony używają cache-first. Przyszłe requesty `/api/*` mają guarded network-only fallback `503`, żeby nie cache'ować danych biznesowych przypadkowo.
+`index.html` contains a title, meta description, canonical URL, Open Graph and Twitter metadata, and absolute URLs for public social assets. `robots.txt` points to the public `sitemap.xml`, and the sitemap contains the canonical origin.
 
-Aktualizacja service workera jest kontrolowana przez użytkownika. Nowy worker czeka w stanie waiting, aplikacja pokazuje toast „Nowa wersja FlowDesk jest dostępna”, a dopiero kliknięcie „Odśwież” wysyła `SKIP_WAITING` i przeładowuje aplikację po `controllerchange`.
+The application uses hash-based routing, so every view shares one HTML document and the sitemap describes only the public origin. The repository documents the implemented metadata without claiming search-ranking results.
 
-Jeżeli `localStorage` jest niedostępny, aplikacja nie crashuje i pokazuje komunikat, że dane demo nie będą trwale zapisane. To nie jest produkcyjny fallback persystencji.
+### PWA and Offline Support
 
-Szczegóły strategii są w `docs/pwa-strategy.md`, a budżety w `docs/performance-budget.md`.
+The PWA layer consists of `manifest.webmanifest`, service worker registration, `service-worker.js`, generated `service-worker-assets.js`, icons, and `offline.html`. The service worker uses network-first for navigation, cache-first for the app shell and static assets, and network-only with a `503` response for future `/api/*` requests while offline.
 
-## Observability readiness
+A new service worker waits for user confirmation; the application displays a persistent update toast and sends `SKIP_WAITING` only after refresh is selected. These mechanisms are not a claim of complete installability across all browsers.
 
-`js/core/observability.js` inicjalizuje lokalny kontrakt pod przyszły monitoring błędów. Obecnie przechwytuje `window.error` i `window.unhandledrejection`, sanitizuje kontekst, przechowuje krótki bufor w pamięci i nie wysyła żadnych requestów sieciowych.
+### Performance
 
-Moduł nie zbiera danych osobowych i nie zastępuje produkcyjnego monitoringu backendu. Szczegóły są w `docs/observability.md`.
+The runtime uses no framework or bundler and loads local fonts. `scripts/check-performance-budget.js` calculates gzipped sizes for JavaScript, CSS, the complete app shell, and individual assets. `lighthouserc.cjs` defines thresholds for a separate Lighthouse CI run, but the current `npm run lighthouse` script only executes the local budget checker.
 
-## Dostępność
+The README does not publish Lighthouse scores or other performance measurements.
 
-Projekt ma dobre podstawy dostępności, ale wymaga pełnego audytu przed uznaniem go za gotowy produkt. Obecnie istnieją:
+### Data and State Persistence
 
-- skip link do głównej treści,
-- style focus-visible,
-- obsługa `prefers-reduced-motion`,
-- modal z `role="dialog"` i `aria-modal="true"`,
-- obsługa ESC w modalu,
-- etykiety pól formularzy,
-- podstawowe komunikaty błędów walidacji.
+Seed data comes from `js/data/seed.js`. Client, project, event, and UI-preference state is normalized through migrations and domain validators and stored under `flowdesk_state_v1`. The demo session is validated separately and stored under `flowdesk_session_v1`.
 
-Do dopracowania pozostają m.in. pełny focus management po złożonych przepływach modal/drawer, szersza obsługa klawiatury w menu użytkownika i cykliczny audyt manualny na realnych urządzeniach.
+Export creates a local JSON file. Import requires the complete schema, validates records and duplicate identifiers, and writes only after confirmation. If `localStorage` is unavailable, the application continues without durable persistence and informs the user. There is no remote backup or synchronization.
 
-## Obecne ograniczenia
+### Project Maintenance
 
-- Brak statycznego typowania, więc kontrakty domenowe są utrzymywane przez modele, walidatory, JSDoc i testy.
-- Brak bundlera; `build:js` minifikuje tylko entrypoint i nie buduje kompletnej paczki aplikacji.
-- Dane użytkownika są escapowane po stronie frontendu, ale przed produkcją nadal potrzebna jest walidacja serwerowa i hosting-level security headers.
-- Auth jest tylko demonstracyjny i nie stanowi mechanizmu bezpieczeństwa.
-- `localStorage` działa przez adapter repozytoriów, ale nie jest bezpieczną persystencją dla danych produkcyjnych.
-- Przy niedostępnym `localStorage` aplikacja startuje, ale dane demo nie są trwale zapisywane.
-- RBAC jest obecnie testowanym kontraktem frontendowym i nie zastępuje backendowej autoryzacji.
-- Sync metadata jest hookiem gotowościowym; aplikacja nie ma jeszcze realnej kolejki offline ani rozwiązywania konfliktów.
-- Pełny Lighthouse CI jest skonfigurowany w `lighthouserc.cjs`, ale nie jest dodany jako stała zależność npm.
-- Observability jest lokalnym kontraktem readiness; nie ma jeszcze produkcyjnego providera monitoringu.
-- Część logiki formularzy i renderowania powtarza się w widokach.
+- Canonical styles live in `css/*.css`, with `css/style.css` as the entry point.
+- The canonical JavaScript bootstrap is `js/main.js`; modules remain in `js/components/`, `js/core/`, `js/domain/`, `js/repositories/`, `js/utils/`, and `js/views/`.
+- After runtime, CSS, font, icon, or manifest changes, run `npm run build` and `npm run pwa:check`.
+- Versioning and change history are documented in [`docs/versioning.md`](docs/versioning.md) and [`CHANGELOG.md`](CHANGELOG.md).
+- Architecture and decisions are documented in [`docs/architecture.md`](docs/architecture.md) and [`docs/adr/`](docs/adr/).
+- UI conventions are documented in [`docs/design-system.md`](docs/design-system.md).
+- Future backend boundaries are documented in [`docs/backend-readiness.md`](docs/backend-readiness.md) and [`docs/api-contracts.md`](docs/api-contracts.md).
+- PWA, performance, and observability strategies are documented in [`docs/pwa-strategy.md`](docs/pwa-strategy.md), [`docs/performance-budget.md`](docs/performance-budget.md), and [`docs/observability.md`](docs/observability.md).
+- Change and release criteria are documented in [`docs/definition-of-done.md`](docs/definition-of-done.md) and [`docs/release-checklist.md`](docs/release-checklist.md).
 
-## Kierunek rozwoju
+### Current Limitations
 
-Rekomendowany kierunek to utrzymywać obecny stabilny baseline, a przyszłe prace prowadzić małymi, review-friendly zadaniami. Stan ukończonych roadmap jest skonsolidowany w `DONE.md`, a aktualny backlog dalszych prac znajduje się w `TO-DO.md`.
-
-Najważniejsze pierwsze kroki:
-
-1. Utrzymać istniejące quality gates: lint, format, unit, integration, e2e, a11y i build.
-2. Utrzymać publiczne URL-e i deployment-specific metadata w zgodzie z canonical public origin.
-3. Utrzymać PWA manifest, update flow, offline smoke tests i performance budgets przy każdej zmianie runtime.
-4. Utrzymywać dokumentację architektury, ADR-y, changelog, release checklistę i observability przy zmianach.
-5. Dopiero po realnej potrzebie zdecydować o bundlerze, TypeScript albo frameworku.
-6. Przy przyszłym backendzie zaimplementować prawdziwe auth, serwerowy RBAC, walidację, storage, audyt i sync API zgodnie z `docs/api-contracts.md`.
-
-## Deployment
-
-Projekt jest przygotowany jako statyczna aplikacja, więc może być hostowany np. na Netlify, Cloudflare Pages, GitHub Pages lub dowolnym serwerze statycznym. Plik `_redirects` sugeruje kompatybilność z Netlify.
-
-Publiczny deployment działa pod `https://saas-pr01-flowdesk.netlify.app/`, a bezpośredni link do logowania demo to `https://saas-pr01-flowdesk.netlify.app/#/login`. Deployment i publikacja Netlify są utrzymywane poza tym repozytorium przez owner-managed workflow w `kp-code-portfolio`.
-
-Wartości produkcyjne w `index.html`, `sitemap.xml`, `robots.txt` i metadanych Open Graph powinny pozostać spójne z canonical public origin. Repozytorium nie powinno wskazywać placeholderów typu `example.com`, lokalnych adresów ani tymczasowych preview URL-i jako canonical.
-
-Release i rollback należy prowadzić według `docs/release-checklist.md`. Przy nazwanych milestone trzeba zaktualizować `CHANGELOG.md` i wersję zgodnie z `docs/versioning.md`.
-
-## Status projektu
-
-FlowDesk jest aktualnie jakościowym prototypem startowym. Ma czytelną strukturę, realne przepływy CRUD, PWA i sensowny fundament UI. Nie jest jeszcze produktem gotowym na dane użytkowników ani pracę zespołową. Największa wartość kolejnych etapów będzie wynikała z profesjonalizacji procesu, testów, bezpieczeństwa, architektury danych i stopniowej rozbudowy funkcji domenowych.
+- Login only validates the email format and minimum password length before creating a local demo session.
+- `localStorage` is not suitable for confidential data, tokens, or production client records.
+- Identity, RBAC, and sync metadata are frontend contracts without server-side authorization enforcement.
+- The project has no backend, database, live API, multi-tenant isolation, billing, or cloud synchronization.
+- Observability keeps a sanitized in-memory error buffer and sends no data to an external provider.
+- The build does not create a complete bundled production artifact.
