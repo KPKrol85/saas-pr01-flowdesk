@@ -19,5 +19,46 @@
       "type": "image/png",
       "purpose": "any"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Przegląd najważniejszych zadań i wskaźników.",
+      "url": "/#/dashboard",
+      "icons": [
+        {
+          "src": "/assets/icons/shortcuts/dashboard-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Klienci",
+      "short_name": "Klienci",
+      "description": "Lista klientów i ich szczegółów.",
+      "url": "/#/clients",
+      "icons": [
+        {
+          "src": "/assets/icons/shortcuts/clients-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Zlecenia",
+      "short_name": "Zlecenia",
+      "description": "Aktywne zlecenia i ich statusy.",
+      "url": "/#/projects",
+      "icons": [
+        {
+          "src": "/assets/icons/shortcuts/projects-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
   ]
 }
