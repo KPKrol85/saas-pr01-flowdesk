@@ -1,6 +1,7 @@
 {
   "name": "flowdesk",
   "version": "1.0.0",
+  "license": "SEE LICENSE IN LICENSE.md",
   "description": "FlowDesk — demo SPA dla zarządzania usługami",
   "type": "module",
   "scripts": {
