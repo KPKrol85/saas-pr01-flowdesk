@@ -920,10 +920,18 @@
 }
 
 .login__auth {
+  position: relative;
   display: grid;
   align-items: center;
   min-width: 0;
   padding: var(--space-48);
+}
+
+.login__theme-toggle {
+  position: absolute;
+  z-index: 1;
+  top: var(--space-24);
+  right: var(--space-48);
 }
 
 .login__card {
@@ -987,6 +995,11 @@
   .login__auth {
     padding: var(--space-32) var(--space-24);
   }
+
+  .login__theme-toggle {
+    top: var(--space-4);
+    right: var(--space-24);
+  }
 }
 
 @media (max-width: 43.74rem) {
@@ -1017,6 +1030,10 @@
 
   .login__auth {
     padding: var(--space-24) var(--space-16) var(--space-32);
+  }
+
+  .login__theme-toggle {
+    right: var(--space-16);
   }
 
   .login__card {

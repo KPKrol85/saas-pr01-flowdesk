@@ -1,7 +1,10 @@
 import { auth } from '../core/auth.js';
+import { selectUiPreferences } from '../core/selectors.js';
+import { store } from '../core/store.js';
 import { qs } from '../core/dom.js';
 import { validators } from '../utils/validators.js';
 import { button } from '../components/button.js';
+import { syncThemeToggle } from '../components/topbar.js';
 import { inputField, setFieldError } from '../components/formControls.js';
 import { showToast } from '../components/toast.js';
 
@@ -38,12 +41,13 @@ export const renderLoginView = (container) => {
       </section>
 
       <section class="login__auth" aria-labelledby="loginTitle">
+        <button class="btn btn--icon login__theme-toggle" id="themeToggle" type="button" aria-label="Włącz ciemny motyw"></button>
         <div class="login__card">
           <div class="login__mobile-brand">
             <img class="login__logo" src="/assets/logo/logo.svg" alt="" width="36" height="36">
             <span class="login__brand-name">FlowDesk</span>
           </div>
-          <p class="login__eyebrow">Przestrzeń demonstracyjna</p>
+          <p class="login__eyebrow">PANEL OPERACYJNY</p>
           <h2 class="login__title" id="loginTitle">Zaloguj się do FlowDesk</h2>
           <p class="login__desc">Użyj dowolnego poprawnego adresu email i hasła o długości co najmniej 6 znaków.</p>
           <p class="login__demo-note">To lokalna sesja demonstracyjna, a nie prawdziwe konto użytkownika.</p>
@@ -57,6 +61,15 @@ export const renderLoginView = (container) => {
     </main>
   `;
   const form = qs('#loginForm', container);
+  const themeToggle = qs('#themeToggle', container);
+
+  syncThemeToggle(themeToggle, selectUiPreferences(store.getState()).theme);
+  themeToggle?.addEventListener('click', () => {
+    const currentTheme = selectUiPreferences(store.getState()).theme;
+    const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
+    const result = store.actions.updateUiPreferences({ theme: nextTheme });
+    showToast(result.ok ? `Włączono motyw ${nextTheme === 'dark' ? 'ciemny' : 'jasny'}.` : 'Nie udało się zaktualizować motywu.');
+  });
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();

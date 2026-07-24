@@ -11,17 +11,43 @@ const protectedViews = [
   { name: 'settings', heading: 'Ustawienia', open: async (page) => page.getByRole('link', { name: /Ustawienia/ }).click() }
 ];
 
-test('login layout renders core landmarks', async ({ page }, testInfo) => {
-  await resetBrowserState(page);
+test('login theme toggle synchronizes persisted preference with dashboard', async ({ page }, testInfo) => {
+  const moonPath =
+    'M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z';
+  const sunPath =
+    'M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z';
 
+  await resetBrowserState(page);
   await expect(page.getByRole('heading', { name: 'Zaloguj się do FlowDesk' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Zaloguj' })).toBeVisible();
-  await testInfo.attach('visual-smoke-login', {
+  await expect(page.locator('body')).toHaveClass(/theme-light/);
+
+  const darkThemeToggle = page.getByRole('button', { name: 'Włącz ciemny motyw' });
+  await expect(darkThemeToggle.locator('svg')).toHaveAttribute('aria-hidden', 'true');
+  await expect(darkThemeToggle.locator('svg')).toHaveAttribute('focusable', 'false');
+  await expect(darkThemeToggle.locator('path')).toHaveAttribute('d', moonPath);
+  await darkThemeToggle.click();
+
+  await expect(page.locator('body')).toHaveClass(/theme-dark/);
+  await expect(page.getByRole('button', { name: 'Włącz jasny motyw' }).locator('path')).toHaveAttribute('d', sunPath);
+
+  await page.reload();
+  await expect(page.locator('body')).toHaveClass(/theme-dark/);
+  await expect(page.getByRole('button', { name: 'Włącz jasny motyw' })).toBeVisible();
+
+  await loginDemoUser(page);
+  await expect(page.locator('body')).toHaveClass(/theme-dark/);
+  await page.getByRole('button', { name: 'Włącz jasny motyw' }).click();
+  await expect(page.locator('body')).toHaveClass(/theme-light/);
+
+  await page.goto('/#/login');
+  await expect(page.getByRole('button', { name: 'Włącz ciemny motyw' })).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await testInfo.attach('visual-smoke-login-theme', {
     body: await page.screenshot(),
     contentType: 'image/png'
   });
 });
-
 for (const view of protectedViews) {
   test(`${view.name} layout renders core landmarks`, async ({ page }, testInfo) => {
     await resetBrowserState(page);
@@ -37,9 +63,13 @@ for (const view of protectedViews) {
     });
   });
 }
-test('public legal pages are reachable from login', async ({ page }) => {
+test('public legal pages share theme preference with dashboard', async ({ page }) => {
   await resetBrowserState(page);
 
+  const moonPath =
+    'M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z';
+  const sunPath =
+    'M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z';
   const legalPages = [
     { href: '/polityka-prywatnosci.html', link: 'Polityka prywatności', heading: 'Polityka prywatności' },
     { href: '/regulamin.html', link: 'Regulamin', heading: 'Regulamin Serwisu' },
@@ -48,10 +78,36 @@ test('public legal pages are reachable from login', async ({ page }) => {
 
   for (const legalPage of legalPages) {
     await expect(page.getByRole('link', { name: legalPage.link, exact: true })).toHaveAttribute('href', legalPage.href);
-    const response = await page.goto(legalPage.href);
-    expect(response?.ok()).toBeTruthy();
-    await expect(page.getByRole('heading', { name: legalPage.heading, exact: true })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Otwórz demo', exact: true })).toHaveAttribute('href', '/#/login');
-    await page.goto('/#/login');
   }
+
+  await page.goto(legalPages[0].href);
+  await expect(page.getByRole('heading', { name: legalPages[0].heading, exact: true })).toBeVisible();
+  await expect(page.locator('body')).toHaveClass(/theme-light/);
+
+  const darkThemeToggle = page.getByRole('button', { name: 'Włącz ciemny motyw' });
+  await expect(darkThemeToggle.locator('svg')).toHaveAttribute('aria-hidden', 'true');
+  await expect(darkThemeToggle.locator('svg')).toHaveAttribute('focusable', 'false');
+  await expect(darkThemeToggle.locator('path')).toHaveAttribute('d', moonPath);
+  await darkThemeToggle.click();
+
+  await expect(page.locator('body')).toHaveClass(/theme-dark/);
+  await expect(page.getByRole('button', { name: 'Włącz jasny motyw' }).locator('path')).toHaveAttribute('d', sunPath);
+  await expect.poll(() => page.evaluate(() => JSON.parse(window.localStorage.getItem('flowdesk_state_v1')).ui.theme)).toBe('dark');
+
+  for (const legalPage of legalPages.slice(1)) {
+    await page.goto(legalPage.href);
+    await expect(page.getByRole('heading', { name: legalPage.heading, exact: true })).toBeVisible();
+    await expect(page.locator('body')).toHaveClass(/theme-dark/);
+    await expect(page.getByRole('button', { name: 'Włącz jasny motyw' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Otwórz demo', exact: true })).toHaveAttribute('href', '/#/login');
+  }
+
+  await page.goto('/#/login');
+  await loginDemoUser(page);
+  await expect(page.locator('body')).toHaveClass(/theme-dark/);
+  await page.getByRole('button', { name: 'Włącz jasny motyw' }).click();
+
+  await page.goto('/cookies.html');
+  await expect(page.locator('body')).toHaveClass(/theme-light/);
+  await expect(page.getByRole('button', { name: 'Włącz ciemny motyw' })).toBeVisible();
 });

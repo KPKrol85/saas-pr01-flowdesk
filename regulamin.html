@@ -10,10 +10,11 @@
     <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon/favicon-96x96.png" />
     <link rel="shortcut icon" href="/assets/icons/favicon/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/favicon/apple-touch-icon.png" />
+    <script src="/js/legal-theme.js"></script>
     <link rel="stylesheet" href="/css/legal-pages.css" />
     <title>Regulamin | FlowDesk</title>
   </head>
-  <body class="theme-light legal-page">
+  <body class="legal-page">
     <a class="skip-link" href="#main">Przejdź do treści</a>
     <header class="legal-header">
       <div class="legal-header__inner">
@@ -21,7 +22,28 @@
           <img class="legal-brand__logo" src="/assets/logo/logo.svg" alt="" width="32" height="32" />
           <span>FlowDesk</span>
         </a>
-        <a class="legal-header__login" href="/#/login">Otwórz demo</a>
+        <div class="legal-header__actions">
+          <button class="legal-theme-toggle" id="legalThemeToggle" type="button" aria-label="Włącz ciemny motyw">
+            <svg
+              class="legal-theme-toggle__icon"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"
+              />
+            </svg>
+          </button>
+
+        </div>
       </div>
     </header>
     <main class="legal-main" id="main">
