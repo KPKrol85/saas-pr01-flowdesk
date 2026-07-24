@@ -123,7 +123,7 @@ textarea:disabled,
   background: var(--primary);
   color: #fff;
   padding: var(--space-8) var(--space-16);
-  border-radius: 0 0 var(--radius-12) 0;
+  border-radius: 0 0 var(--radius-md) 0;
   transform: translateY(-120%);
   transition: transform 0.2s ease;
   z-index: 999;

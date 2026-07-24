@@ -24,9 +24,9 @@ Spacing uses the `--space-*` scale from `2` to `64`. Components should use exist
 
 ### Radius
 
-- `--radius-8`: compact elements
-- `--radius-12`: buttons, inputs, list items
-- `--radius-16`: cards and modal surfaces
+- `--radius-sm`: compact elements
+- `--radius-md`: buttons, inputs, list items
+- `--radius-lg`: cards and modal surfaces
 - `--radius-pill`: badges
 
 ### Shadows
