@@ -106,6 +106,8 @@ npm ci
 npm run dev
 ```
 
+Na Windows można uruchomić `start-dev.bat`; launcher przechodzi do rootu repozytorium i wywołuje `npm run dev` po weryfikacji lokalnej instalacji zależności.
+
 Po uruchomieniu należy użyć adresu wypisanego przez `serve`. Projekt wymaga lokalnego serwera HTTP; uruchamianie `index.html` przez `file://` nie obsługuje poprawnie modułów, ścieżek absolutnych i service workera.
 
 ### Dostępne skrypty
@@ -315,6 +317,8 @@ The repository uses npm and includes `package-lock.json`. It does not declare a 
 npm ci
 npm run dev
 ```
+
+On Windows, run `start-dev.bat`; the launcher moves to the repository root and calls `npm run dev` after verifying the local dependency installation.
 
 Use the address printed by `serve` after startup. The project requires a local HTTP server; opening `index.html` through `file://` does not correctly support modules, absolute paths, and the service worker.
 
