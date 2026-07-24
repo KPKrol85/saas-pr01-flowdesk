@@ -92,6 +92,11 @@
   flex: 0 0 auto;
 }
 
+.topbar__theme-icon {
+  width: 20px;
+  height: 20px;
+}
+
 .input {
   display: flex;
   flex-direction: column;

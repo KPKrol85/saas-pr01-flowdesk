@@ -2,7 +2,29 @@ import { auth } from '../core/auth.js';
 import { escapeHTML } from '../utils/sanitize.js';
 import { icon } from './icon.js';
 
-export const renderTopbar = () => {
+const themeToggleStates = Object.freeze({
+  light: { iconName: 'moon', label: 'Włącz ciemny motyw' },
+  dark: { iconName: 'sun', label: 'Włącz jasny motyw' }
+});
+
+const getThemeToggleState = (theme) => themeToggleStates[theme] || themeToggleStates.light;
+
+const renderThemeToggleIcon = (iconName) => icon(iconName, { className: 'topbar__theme-icon', size: 20, strokeWidth: 1.5 });
+
+export const syncThemeToggle = (button, theme) => {
+  if (!button) return;
+
+  const { iconName, label } = getThemeToggleState(theme);
+  button.setAttribute('aria-label', label);
+  button.innerHTML = renderThemeToggleIcon(iconName);
+};
+
+const renderThemeToggle = (theme) => {
+  const { iconName, label } = getThemeToggleState(theme);
+  return `<button class="btn btn--icon" id="themeToggle" aria-label="${label}">${renderThemeToggleIcon(iconName)}</button>`;
+};
+
+export const renderTopbar = (theme = 'light') => {
   const session = auth.getSession();
   return `
     <header class="topbar">
@@ -18,7 +40,7 @@ export const renderTopbar = () => {
         </div>
         <div class="topbar__actions">
           <button class="btn btn--secondary" id="quickAdd">${icon('plus')}<span>Nowy</span></button>
-          <button class="btn btn--icon" id="themeToggle" aria-label="Zmień motyw">${icon('theme')}</button>
+          ${renderThemeToggle(theme)}
           <div class="user-menu">
             <button class="btn btn--icon" id="userMenuBtn" aria-label="Otwórz menu użytkownika" aria-haspopup="true" aria-expanded="false">
               <span class="avatar" aria-hidden="true">${icon('user', { size: 18 })}</span>

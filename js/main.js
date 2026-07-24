@@ -1,6 +1,6 @@
 import { router } from './core/router.js';
 import { renderSidebar, renderNavList } from './components/sidebar.js';
-import { renderTopbar } from './components/topbar.js';
+import { renderTopbar, syncThemeToggle } from './components/topbar.js';
 import { bindDrawerToggle, createDrawer } from './components/drawer.js';
 import { auth } from './core/auth.js';
 import { selectGlobalSearchResults, selectUiPreferences } from './core/selectors.js';
@@ -23,6 +23,7 @@ const applyTheme = () => {
   document.body.classList.remove('theme-light', 'theme-dark');
   document.body.classList.add(`theme-${ui.theme}`);
   document.documentElement.classList.toggle('motion-reduced', ui.reducedMotion);
+  syncThemeToggle(qs('#themeToggle', app), ui.theme);
 };
 
 let userMenuHandler = null;
@@ -167,7 +168,7 @@ const renderShell = (activePath, view, params = {}) => {
     <div class="app__shell">
       ${renderSidebar(activePath)}
       <div class="app__content">
-        ${renderTopbar()}
+        ${renderTopbar(selectUiPreferences(store.getState()).theme)}
         <section id="view"></section>
       </div>
     </div>
