@@ -60,7 +60,7 @@
   padding: var(--space-8);
   border-radius: var(--radius-12);
   background: var(--bg-elev);
-  border: 1px solid var(--border);
+  border: none;
 }
 
 .topbar__drawer-toggle,
