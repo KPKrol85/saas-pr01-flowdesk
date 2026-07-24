@@ -55,3 +55,6 @@ temp/
 # Build tool scratch directories
 .vite/
 .parcel-cache/
+
+# Local Netlify folder
+.netlify
