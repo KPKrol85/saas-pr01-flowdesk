@@ -4,7 +4,7 @@
   "description": "FlowDesk — demo SPA dla zarządzania usługami",
   "type": "module",
   "scripts": {
-    "dev": "npx serve .",
+    "dev": "npx serve . --listen 8181",
     "pwa:manifest": "node scripts/generate-service-worker-manifest.js",
     "pwa:check": "node scripts/generate-service-worker-manifest.js --check",
     "perf:budget": "node scripts/check-performance-budget.js",
